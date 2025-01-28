@@ -1,0 +1,20 @@
+import { NextRequest, NextResponse } from 'next/server';
+
+export function middleware(request: NextRequest) {
+  const refreshToken = request.cookies.get('refreshToken');
+  const accessToken = request.cookies.get('accessToken');
+
+  if (request.nextUrl.pathname === '/login' && refreshToken) {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+
+  if (!accessToken && request.nextUrl.pathname !== '/login') {
+    return NextResponse.redirect(new URL('/login', request.url));
+  }
+
+  return NextResponse.next();
+}
+
+export const config = {
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+};
