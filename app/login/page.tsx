@@ -9,7 +9,7 @@ import { useLoginMutation } from '../../lib/features/api';
 import { setCredentials } from '../../lib/features/authSlice';
 
 const schema = z.object({
-  email: z.string().email({ message: 'Invalid email' }),
+  username: z.string().min(3, { message: 'Username must be at least 3 characters long' }),
   password: z.string().min(6, { message: 'Password should have at least 6 characters' }),
 });
 
@@ -20,7 +20,7 @@ const Login = () => {
   const form = useForm({
     validate: zodResolver(schema),
     initialValues: {
-      email: '',
+      username: '',
       password: '',
     },
   });
@@ -38,9 +38,9 @@ const Login = () => {
     <Box mx="auto">
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <TextInput
-          label="Email"
-          placeholder="you@example.com"
-          {...form.getInputProps('email')}
+          label="Username"
+          placeholder="yourusername"
+          {...form.getInputProps('username')}
           required
         />
         <PasswordInput
