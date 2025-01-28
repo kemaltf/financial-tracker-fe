@@ -15,6 +15,7 @@ import {
 } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { useForm, zodResolver } from '@mantine/form';
+import { useMediaQuery } from '@mantine/hooks';
 import {
   useGetCustomersQuery,
   useGetStoreQuery,
@@ -24,15 +25,45 @@ import {
 import { isNullOrUndefined, isZero } from '@/utils/helpers';
 
 const transactionSchema = z.object({
-  transactionTypeId: z.number().min(1, { message: 'Transaction Type ID is required' }),
+  transactionTypeId: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    message: 'Transaction Type is required',
+  }),
   amount: z.number().min(0.01, { message: 'Amount must be greater than 0' }),
   note: z.string(),
-  debitAccountId: z.number().min(1, { message: 'Debit Account ID is required' }).nullable(),
-  creditAccountId: z.number().min(1, { message: 'Credit Account ID is required' }).nullable(),
-  customerId: z.number().optional().nullable(),
-  debtorId: z.number().optional().nullable(),
-  creditorId: z.number().optional().nullable(),
-  storeId: z.number().optional().nullable(),
+  debitAccountId: z
+    .string()
+    .refine((val) => val === null || (!isNaN(Number(val)) && Number(val) > 0), {
+      message: 'Debit Account is required',
+    }),
+  creditAccountId: z
+    .string()
+    .refine((val) => val === null || (!isNaN(Number(val)) && Number(val) > 0), {
+      message: 'Credit Account is required',
+    }),
+  customerId: z
+    .string()
+    .nullable()
+    .optional()
+    .refine((val) => val === null || !isNaN(Number(val)), {
+      message: 'Customer ID must be a number',
+    }),
+  debtorId: z
+    .string()
+    .nullable()
+    .optional()
+    .refine((val) => val === null || !isNaN(Number(val)), {
+      message: 'Debtor ID must be a number',
+    }),
+  creditorId: z
+    .string()
+    .nullable()
+    .optional()
+    .refine((val) => val === null || !isNaN(Number(val)), {
+      message: 'Creditor ID must be a number',
+    }),
+  storeId: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+    message: 'Store is required',
+  }),
   dueDate: z.date().optional().nullable(),
 });
 
@@ -43,19 +74,21 @@ interface AddTransactionFormProps {
 }
 
 const initialValues = {
-  transactionTypeId: 0,
+  transactionTypeId: null as any,
   amount: 0,
   note: '',
-  debitAccountId: null,
-  creditAccountId: null,
+  debitAccountId: '0',
+  creditAccountId: '0',
   customerId: null,
   debtorId: null,
   creditorId: null,
-  storeId: null,
+  storeId: '0',
   dueDate: null,
 };
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
+  const isMobile = useMediaQuery('(max-width: 768px)');
+
   const { data: transactionTypes, isLoading: isLoadingTransactionTypes } =
     useGetTransactionTypesQuery();
   const { data: customers, isLoading: isLoadingCustomers } = useGetCustomersQuery({
@@ -91,7 +124,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
 
   useEffect(() => {
     if (transactionTypeIsExist) {
-      fetchAvailableAccounts(form.values.transactionTypeId);
+      fetchAvailableAccounts(Number(form.values.transactionTypeId));
     } else {
       form.reset();
       resetAvailableAccounts();
@@ -108,7 +141,11 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   );
 
   return (
-    <Container>
+    <Container
+      {...(isMobile && {
+        mb: '70px',
+      })}
+    >
       <form onSubmit={form.onSubmit(handleSubmit)}>
         <Grid>
           <Grid.Col span={12}>
@@ -187,7 +224,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
               </div>
             </div>
           </Grid.Col>
-          <Grid.Col span={12}>
+          <Grid.Col span={8}>
             <Select
               label="Store"
               placeholder="Select store"
@@ -198,65 +235,103 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
               allowDeselect
             />
           </Grid.Col>
-          <Grid.Col span={12}>
-            <Tooltip label="Add a new customer, debtor, or creditor" withArrow>
+          <Grid.Col span={4} style={{ display: 'flex', alignItems: 'flex-end' }}>
+            <Tooltip label="Add a new store" withArrow>
               <Button
                 variant="outline"
                 mt="sm"
                 w="100%"
-                onClick={() => window.open('/register-financial-party', '_blank')}
+                onClick={() => window.open('/register-store', '_blank')}
               >
-                Add New Financial Party
+                Add New Store
               </Button>
             </Tooltip>
           </Grid.Col>
-          <Grid.Col span={12}>
-            <Select
-              label="Customer"
-              placeholder="Select customer"
-              data={customers?.data || []}
-              {...form.getInputProps('customerId')}
-              disabled={isLoadingCustomers}
-              searchable
-              allowDeselect
-            />
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 6 }}>
-            <Select
-              label="Debtors"
-              placeholder="Select debtor"
-              data={debtors?.data || []}
-              {...form.getInputProps('debtorId')}
-              disabled={isLoadingDebtors}
-              searchable
-              allowDeselect
-            />
-          </Grid.Col>
-          <Grid.Col span={{ base: 12, md: 6 }}>
-            <Select
-              label="Creditor"
-              placeholder="Select creditor"
-              data={creditors?.data || []}
-              {...form.getInputProps('creditorId')}
-              disabled={isLoadingCreditors}
-              searchable
-              allowDeselect
-            />
-          </Grid.Col>
+          {['1', '3', '4', '8'].includes(form.values.transactionTypeId) && (
+            <Grid.Col span={12}>
+              <Tooltip label="Add a new customer, debtor, or creditor" withArrow>
+                <Button
+                  variant="outline"
+                  mt="sm"
+                  w="100%"
+                  onClick={() => window.open('/register-financial-party', '_blank')}
+                >
+                  Add New Financial Party
+                </Button>
+              </Tooltip>
+            </Grid.Col>
+          )}
+          {['1', '8'].includes(form.values.transactionTypeId) && (
+            <Grid.Col span={12}>
+              <Select
+                label="Customer"
+                placeholder="Select customer"
+                data={customers?.data || []}
+                {...form.getInputProps('customerId')}
+                disabled={isLoadingCustomers}
+                searchable
+                allowDeselect
+              />
+            </Grid.Col>
+          )}
 
-          <Grid.Col span={6}>
-            <DateTimePicker
-              label="Due date"
-              placeholder="Due date"
-              {...form.getInputProps('dueDate')}
-            />
-          </Grid.Col>
+          {['3', '4'].includes(form.values.transactionTypeId) && (
+            <>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Select
+                  label="Debtors"
+                  placeholder="Select debtor"
+                  data={debtors?.data || []}
+                  {...form.getInputProps('debtorId')}
+                  disabled={isLoadingDebtors}
+                  searchable
+                  allowDeselect
+                />
+              </Grid.Col>
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <Select
+                  label="Creditor"
+                  placeholder="Select creditor"
+                  data={creditors?.data || []}
+                  {...form.getInputProps('creditorId')}
+                  disabled={isLoadingCreditors}
+                  searchable
+                  allowDeselect
+                />
+              </Grid.Col>
+
+              <Grid.Col span={{ base: 12, md: 6 }}>
+                <DateTimePicker
+                  label="Due date"
+                  placeholder="Due date"
+                  {...form.getInputProps('dueDate')}
+                />
+              </Grid.Col>
+            </>
+          )}
         </Grid>
-        <Group justify="end" mt="md">
-          <Button variant="outline" onClick={onClose}>
-            Cancel
+        <Group
+          justify="space-between"
+          mt="md"
+          w="100%"
+          {...(isMobile && {
+            pos: 'fixed',
+            bottom: 0,
+            bg: 'white',
+            left: 0,
+            p: 'md',
+          })}
+        >
+          <Button variant="outline" onClick={() => form.reset()}>
+            Reset
           </Button>
-          <Button type="submit">Submit</Button>
+
+          <Group>
+            <Button variant="filled" onClick={onClose}>
+              Cancel
+            </Button>
+            <Button type="submit">Submit</Button>
+          </Group>
         </Group>
       </form>
     </Container>
