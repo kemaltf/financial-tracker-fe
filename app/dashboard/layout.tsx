@@ -1,11 +1,13 @@
 'use client';
 
-import React from 'react';
-import { AppShell, Burger, Group, Skeleton, Text } from '@mantine/core';
+import React, { useState } from 'react';
+import { AppShell, Burger, Button, Group, Modal, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import AddTransactionForm from '@/components/AddTransactionForm';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [opened, { toggle }] = useDisclosure();
+  const [modalOpened, setModalOpened] = useState(false);
 
   return (
     <AppShell
@@ -14,11 +16,14 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
       padding="md"
     >
       <AppShell.Header>
-        <Group h="100%" px="md">
-          <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-          <Text size="lg" tw="font-bold">
-            Financial Tracker
-          </Text>
+        <Group h="100%" px="md" justify="space-between" align="center">
+          <Group>
+            <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
+            <Text size="lg" fw={500}>
+              Financial Tracker
+            </Text>
+          </Group>
+          <Button onClick={() => setModalOpened(true)}>+ Add Transaction</Button>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
@@ -27,13 +32,11 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <Text>Financial Summary</Text>
         <Text>Account Balances</Text>
         <Text>Budget Overview</Text>
-        {Array(5)
-          .fill(0)
-          .map((_, index) => (
-            <Skeleton key={index} h={28} mt="sm" animate={false} />
-          ))}
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
+      <Modal opened={modalOpened} onClose={() => setModalOpened(false)} title="Add New Transaction">
+        <AddTransactionForm onClose={() => setModalOpened(false)} />
+      </Modal>
     </AppShell>
   );
 };
