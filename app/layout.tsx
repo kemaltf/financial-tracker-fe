@@ -6,6 +6,7 @@ import { theme } from '../theme';
 import StoreProvider from './StoreProvider';
 
 import '@mantine/charts/styles.css';
+import '@mantine/dates/styles.css';
 
 export const metadata = {
   title: 'Mantine Next.js template',

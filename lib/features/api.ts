@@ -1,4 +1,4 @@
-import { createApi, fetchBaseQuery, FetchBaseQueryError } from '@reduxjs/toolkit/query/react';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Mutex } from 'async-mutex';
 import { logout } from './authSlice'; // Adjust the import path as necessary
 
@@ -12,6 +12,24 @@ interface ApiResponse<T = undefined> {
 interface TransactionType {
   value: string;
   label: string;
+}
+
+interface TransactionTypeWithDescription extends TransactionType {
+  description: string;
+}
+interface Customer {
+  value: string;
+  label: string;
+}
+
+interface AccountOption {
+  value: string;
+  label: string;
+}
+
+interface AvailableAccounts {
+  debitAccounts: AccountOption[];
+  creditAccounts: AccountOption[];
 }
 
 const baseQuery = fetchBaseQuery({
@@ -76,9 +94,27 @@ export const api = createApi({
         credentials: 'include',
       }),
     }),
-    getTransactionTypes: builder.query<ApiResponse<TransactionType[]>, void>({
+    getTransactionTypes: builder.query<ApiResponse<TransactionTypeWithDescription[]>, void>({
       query: () => ({
         url: 'transaction-types',
+        method: 'GET',
+      }),
+      transformResponse: (
+        response: ApiResponse<TransactionTypeWithDescription[]>
+      ): ApiResponse<{ value: string; label: string; description: string }[]> => {
+        return {
+          ...response,
+          data: response.data.map((item) => ({
+            value: item.value.toString(),
+            label: item.label,
+            description: item.description,
+          })),
+        };
+      },
+    }),
+    getStore: builder.query<ApiResponse<TransactionType[]>, void>({
+      query: () => ({
+        url: 'stores',
         method: 'GET',
       }),
       transformResponse: (
@@ -93,6 +129,47 @@ export const api = createApi({
         };
       },
     }),
+    getCustomers: builder.query<ApiResponse<Customer[]>, { role: string }>({
+      query: ({ role }) => ({
+        url: `financial-party?role=${role}`,
+        method: 'GET',
+      }),
+      transformResponse: (
+        response: ApiResponse<Customer[]>
+      ): ApiResponse<{ value: string; label: string }[]> => {
+        return {
+          ...response,
+          data: response.data.map((item) => ({
+            value: item.value.toString(),
+            label: item.label,
+          })),
+        };
+      },
+    }),
+    getAvailableAccounts: builder.query<ApiResponse<AvailableAccounts>, number>({
+      query: (id) => ({
+        url: `accounts/options/${id}`,
+        method: 'GET',
+      }),
+      transformResponse: (
+        response: ApiResponse<AvailableAccounts>
+      ): ApiResponse<AvailableAccounts> => {
+        return {
+          ...response,
+          data: {
+            debitAccounts: response.data.debitAccounts.map((item) => ({
+              value: item.value.toString(),
+              label: item.label,
+            })),
+            creditAccounts: response.data.creditAccounts.map((item) => ({
+              value: item.value.toString(),
+              label: item.label,
+            })),
+          },
+        };
+      },
+    }),
+
     // other endpoints...
   }),
 });
@@ -102,4 +179,7 @@ export const {
   useRefreshMutation,
   useLogoutMutation,
   useGetTransactionTypesQuery,
+  useGetCustomersQuery,
+  useLazyGetAvailableAccountsQuery,
+  useGetStoreQuery,
 } = api;

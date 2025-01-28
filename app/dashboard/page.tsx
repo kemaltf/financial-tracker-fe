@@ -60,7 +60,6 @@ const DashboardPage = () => {
             ]}
           />
         </Grid.Col>
-        <Grid.Col span={12}></Grid.Col>
       </Grid>
       <BarChart
         h={300}
