@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { useDispatch } from 'react-redux';
 import { z } from 'zod';
 import { Box, Button, PasswordInput, TextInput } from '@mantine/core';
@@ -16,6 +17,7 @@ const schema = z.object({
 const Login = () => {
   const dispatch = useDispatch();
   const [login, { isLoading }] = useLoginMutation();
+  const router = useRouter();
 
   const form = useForm({
     validate: zodResolver(schema),
@@ -28,7 +30,13 @@ const Login = () => {
   const handleSubmit = async (values: typeof form.values) => {
     try {
       const user = await login(values).unwrap();
-      dispatch(setCredentials(user));
+      console.log(user);
+      if (user.code !== 200) {
+        console.error('Failed to login:', user.message);
+        return;
+      }
+      console.log('Logged in redirecting to home page');
+      router.push('/'); // Redirect to home page
     } catch (err) {
       console.error('Failed to login:', err);
     }
