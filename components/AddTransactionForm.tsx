@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { z } from 'zod';
-import { Button, Grid, Group, NumberInput, Select, TextInput } from '@mantine/core';
+import { Button, Grid, Group, NumberInput, Select, Textarea, TextInput } from '@mantine/core';
 import { useForm, zodResolver } from '@mantine/form';
 import { useGetTransactionTypesQuery } from '@/lib/features/api';
 
@@ -50,7 +50,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
       <Grid>
-        <Grid.Col span={6}>
+        <Grid.Col span={12}>
           <Select
             label="Transaction Type"
             placeholder="Select transaction type"
@@ -60,11 +60,38 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
             disabled={isLoading}
           />
         </Grid.Col>
-        <Grid.Col span={6}>
+        <Grid.Col span={12}>
           <NumberInput label="Amount" {...form.getInputProps('amount')} required />
         </Grid.Col>
-        <Grid.Col span={6}>
-          <TextInput label="Note" {...form.getInputProps('note')} />
+        <Grid.Col span={12}>
+          <div style={{ position: 'relative', width: '100%' }}>
+            <Textarea
+              label="Note"
+              placeholder="Note"
+              {...form.getInputProps('note')}
+              onChange={(event) => form.setFieldValue('note', event.currentTarget.value)}
+              autosize
+              minRows={4}
+              maxRows={10}
+              styles={{
+                input: {
+                  paddingBottom: '30px', // Tambahkan ruang di bawah untuk counter
+                  position: 'relative',
+                },
+              }}
+            />
+            <div
+              style={{
+                position: 'absolute',
+                bottom: '8px', // Jarak dari bawah
+                right: '12px', // Jarak dari kanan
+                fontSize: '12px', // Ukuran font kecil
+                color: form.values.note.length >= 500 ? 'red' : 'gray', // Warna dinamis
+              }}
+            >
+              {form.values.note.length} / {500}
+            </div>
+          </div>
         </Grid.Col>
         <Grid.Col span={6}>
           <NumberInput
