@@ -11,6 +11,6 @@ export default withBundleAnalyzer({
   },
   experimental: {
     optimizePackageImports: ['@mantine/core', '@mantine/hooks'],
-    turbo: {},
+    // turbo: {},
   },
 });
