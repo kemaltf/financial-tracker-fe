@@ -7,6 +7,11 @@ interface ApiResponse<T = undefined> {
   data: T;
 }
 
+interface TransactionType {
+  value: string;
+  label: string;
+}
+
 export const api = createApi({
   reducerPath: 'api',
   baseQuery: fetchBaseQuery({ baseUrl: 'http://localhost:5000/v1/', credentials: 'include' }),
@@ -32,8 +37,19 @@ export const api = createApi({
         credentials: 'include',
       }),
     }),
+    getTransactionTypes: builder.query<ApiResponse<TransactionType[]>, void>({
+      query: () => ({
+        url: 'transaction-types',
+        method: 'GET',
+      }),
+    }),
     // other endpoints...
   }),
 });
 
-export const { useLoginMutation, useRefreshMutation, useLogoutMutation } = api;
+export const {
+  useLoginMutation,
+  useRefreshMutation,
+  useLogoutMutation,
+  useGetTransactionTypesQuery,
+} = api;

@@ -2,8 +2,9 @@
 
 import React from 'react';
 import { z } from 'zod';
-import { Button, Group, NumberInput, TextInput } from '@mantine/core';
+import { Button, Grid, Group, NumberInput, Select, TextInput } from '@mantine/core';
 import { useForm, zodResolver } from '@mantine/form';
+import { useGetTransactionTypesQuery } from '@/lib/features/api';
 
 const transactionSchema = z.object({
   transactionTypeId: z.number().min(1, { message: 'Transaction Type ID is required' }),
@@ -23,6 +24,8 @@ interface AddTransactionFormProps {
 }
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
+  const { data, error, isLoading } = useGetTransactionTypesQuery();
+
   const form = useForm({
     validate: zodResolver(transactionSchema),
     initialValues: {
@@ -46,20 +49,53 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
 
   return (
     <form onSubmit={form.onSubmit(handleSubmit)}>
-      <NumberInput
-        label="Transaction Type ID"
-        {...form.getInputProps('transactionTypeId')}
-        required
-      />
-      <NumberInput label="Amount" {...form.getInputProps('amount')} required />
-      <TextInput label="Note" {...form.getInputProps('note')} />
-      <NumberInput label="Debit Account ID" {...form.getInputProps('debitAccountId')} required />
-      <NumberInput label="Credit Account ID" {...form.getInputProps('creditAccountId')} required />
-      <NumberInput label="Customer ID" {...form.getInputProps('customerId')} />
-      <NumberInput label="Debtor ID" {...form.getInputProps('debtorId')} />
-      <NumberInput label="Creditor ID" {...form.getInputProps('creditorId')} />
-      <NumberInput label="Store ID" {...form.getInputProps('storeId')} />
-      <TextInput label="Due Date" {...form.getInputProps('dueDate')} />
+      <Grid>
+        <Grid.Col span={6}>
+          <Select
+            label="Transaction Type"
+            placeholder="Select transaction type"
+            data={data?.data || []}
+            {...form.getInputProps('transactionTypeId')}
+            required
+            disabled={isLoading}
+          />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <NumberInput label="Amount" {...form.getInputProps('amount')} required />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <TextInput label="Note" {...form.getInputProps('note')} />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <NumberInput
+            label="Debit Account ID"
+            {...form.getInputProps('debitAccountId')}
+            required
+          />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <NumberInput
+            label="Credit Account ID"
+            {...form.getInputProps('creditAccountId')}
+            required
+          />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <NumberInput label="Customer ID" {...form.getInputProps('customerId')} />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <NumberInput label="Debtor ID" {...form.getInputProps('debtorId')} />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <NumberInput label="Creditor ID" {...form.getInputProps('creditorId')} />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <NumberInput label="Store ID" {...form.getInputProps('storeId')} />
+        </Grid.Col>
+        <Grid.Col span={6}>
+          <TextInput label="Due Date" {...form.getInputProps('dueDate')} />
+        </Grid.Col>
+      </Grid>
       <Group justify="end" mt="md">
         <Button type="submit">Submit</Button>
       </Group>
