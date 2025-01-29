@@ -32,6 +32,7 @@ interface InfiniteScrollSelectProps {
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   value?: string;
   children?: React.ReactNode; // Untuk custom dropdown
+  searchable?: boolean; // Menambahkan props searchable
 }
 
 const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
@@ -50,6 +51,7 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
   onFocus,
   value,
   children,
+  searchable = false, // Default tidak searchable
 }) => {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { ref, entry } = useIntersection({ root: loadMoreRef.current, threshold: 1 });
@@ -64,6 +66,12 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
   });
 
   const [selectedLabel, setSelectedLabel] = useState('');
+  const [searchQuery, setSearchQuery] = useState(''); // State untuk pencarian
+
+  // Filter data berdasarkan query pencarian
+  const filteredData = searchable
+    ? data.filter((item) => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    : data;
 
   useEffect(() => {
     const selectedItem = data.find((item) => item.value === value);
@@ -87,6 +95,9 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
           checked={checked}
           onChange={(event) => {
             setSelectedLabel(event.currentTarget.value);
+            if (searchable) {
+              setSearchQuery(event.currentTarget.value); // Update search query saat mengetik
+            }
           }}
           onClick={() => combobox.openDropdown()}
           onFocus={(event) => {
@@ -106,8 +117,8 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
           children
         ) : (
           <ScrollArea.Autosize mah={mah}>
-            {data.length > 0 ? (
-              data.map((item) => (
+            {filteredData.length > 0 ? (
+              filteredData.map((item) => (
                 <Combobox.Option
                   key={item.value}
                   onClick={() => {
