@@ -50,7 +50,6 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
   onBlur,
   onFocus,
   value,
-  children,
   searchable = false, // Default tidak searchable
 }) => {
   const loadMoreRef = useRef<HTMLDivElement>(null);
@@ -113,33 +112,29 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
       </Combobox.Target>
 
       <Combobox.Dropdown>
-        {children ? (
-          children
-        ) : (
-          <ScrollArea.Autosize mah={mah}>
-            {filteredData.length > 0 ? (
-              filteredData.map((item) => (
-                <Combobox.Option
-                  key={item.value}
-                  onClick={() => {
-                    setSelectedLabel(item.label);
-                    onChange?.(item.value);
-                    combobox.closeDropdown(); // Menutup dropdown setelah memilih opsi
-                  }}
-                  {...optionProps}
-                  value={item.value}
-                >
-                  {item.label}
-                </Combobox.Option>
-              ))
-            ) : (
-              <div style={{ padding: '10px', textAlign: 'center' }}>Tidak ada data</div>
-            )}
-            <div ref={ref} style={{ padding: '10px', textAlign: 'center' }}>
-              {loading && <Loader size="sm" />}
-            </div>
-          </ScrollArea.Autosize>
-        )}
+        <ScrollArea.Autosize mah={mah}>
+          {filteredData.length > 0 ? (
+            filteredData.map((item) => (
+              <Combobox.Option
+                key={item.value}
+                onClick={() => {
+                  setSelectedLabel(item.label);
+                  onChange?.(item.value);
+                  combobox.closeDropdown(); // Menutup dropdown setelah memilih opsi
+                }}
+                {...optionProps}
+                value={item.value}
+              >
+                {item.label}
+              </Combobox.Option>
+            ))
+          ) : (
+            <div style={{ padding: '10px', textAlign: 'center' }}>Tidak ada data</div>
+          )}
+          <div ref={ref} style={{ padding: '10px', textAlign: 'center' }}>
+            {loading && <Loader size="sm" />}
+          </div>
+        </ScrollArea.Autosize>
       </Combobox.Dropdown>
     </Combobox>
   );
