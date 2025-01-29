@@ -31,6 +31,7 @@ interface InfiniteScrollSelectProps {
   onBlur?: () => void;
   onFocus?: (event: React.FocusEvent<HTMLInputElement>) => void;
   value?: string;
+  children?: React.ReactNode; // Untuk custom dropdown
 }
 
 const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
@@ -48,6 +49,7 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
   onBlur,
   onFocus,
   value,
+  children,
 }) => {
   const loadMoreRef = useRef<HTMLDivElement>(null);
   const { ref, entry } = useIntersection({ root: loadMoreRef.current, threshold: 1 });
@@ -63,7 +65,6 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
 
   const [selectedLabel, setSelectedLabel] = useState('');
 
-  // Update selectedLabel setiap kali value berubah
   useEffect(() => {
     const selectedItem = data.find((item) => item.value === value);
     setSelectedLabel(selectedItem ? selectedItem.label : '');
@@ -80,13 +81,12 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
       <Combobox.Target>
         <TextInput
           placeholder="Pilih opsi..."
-          value={selectedLabel} // Menampilkan label, bukan value
+          value={selectedLabel}
           defaultValue={defaultValue}
           error={error}
           checked={checked}
           onChange={(event) => {
-            const inputValue = event.currentTarget.value;
-            setSelectedLabel(inputValue);
+            setSelectedLabel(event.currentTarget.value);
           }}
           onClick={() => combobox.openDropdown()}
           onFocus={(event) => {
@@ -102,28 +102,33 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
       </Combobox.Target>
 
       <Combobox.Dropdown>
-        <ScrollArea.Autosize mah={mah}>
-          {data.length > 0 ? (
-            data.map((item) => (
-              <Combobox.Option
-                key={item.value}
-                onClick={() => {
-                  setSelectedLabel(item.label);
-                  onChange?.(item.value);
-                }}
-                {...optionProps}
-                value={item.value}
-              >
-                {item.label}
-              </Combobox.Option>
-            ))
-          ) : (
-            <div style={{ padding: '10px', textAlign: 'center' }}>Tidak ada data</div>
-          )}
-          <div ref={ref} style={{ padding: '10px', textAlign: 'center' }}>
-            {loading && <Loader size="sm" />}
-          </div>
-        </ScrollArea.Autosize>
+        {children ? (
+          children
+        ) : (
+          <ScrollArea.Autosize mah={mah}>
+            {data.length > 0 ? (
+              data.map((item) => (
+                <Combobox.Option
+                  key={item.value}
+                  onClick={() => {
+                    setSelectedLabel(item.label);
+                    onChange?.(item.value);
+                    combobox.closeDropdown(); // Menutup dropdown setelah memilih opsi
+                  }}
+                  {...optionProps}
+                  value={item.value}
+                >
+                  {item.label}
+                </Combobox.Option>
+              ))
+            ) : (
+              <div style={{ padding: '10px', textAlign: 'center' }}>Tidak ada data</div>
+            )}
+            <div ref={ref} style={{ padding: '10px', textAlign: 'center' }}>
+              {loading && <Loader size="sm" />}
+            </div>
+          </ScrollArea.Autosize>
+        )}
       </Combobox.Dropdown>
     </Combobox>
   );
