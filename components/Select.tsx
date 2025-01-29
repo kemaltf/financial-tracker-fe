@@ -4,7 +4,6 @@ import {
   ComboboxOptionProps,
   ComboboxProps,
   Loader,
-  ScrollArea,
   TextInput,
   TextInputProps,
   useCombobox,
@@ -52,15 +51,11 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
   value,
   searchable = false, // Default tidak searchable
 }) => {
-  const loadMoreRef = useRef<HTMLDivElement>(null);
-  const { ref, entry } = useIntersection({ root: loadMoreRef.current, threshold: 1 });
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { ref, entry } = useIntersection({ root: containerRef.current, threshold: 1 });
 
   const combobox = useCombobox({
-    onDropdownOpen: () => {
-      if (data.length === 0 && onBottomReached) {
-        onBottomReached();
-      }
-    },
+    onDropdownOpen: () => {},
     onDropdownClose: () => {},
   });
 
@@ -111,30 +106,28 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
         />
       </Combobox.Target>
 
-      <Combobox.Dropdown>
-        <ScrollArea.Autosize mah={mah}>
-          {filteredData.length > 0 ? (
-            filteredData.map((item) => (
-              <Combobox.Option
-                key={item.value}
-                onClick={() => {
-                  setSelectedLabel(item.label);
-                  onChange?.(item.value);
-                  combobox.closeDropdown(); // Menutup dropdown setelah memilih opsi
-                }}
-                {...optionProps}
-                value={item.value}
-              >
-                {item.label}
-              </Combobox.Option>
-            ))
-          ) : (
-            <div style={{ padding: '10px', textAlign: 'center' }}>Tidak ada data</div>
-          )}
-          <div ref={ref} style={{ padding: '10px', textAlign: 'center' }}>
-            {loading && <Loader size="sm" />}
-          </div>
-        </ScrollArea.Autosize>
+      <Combobox.Dropdown mah={mah} ref={containerRef} style={{ overflowY: 'auto' }}>
+        {filteredData.length > 0 ? (
+          filteredData.map((item, index) => (
+            <Combobox.Option
+              key={`${item.value}-${index}`}
+              onClick={() => {
+                setSelectedLabel(item.label);
+                onChange?.(item.value);
+                combobox.closeDropdown(); // Menutup dropdown setelah memilih opsi
+              }}
+              {...optionProps}
+              value={item.value}
+            >
+              {item.label}
+            </Combobox.Option>
+          ))
+        ) : (
+          <div style={{ padding: '10px', textAlign: 'center' }}>Tidak ada data</div>
+        )}
+        <div ref={ref} style={{ padding: '10px', textAlign: 'center', background: 'red' }}>
+          {loading && <Loader size="sm" />}
+        </div>
       </Combobox.Dropdown>
     </Combobox>
   );
