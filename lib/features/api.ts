@@ -1,7 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Mutex } from 'async-mutex';
 import { formatRupiah } from '@/utils/helpers';
-import { logout } from './authSlice'; // Adjust the import path as necessary
 
 interface ApiResponse<T = undefined> {
   code: number;
@@ -68,17 +67,9 @@ interface Product {
   label: string;
   sku: string;
   description: string;
-  stock: string;
+  stock: number;
   price: number;
-  image?: {
-    id: number;
-    key: string;
-    url: string;
-    mimeType: string | null;
-    size: string;
-    created_at: string;
-    updated_at: string;
-  };
+  image?: string;
 }
 
 interface ProductResponse {
@@ -115,15 +106,23 @@ const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOptions) =>
     if (!mutex.isLocked()) {
       const release = await mutex.acquire();
       try {
+        // Try to refresh the token
         const refreshResult = await baseQuery(
           { url: 'auth/refresh', method: 'POST', credentials: 'include' },
           api,
           extraOptions
         );
         if (refreshResult.data) {
+          // Store the new token
           result = await baseQuery(args, api, extraOptions);
         } else {
-          api.dispatch(logout());
+          // If refresh token fails, remove existing cookies
+          // If refresh token fails, remove existing cookies
+          await baseQuery(
+            { url: 'auth/logout', method: 'POST', credentials: 'include' },
+            api,
+            extraOptions
+          );
         }
       } finally {
         release();
