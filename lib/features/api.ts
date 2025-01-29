@@ -1,5 +1,6 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Mutex } from 'async-mutex';
+import { formatRupiah } from '@/utils/helpers';
 import { logout } from './authSlice'; // Adjust the import path as necessary
 
 interface ApiResponse<T = undefined> {
@@ -47,7 +48,7 @@ interface OrderDTO {
   quantity: number;
 }
 
-interface TransactionDTO {
+export interface TransactionDTO {
   transactionTypeId: number;
   amount: number;
   note?: string;
@@ -69,6 +70,15 @@ interface Product {
   description: string;
   stock: string;
   price: number;
+  image?: {
+    id: number;
+    key: string;
+    url: string;
+    mimeType: string | null;
+    size: string;
+    created_at: string;
+    updated_at: string;
+  };
 }
 
 interface ProductResponse {
@@ -255,6 +265,7 @@ export const api = createApi({
             data: response.data.data.map((item) => ({
               ...item,
               value: item.value.toString(),
+              label: `${item.label} - ${item.sku} - ${formatRupiah(item.price, 'id-ID')}`,
             })),
           },
         };

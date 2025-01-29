@@ -22,13 +22,15 @@ import { DateTimePicker } from '@mantine/dates';
 import { useForm, zodResolver } from '@mantine/form';
 import { useMediaQuery } from '@mantine/hooks';
 import {
+  TransactionDTO,
+  useCreateTransactionMutation,
   useGetCustomersQuery,
   useGetProductsQuery,
   useGetStoreQuery,
   useGetTransactionTypesQuery,
   useLazyGetAvailableAccountsQuery,
 } from '@/lib/features/api';
-import { isNullOrUndefined, isZero } from '@/utils/helpers';
+import { isNullOrUndefined, isZero, stringToDate } from '@/utils/helpers';
 
 const transactionSchema = z
   .object({
@@ -118,7 +120,7 @@ interface AddTransactionFormProps {
 
 const initialValues: TransactionFormValues = {
   transactionTypeId: null as any,
-  amount: 0,
+  amount: null as any,
   note: '',
   debitAccountId: '0',
   creditAccountId: '0',
@@ -154,12 +156,13 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   const { data: stores, isLoading: isLoadingStores } = useGetStoreQuery();
   const { data: productData, isLoading: isLoadingProducts } = useGetProductsQuery({
     page: 1,
-    limit: 10,
+    limit: 100,
     sortBy: 'price',
     sortDirection: 'DESC',
     storeId: 1,
     filters: {},
   });
+  const [createTransaction] = useCreateTransactionMutation();
 
   const form = useForm<TransactionFormValues>({
     validate: zodResolver(transactionSchema),
@@ -175,9 +178,43 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
     },
   ] = useLazyGetAvailableAccountsQuery();
 
-  const handleSubmit = (values: typeof form.values) => {
-    console.log(values);
-    onClose();
+  const handleSubmit = async (values: typeof form.values) => {
+    const convertedValues: TransactionDTO = {
+      transactionTypeId: Number(values.transactionTypeId),
+      amount: values.amount,
+      note: values.note,
+      debitAccountId: Number(values.debitAccountId),
+      creditAccountId: Number(values.creditAccountId),
+      customerId: values.customerId ? Number(values.customerId) : undefined,
+      debtorId: values.debtorId ? Number(values.debtorId) : undefined,
+      creditorId: values.creditorId ? Number(values.creditorId) : undefined,
+      storeId: Number(values.storeId),
+      dueDate: values.dueDate ? stringToDate(values.dueDate.toString()) : undefined,
+      address:
+        values.address && !Object.values(values.address).every((field) => field === '')
+          ? {
+              recipientName: values.address.recipientName || '',
+              addressLine1: values.address.addressLine1 || '',
+              addressLine2: values.address.addressLine2 || '',
+              city: values.address.city || '',
+              state: values.address.state || '',
+              postalCode: values.address.postalCode || '',
+              phoneNumber: values.address.phoneNumber || '',
+            }
+          : undefined,
+      orders: values.products?.map((product) => ({
+        productId: Number(product.productId),
+        quantity: product.quantity,
+      })),
+    };
+
+    try {
+      const response = await createTransaction(convertedValues).unwrap();
+      console.log('Transaction created successfully:', response);
+      onClose();
+    } catch (error) {
+      console.error('Failed to create transaction:', error);
+    }
   };
 
   const transactionTypeIsExist =
@@ -257,6 +294,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
             <NumberInput
               leftSection="Rp"
               label="Amount (Rupiah)"
+              placeholder="10,000,000"
               {...form.getInputProps('amount')}
               required
               thousandSeparator
@@ -304,6 +342,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
               searchable
               allowDeselect
               w="100%"
+              required
             />
           </Grid.Col>
           <Grid.Col span={4} style={{ display: 'flex', alignItems: 'flex-start' }} mt={12}>
@@ -390,35 +429,15 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
               </Button>
             </Group>
             {form.values.products?.map((product, index) => (
-              <Group key={product.productId} mb="xs" align="flex-end">
+              <Group key={`${product.productId}-${index}`} mb="xs" align="flex-end">
                 <Select
-                  label="Product"
+                  label={`Product ${index + 1}` as string}
                   placeholder="Select product"
-                  data={[
-                    { value: '1', label: 'Product 1' },
-                    { value: '2', label: 'Product 2' },
-                    { value: '3', label: 'Product 3' },
-                    { value: '4', label: 'Product 4' },
-                    { value: '5', label: 'Product 5' },
-                    { value: '6', label: 'Product 6' },
-                    { value: '7', label: 'Product 7' },
-                    { value: '8', label: 'Product 8' },
-                    { value: '9', label: 'Product 9' },
-                    { value: '10', label: 'Product 10' },
-                    { value: '11', label: 'Product 11' },
-                    { value: '12', label: 'Product 12' },
-                    { value: '13', label: 'Product 13' },
-                    { value: '14', label: 'Product 14' },
-                    { value: '15', label: 'Product 15' },
-                    { value: '16', label: 'Product 16' },
-                    { value: '17', label: 'Product 17' },
-                    { value: '18', label: 'Product 18' },
-                    { value: '19', label: 'Product 19' },
-                    { value: '20', label: 'Product 20' },
-                  ]}
+                  data={productData?.data.data || []}
                   {...form.getInputProps(`products.${index}.productId`)}
-                  required
                   style={{ flex: 1 }}
+                  searchable
+                  disabled={isLoadingProducts}
                 />
 
                 <NumberInput
