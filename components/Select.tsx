@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import {
   Combobox,
   ComboboxOptionProps,
@@ -61,6 +61,14 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
     onDropdownClose: () => {},
   });
 
+  const [selectedLabel, setSelectedLabel] = useState('');
+
+  // Update selectedLabel setiap kali value berubah
+  useEffect(() => {
+    const selectedItem = data.find((item) => item.value === value);
+    setSelectedLabel(selectedItem ? selectedItem.label : '');
+  }, [value, data]);
+
   useEffect(() => {
     if (entry?.isIntersecting && onBottomReached && !loading) {
       onBottomReached();
@@ -72,11 +80,14 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
       <Combobox.Target>
         <TextInput
           placeholder="Pilih opsi..."
-          value={value}
+          value={selectedLabel} // Menampilkan label, bukan value
           defaultValue={defaultValue}
           error={error}
           checked={checked}
-          onChange={(event) => onChange?.(event.currentTarget.value)}
+          onChange={(event) => {
+            const inputValue = event.currentTarget.value;
+            setSelectedLabel(inputValue);
+          }}
           onClick={() => combobox.openDropdown()}
           onFocus={(event) => {
             combobox.openDropdown();
@@ -96,7 +107,10 @@ const InfiniteScrollSelect: React.FC<InfiniteScrollSelectProps> = ({
             data.map((item) => (
               <Combobox.Option
                 key={item.value}
-                onClick={() => onChange?.(item.value)}
+                onClick={() => {
+                  setSelectedLabel(item.label);
+                  onChange?.(item.value);
+                }}
                 {...optionProps}
                 value={item.value}
               >
