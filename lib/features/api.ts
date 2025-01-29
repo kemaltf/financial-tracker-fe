@@ -32,6 +32,64 @@ interface AvailableAccounts {
   creditAccounts: AccountOption[];
 }
 
+interface AddressDTO {
+  recipientName: string;
+  addressLine1: string;
+  addressLine2?: string;
+  city: string;
+  state: string;
+  postalCode: string;
+  phoneNumber: string;
+}
+
+interface OrderDTO {
+  productId: number;
+  quantity: number;
+}
+
+interface TransactionDTO {
+  transactionTypeId: number;
+  amount: number;
+  note?: string;
+  debitAccountId: number;
+  creditAccountId: number;
+  customerId?: number;
+  debtorId?: number;
+  creditorId?: number;
+  storeId?: number;
+  dueDate?: Date;
+  address?: AddressDTO;
+  orders?: OrderDTO[];
+}
+
+interface Product {
+  value: string;
+  label: string;
+  sku: string;
+  description: string;
+  stock: string;
+  price: number;
+}
+
+interface ProductResponse {
+  data: Product[];
+  total: number;
+  currentPage: number;
+  totalPages: number;
+}
+
+interface ProductQueryParams {
+  page: number;
+  limit: number;
+  sortBy: string;
+  sortDirection: 'ASC' | 'DESC';
+  storeId: number;
+  filters?: {
+    name?: string;
+    sku?: string;
+  };
+}
+
 const baseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:5000/v1/',
   credentials: 'include',
@@ -169,7 +227,39 @@ export const api = createApi({
         };
       },
     }),
-
+    createTransaction: builder.mutation<ApiResponse<TransactionDTO>, TransactionDTO>({
+      query: (transaction) => ({
+        url: 'transactions',
+        method: 'POST',
+        body: transaction,
+      }),
+    }),
+    getProducts: builder.query<ApiResponse<ProductResponse>, ProductQueryParams>({
+      query: ({ page, limit, sortBy, sortDirection, storeId, filters }) => ({
+        url: 'products',
+        method: 'GET',
+        params: {
+          page,
+          limit,
+          sortBy,
+          sortDirection,
+          storeId,
+          ...filters,
+        },
+      }),
+      transformResponse: (response: ApiResponse<ProductResponse>): ApiResponse<ProductResponse> => {
+        return {
+          ...response,
+          data: {
+            ...response.data,
+            data: response.data.data.map((item) => ({
+              ...item,
+              value: item.value.toString(),
+            })),
+          },
+        };
+      },
+    }),
     // other endpoints...
   }),
 });
@@ -182,4 +272,6 @@ export const {
   useGetCustomersQuery,
   useLazyGetAvailableAccountsQuery,
   useGetStoreQuery,
+  useCreateTransactionMutation,
+  useGetProductsQuery,
 } = api;
