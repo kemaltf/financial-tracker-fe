@@ -8,6 +8,8 @@ import StoreProvider from './StoreProvider';
 import '@mantine/charts/styles.css';
 import '@mantine/dates/styles.css';
 
+import { ModalsProvider } from '@mantine/modals';
+
 export const metadata = {
   title: 'Mantine Next.js template',
   description: 'I am using Mantine with Next.js!',
@@ -26,7 +28,9 @@ export default function RootLayout({ children }: { children: any }) {
       </head>
       <body>
         <MantineProvider theme={theme}>
-          <StoreProvider>{children}</StoreProvider>
+          <StoreProvider>
+            <ModalsProvider>{children}</ModalsProvider>
+          </StoreProvider>
         </MantineProvider>
       </body>
     </html>

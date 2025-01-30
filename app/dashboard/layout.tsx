@@ -1,16 +1,25 @@
 'use client';
 
-import React, { useState } from 'react';
-import { AppShell, Burger, Button, Group, Modal, ScrollArea, Text } from '@mantine/core';
+import { AppShell, Burger, Button, Group, ScrollArea, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
+import { useModals } from '@mantine/modals';
 import { useDeviceType } from '@/hooks/use-device-size';
 import AddTransactionForm from '@/modules/CreateTransactionForm';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [opened, { toggle }] = useDisclosure();
-  const [modalOpened, setModalOpened] = useState(false);
   const { isMobile } = useDeviceType();
+  const modals = useModals();
 
+  const openAddTransactionModal = () => {
+    modals.openModal({
+      title: 'Add New Transaction',
+      size: isMobile ? '100%' : '70%',
+      radius: 'md',
+      scrollAreaComponent: ScrollArea.Autosize,
+      children: <AddTransactionForm onClose={() => modals.closeAll()} />,
+    });
+  };
   return (
     <AppShell
       header={{ height: 60 }}
@@ -25,7 +34,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
               Financial Tracker
             </Text>
           </Group>
-          <Button onClick={() => setModalOpened(true)}>+ Add Transaction</Button>
+          <Button onClick={openAddTransactionModal}>+ Add Transaction</Button>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
@@ -36,17 +45,6 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         <Text>Budget Overview</Text>
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
-      <Modal
-        opened={modalOpened}
-        onClose={() => setModalOpened(false)}
-        title="Add New Transaction"
-        size="70%" // Adjust size based on screen size
-        scrollAreaComponent={ScrollArea.Autosize}
-        fullScreen={isMobile} // Make fullscreen on mobile
-        radius="md"
-      >
-        <AddTransactionForm onClose={() => setModalOpened(false)} />
-      </Modal>
     </AppShell>
   );
 };
