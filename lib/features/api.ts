@@ -70,6 +70,7 @@ export interface Product {
   stock: number;
   price: number;
   image?: string;
+  id: number;
 }
 
 interface ProductResponse {

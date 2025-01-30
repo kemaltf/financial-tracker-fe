@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { IconTrash } from '@tabler/icons-react';
 import {
   ActionIcon,
@@ -21,8 +21,10 @@ type Props = {
 };
 
 export const ProductSection = ({ form }: Props) => {
+  const [page, setPage] = useState(1);
+  const [productData, setProductData] = useState<Product[]>([]);
   const { data, isLoading } = useGetProductsQuery({
-    page: 1,
+    page,
     limit: 100,
     sortBy: 'price',
     sortDirection: 'DESC',
@@ -30,7 +32,18 @@ export const ProductSection = ({ form }: Props) => {
     filters: {},
   });
 
-  const productData = data?.data.data || [];
+  useEffect(() => {
+    if (data) {
+      setProductData((prevData) => [...prevData, ...data.data.data]);
+    }
+  }, [data]);
+
+  const fetchNextPage = () => {
+    if (data?.data.totalPages === page) {
+      return;
+    }
+    setPage((prevPage) => prevPage + 1);
+  };
 
   const removeProduct = (index: number) => {
     form.removeListItem('products', index);
@@ -63,7 +76,7 @@ export const ProductSection = ({ form }: Props) => {
                   data={productData}
                   loading={isLoading}
                   {...form.getInputProps(`products.${index}.productId`)}
-                  onBottomReached={() => console.log('Load more data...💙')}
+                  onBottomReached={fetchNextPage}
                   mah={300} // Custom max height
                   textInputProps={{
                     label: `Product ${index + 1}`,
@@ -113,7 +126,6 @@ export const ProductSection = ({ form }: Props) => {
                     src={productDetails?.image || '/placeholder-image.jpg'}
                     alt={productDetails?.label}
                     width={50}
-                    // height="100%"
                     height={50}
                   />
                   <Stack gap={0} style={{ marginLeft: '10px' }}>
