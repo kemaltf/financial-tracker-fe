@@ -9,12 +9,12 @@ interface ApiResponse<T = undefined> {
   data: T;
 }
 
-interface TransactionType {
+export interface TransactionType {
   value: string;
   label: string;
 }
 
-interface TransactionTypeWithDescription extends TransactionType {
+export interface TransactionTypeWithDescription extends TransactionType {
   description: string;
 }
 interface Customer {
@@ -22,7 +22,7 @@ interface Customer {
   label: string;
 }
 
-interface AccountOption {
+export interface AccountOption {
   value: string;
   label: string;
 }
