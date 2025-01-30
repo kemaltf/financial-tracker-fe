@@ -92,6 +92,39 @@ interface ProductQueryParams {
   };
 }
 
+interface Transaction {
+  id: number;
+  note: string;
+  createdAt: string;
+  transactionType: string;
+  amount: number;
+  store: string;
+  user: string;
+  debit: {
+    code: string;
+    account: string;
+    balance: number;
+  };
+  credit: {
+    code: string;
+    account: string;
+    balance: number;
+  };
+}
+
+interface TransactionQueryParams {
+  startMonth: string;
+  endMonth: string;
+  limit?: number;
+}
+
+interface TransactionResponse {
+  data: Transaction[];
+  total: number;
+  currentPage: number;
+  totalPages: number;
+}
+
 const baseQuery = fetchBaseQuery({
   baseUrl: 'http://localhost:5000/v1/',
   credentials: 'include',
@@ -271,6 +304,24 @@ export const api = createApi({
         };
       },
     }),
+    getTransactions: builder.query<ApiResponse<TransactionResponse>, TransactionQueryParams>({
+      query: ({ startMonth, endMonth, limit }) => ({
+        url: 'transactions',
+        method: 'GET',
+        params: {
+          startMonth,
+          endMonth,
+          limit,
+        },
+      }),
+      transformResponse: (
+        response: ApiResponse<TransactionResponse>
+      ): ApiResponse<TransactionResponse> => {
+        return {
+          ...response,
+        };
+      },
+    }),
     // other endpoints...
   }),
 });
@@ -285,4 +336,5 @@ export const {
   useGetStoreQuery,
   useCreateTransactionMutation,
   useGetProductsQuery,
+  useGetTransactionsQuery,
 } = api;
