@@ -40,6 +40,8 @@ interface InfiniteScrollSelectProps {
   value?: string;
   children?: React.ReactNode; // Untuk custom dropdown
   searchable?: boolean; // Menambahkan props searchable
+  disabled?: boolean; // Add disabled prop
+  selectedProductIds?: string[]; // Add selectedProductIds prop
 }
 
 const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
@@ -58,6 +60,8 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
   onFocus,
   value,
   searchable = false, // Default tidak searchable
+  disabled = false, // Default not disabled
+  selectedProductIds = [], // Default empty array
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const { ref, entry } = useIntersection({ root: containerRef.current, threshold: 1 });
@@ -69,7 +73,6 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
 
   const [selectedLabel, setSelectedLabel] = useState('');
   const [searchQuery, setSearchQuery] = useState(''); // State untuk pencarian
-  const [selectedProduct, setSelectedProduct] = useState<ProductData | null>(null); // Untuk menyimpan produk yang dipilih
 
   // Filter data berdasarkan query pencarian
   const filteredData = searchable
@@ -78,7 +81,6 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
 
   useEffect(() => {
     const selectedItem = data.find((item) => item.value === value);
-    setSelectedProduct(selectedItem || null); // Mengatur produk yang dipilih
     setSelectedLabel(selectedItem ? selectedItem.label : '');
   }, [value, data]);
 
@@ -97,6 +99,7 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
           defaultValue={defaultValue}
           error={error}
           checked={checked}
+          disabled={disabled}
           onChange={(event) => {
             setSelectedLabel(event.currentTarget.value);
             if (searchable) {
@@ -123,15 +126,20 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
               key={`${item.value}-${index}`}
               onClick={() => {
                 setSelectedLabel(item.label);
-                setSelectedProduct(item); // Set produk yang dipilih
                 onChange?.(item.value);
                 combobox.closeDropdown(); // Menutup dropdown setelah memilih opsi
               }}
               {...optionProps}
               value={item.value}
+              disabled={selectedProductIds.includes(item.value)} // Disable if already selected
             >
               <Group gap="sm" wrap="nowrap">
-                <Image src={item.image} alt={item.label} width={50} height={50} />
+                <Image
+                  src={item.image || '/placeholder-image.jpg'}
+                  alt={item.label}
+                  width={50}
+                  height={50}
+                />
                 <Stack gap={0}>
                   <Text>{item.label}</Text>
                   <Text size="sm" color="dimmed">
@@ -154,24 +162,6 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
           {loading && <Loader size="sm" />}
         </div>
       </Combobox.Dropdown>
-
-      {selectedProduct && (
-        <div style={{ marginTop: '10px', display: 'flex', alignItems: 'center' }}>
-          <Image src={selectedProduct.image} alt={selectedProduct.label} width={50} height={50} />
-          <Stack gap={0} style={{ marginLeft: '10px' }}>
-            <Text>{selectedProduct.label}</Text>
-            <Text size="sm" color="dimmed">
-              SKU: {selectedProduct.sku}
-            </Text>
-            <Text size="sm" color="dimmed">
-              Stok: {selectedProduct.stock}
-            </Text>
-            <Text size="sm" color="green">
-              Harga: ${selectedProduct.price}
-            </Text>
-          </Stack>
-        </div>
-      )}
     </Combobox>
   );
 };
