@@ -17,7 +17,7 @@ export interface TransactionType {
 export interface TransactionTypeWithDescription extends TransactionType {
   description: string;
 }
-interface Customer {
+export interface Customer {
   value: string;
   label: string;
 }
@@ -62,7 +62,7 @@ export interface TransactionDTO {
   orders?: OrderDTO[];
 }
 
-interface Product {
+export interface Product {
   value: string;
   label: string;
   sku: string;

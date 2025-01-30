@@ -2,13 +2,14 @@
 
 import React, { useState } from 'react';
 import { AppShell, Burger, Button, Group, Modal, ScrollArea, Text } from '@mantine/core';
-import { useDisclosure, useMediaQuery } from '@mantine/hooks';
-import AddTransactionForm from '@/components/AddTransactionForm';
+import { useDisclosure } from '@mantine/hooks';
+import { useDeviceType } from '@/hooks/use-device-size';
+import AddTransactionForm from '@/modules/CreateTransactionForm';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [opened, { toggle }] = useDisclosure();
   const [modalOpened, setModalOpened] = useState(false);
-  const isMobile = useMediaQuery('(max-width: 768px)');
+  const { isMobile } = useDeviceType();
 
   return (
     <AppShell
@@ -44,20 +45,7 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
         fullScreen={isMobile} // Make fullscreen on mobile
         radius="md"
       >
-        <ScrollArea
-          styles={{
-            root: {
-              maxWidth: '100%',
-              '&:hover': {
-                overflowY: 'auto',
-                overflowX: 'hidden',
-              },
-              overflowX: 'hidden',
-            },
-          }}
-        >
-          <AddTransactionForm onClose={() => setModalOpened(false)} />
-        </ScrollArea>
+        <AddTransactionForm onClose={() => setModalOpened(false)} />
       </Modal>
     </AppShell>
   );

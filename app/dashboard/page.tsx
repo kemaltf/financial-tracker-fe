@@ -5,8 +5,6 @@ import { BarChart } from '@mantine/charts';
 import { Container, Grid } from '@mantine/core';
 import InfoCard from '../../components/InfoCard';
 
-// import { TransactionGraph } from '../../components/TransactionGraph';
-
 const DashboardPage = () => {
   const transactionData = [
     { month: 'January', Smartphones: 1200, Laptops: 900, Tablets: 200 },
