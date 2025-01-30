@@ -13,16 +13,25 @@ import {
 } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import SelectProduct from '@/components/SelectProduct';
-import { Product } from '@/lib/features/api';
+import { Product, useGetProductsQuery } from '@/lib/features/api';
 import { TransactionFormValues } from '../form';
 
 type Props = {
   form: UseFormReturnType<TransactionFormValues>;
-  isLoadingProducts: boolean;
-  productData: Product[];
 };
 
-export const ProductSection = ({ form, isLoadingProducts, productData }: Props) => {
+export const ProductSection = ({ form }: Props) => {
+  const { data, isLoading } = useGetProductsQuery({
+    page: 1,
+    limit: 100,
+    sortBy: 'price',
+    sortDirection: 'DESC',
+    storeId: 1,
+    filters: {},
+  });
+
+  const productData = data?.data.data || [];
+
   const removeProduct = (index: number) => {
     form.removeListItem('products', index);
   };
@@ -52,14 +61,14 @@ export const ProductSection = ({ form, isLoadingProducts, productData }: Props) 
               <Grid.Col span={{ base: 8, md: 9 }}>
                 <SelectProduct
                   data={productData}
-                  loading={isLoadingProducts}
+                  loading={isLoading}
                   {...form.getInputProps(`products.${index}.productId`)}
                   onBottomReached={() => console.log('Load more data...💙')}
                   mah={300} // Custom max height
                   textInputProps={{
                     label: `Product ${index + 1}`,
                     placeholder: 'Select product',
-                    disabled: isLoadingProducts,
+                    disabled: isLoading,
                   }}
                   containerProps={{
                     disabled: false,

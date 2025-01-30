@@ -9,7 +9,7 @@ type Props = {
   form: UseFormReturnType<TransactionFormValues>;
 };
 
-export const TransactionMain = ({ form }: Props) => {
+export const TransactionSection = ({ form }: Props) => {
   const { data: transactionTypes, isLoading: isLoadingTransactionTypes } =
     useGetTransactionTypesQuery();
 
@@ -26,6 +26,7 @@ export const TransactionMain = ({ form }: Props) => {
 
   const debitAccountsData = availableAccounts?.data.debitAccounts || [];
   const creditAccountsData = availableAccounts?.data.creditAccounts || [];
+
   useEffect(() => {
     if (transactionTypeIsExist) {
       fetchAvailableAccounts(Number(form.values.transactionTypeId));

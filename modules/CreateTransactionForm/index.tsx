@@ -1,23 +1,18 @@
 'use client';
 
-import { Container, Divider, Grid, Select } from '@mantine/core';
-import { DateTimePicker } from '@mantine/dates';
+import { Container, Divider, Grid } from '@mantine/core';
 import { useDeviceType } from '@/hooks/use-device-size';
-import {
-  TransactionDTO,
-  useCreateTransactionMutation,
-  useGetCustomersQuery,
-  useGetProductsQuery,
-} from '@/lib/features/api';
+import { TransactionDTO, useCreateTransactionMutation } from '@/lib/features/api';
 import { stringToDate } from '@/utils/helpers';
 import { TransactionForm } from './form';
 import {
   ActionButton,
   Address,
   CustomerSection,
+  DebtorCreditor,
   ProductSection,
   StoreData,
-  TransactionMain,
+  TransactionSection,
 } from './sections';
 
 interface AddTransactionFormProps {
@@ -27,18 +22,6 @@ interface AddTransactionFormProps {
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   const { isMobile } = useDeviceType();
 
-  const { data: debtors, isLoading: isLoadingDebtors } = useGetCustomersQuery({ role: 'DEBTOR' });
-  const { data: creditors, isLoading: isLoadingCreditors } = useGetCustomersQuery({
-    role: 'CREDITOR',
-  });
-  const { data: productData, isLoading: isLoadingProducts } = useGetProductsQuery({
-    page: 1,
-    limit: 100,
-    sortBy: 'price',
-    sortDirection: 'DESC',
-    storeId: 1,
-    filters: {},
-  });
   const [createTransaction] = useCreateTransactionMutation();
 
   const form = TransactionForm();
@@ -93,58 +76,18 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
         <Grid pb="md">
           <StoreData form={form} />
 
-          <TransactionMain form={form} />
+          <TransactionSection form={form} />
 
           {['1', '8'].includes(form.values.transactionTypeId) && (
             <>
               <Divider my="md" w="100%" />
               <CustomerSection form={form} />
               <Divider my="md" w="100%" />
-              <ProductSection
-                form={form}
-                isLoadingProducts={isLoadingProducts}
-                productData={productData?.data.data || []}
-              />
+              <ProductSection form={form} />
             </>
           )}
 
-          {['3', '4'].includes(form.values.transactionTypeId) && (
-            <>
-              <Grid.Col span={{ base: 12, md: 6 }}>
-                <Select
-                  label="Debtors"
-                  placeholder="Select debtor"
-                  data={debtors?.data || []}
-                  {...form.getInputProps('debtorId')}
-                  disabled={isLoadingDebtors}
-                  searchable
-                  allowDeselect
-                  withAsterisk
-                />
-              </Grid.Col>
-              <Grid.Col span={{ base: 12, md: 6 }}>
-                <Select
-                  label="Creditor"
-                  placeholder="Select creditor"
-                  data={creditors?.data || []}
-                  {...form.getInputProps('creditorId')}
-                  disabled={isLoadingCreditors}
-                  searchable
-                  allowDeselect
-                  withAsterisk
-                />
-              </Grid.Col>
-
-              <Grid.Col span={{ base: 12, md: 6 }}>
-                <DateTimePicker
-                  label="Due date"
-                  placeholder="Due date"
-                  withAsterisk
-                  {...form.getInputProps('dueDate')}
-                />
-              </Grid.Col>
-            </>
-          )}
+          {['3', '4'].includes(form.values.transactionTypeId) && <DebtorCreditor form={form} />}
 
           {['1', '3', '4', '8'].includes(form.values.transactionTypeId) && (
             <>

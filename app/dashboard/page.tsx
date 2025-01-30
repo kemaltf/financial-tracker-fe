@@ -3,18 +3,10 @@
 import React from 'react';
 import { BarChart } from '@mantine/charts';
 import { Container, Grid } from '@mantine/core';
+import TransactionHistory from '@/components/TransactionHistory';
 import InfoCard from '../../components/InfoCard';
 
 const DashboardPage = () => {
-  const transactionData = [
-    { month: 'January', Smartphones: 1200, Laptops: 900, Tablets: 200 },
-    { month: 'February', Smartphones: 1900, Laptops: 1200, Tablets: 400 },
-    { month: 'March', Smartphones: 400, Laptops: 1000, Tablets: 200 },
-    { month: 'April', Smartphones: 1000, Laptops: 200, Tablets: 800 },
-    { month: 'May', Smartphones: 800, Laptops: 1400, Tablets: 1200 },
-    { month: 'June', Smartphones: 750, Laptops: 600, Tablets: 1000 },
-  ];
-
   return (
     <Container>
       <Grid>
@@ -48,18 +40,10 @@ const DashboardPage = () => {
             ]}
           />
         </Grid.Col>
-        <Grid.Col span={12}>
-          <InfoCard
-            title="Transaction History"
-            data={[
-              { label: '2023-10-01', value: 'Salary: $5000' },
-              { label: '2023-10-05', value: 'Groceries: -$200' },
-              { label: '2023-10-10', value: 'Rent: -$1000' },
-            ]}
-          />
-        </Grid.Col>
       </Grid>
-      <BarChart
+
+      <TransactionHistory />
+      {/* <BarChart
         h={300}
         data={transactionData}
         dataKey="month"
@@ -69,7 +53,7 @@ const DashboardPage = () => {
           { name: 'Tablets', color: 'teal.6' },
         ]}
         tickLine="y"
-      />
+      /> */}
     </Container>
   );
 };
