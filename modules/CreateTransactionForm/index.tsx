@@ -2,7 +2,13 @@
 
 import { Container, Divider, Grid } from '@mantine/core';
 import { useDeviceType } from '@/hooks/use-device-size';
-import { TransactionDTO, useCreateTransactionMutation } from '@/lib/features/api';
+import {
+  TransactionDTO,
+  useCreateTransactionMutation,
+  useGetTransactionsQuery,
+} from '@/lib/features/api';
+import { useAppSelector } from '@/lib/hooks';
+import { RootState } from '@/lib/store';
 import { stringToDate } from '@/utils/helpers';
 import { TransactionForm } from './form';
 import {
@@ -20,9 +26,12 @@ interface AddTransactionFormProps {
 }
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
+  const queryParams = useAppSelector((state: RootState) => state.query);
+
   const { isMobile } = useDeviceType();
 
   const [createTransaction] = useCreateTransactionMutation();
+  const { refetch } = useGetTransactionsQuery(queryParams);
 
   const form = TransactionForm();
 
@@ -59,6 +68,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
     try {
       const response = await createTransaction(convertedValues).unwrap();
       console.log('Transaction created successfully:', response);
+      refetch();
       onClose();
     } catch (error) {
       console.error('Failed to create transaction:', error);

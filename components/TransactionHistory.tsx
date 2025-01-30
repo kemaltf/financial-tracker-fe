@@ -1,9 +1,12 @@
 import dayjs from 'dayjs';
-import { JSX, useEffect, useState } from 'react';
+import { JSX, useEffect, useRef, useState } from 'react';
 import { IconBuildingBank, IconCash, IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
 import { Avatar, Card, Grid, Loader, ScrollArea, Tabs, Text } from '@mantine/core';
 import { useIntersection } from '@mantine/hooks';
 import { useGetTransactionsQuery } from '@/lib/features/api';
+import { setQueryParams } from '@/lib/features/querySlice';
+import { useAppDispatch, useAppSelector } from '@/lib/hooks';
+import { RootState } from '@/lib/store';
 import { formatRupiah } from '@/utils/helpers';
 import TransactionHistoryCSS from './TransactionHistory.module.css';
 
@@ -29,20 +32,26 @@ const getLast12Months = () => {
 };
 
 export default function TransactionHistory() {
+  const dispatch = useAppDispatch();
+  const queryParams = useAppSelector((state: RootState) => state.query);
+
   // TABS
-  const [activeTab, setActiveTab] = useState<string>(getLast12Months()[0].value);
+  const [activeTab, setActiveTab] = useState<string>(getLast12Months()[11].value);
+
+  useEffect(() => {
+    const startMonth = dayjs(activeTab).startOf('month').format('YYYY-MM-DD');
+    const endMonth = dayjs(activeTab).endOf('month').format('YYYY-MM-DD');
+
+    dispatch(setQueryParams({ ...queryParams, startMonth, endMonth }));
+  }, [activeTab, dispatch]);
 
   // INFINITE SCROLL PAGINATION
-  const [page, setPage] = useState(1);
   const months = getLast12Months();
+  const containerRef = useRef<HTMLDivElement>(null);
 
-  const { ref, entry } = useIntersection({ threshold: 1 });
+  const { ref, entry } = useIntersection({ root: containerRef.current, threshold: 1 });
 
-  const { data, isFetching } = useGetTransactionsQuery({
-    startMonth: dayjs(activeTab).startOf('month').format('YYYY-MM-DD'),
-    endMonth: dayjs(activeTab).endOf('month').format('YYYY-MM-DD'),
-    limit: 10,
-  });
+  const { data, isFetching } = useGetTransactionsQuery(queryParams);
   const dataTransactions = data?.data?.data || [];
 
   useEffect(() => {
@@ -50,11 +59,13 @@ export default function TransactionHistory() {
       entry?.isIntersecting &&
       !isFetching &&
       data?.data.totalPages &&
-      data.data.totalPages > page
+      data.data.totalPages > queryParams.page
     ) {
-      setPage((prev) => prev + 1);
+      console.log('setPage ', queryParams.page + 1);
+
+      dispatch(setQueryParams({ ...queryParams, page: queryParams.page + 1 }));
     }
-  }, [entry, isFetching, data]);
+  }, [entry, isFetching, data, queryParams]);
 
   return (
     <Card shadow="sm" padding="lg" radius="md">
@@ -72,7 +83,7 @@ export default function TransactionHistory() {
         </ScrollArea>
 
         {months.map((month) => (
-          <Tabs.Panel key={month.value} value={month.value} pt="md">
+          <Tabs.Panel key={month.value} value={month.value} pt="md" ref={containerRef}>
             <ScrollArea h={400}>
               {isFetching && dataTransactions.length === 0 ? (
                 <Loader size="sm" color="blue" />

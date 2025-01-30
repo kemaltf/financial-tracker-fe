@@ -112,10 +112,11 @@ interface Transaction {
   };
 }
 
-interface TransactionQueryParams {
+export interface TransactionQueryParams {
   startMonth: string;
   endMonth: string;
-  limit?: number;
+  limit: number;
+  page: number;
 }
 
 interface TransactionResponse {
@@ -305,13 +306,14 @@ export const api = createApi({
       },
     }),
     getTransactions: builder.query<ApiResponse<TransactionResponse>, TransactionQueryParams>({
-      query: ({ startMonth, endMonth, limit }) => ({
+      query: ({ startMonth, endMonth, limit, page }) => ({
         url: 'transactions',
         method: 'GET',
         params: {
           startMonth,
           endMonth,
           limit,
+          page,
         },
       }),
       transformResponse: (
