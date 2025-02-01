@@ -7,8 +7,10 @@ import StoreProvider from './StoreProvider';
 
 import '@mantine/charts/styles.css';
 import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
 
 import { ModalsProvider } from '@mantine/modals';
+import { Notifications } from '@mantine/notifications';
 
 export const metadata = {
   title: 'Mantine Next.js template',
@@ -28,6 +30,7 @@ export default function RootLayout({ children }: { children: any }) {
       </head>
       <body>
         <MantineProvider theme={theme}>
+          <Notifications />
           <StoreProvider>
             <ModalsProvider>{children}</ModalsProvider>
           </StoreProvider>

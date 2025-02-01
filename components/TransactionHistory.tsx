@@ -1,12 +1,11 @@
 import dayjs from 'dayjs';
 import { JSX, useEffect, useRef, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { IconBuildingBank, IconCash, IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
-import { Avatar, Card, Grid, Loader, ScrollArea, Tabs, Text } from '@mantine/core';
+import { Avatar, Card, Grid, ScrollArea, Skeleton, Tabs, Text, Title } from '@mantine/core';
 import { useIntersection } from '@mantine/hooks';
-import { useGetTransactionsQuery } from '@/lib/features/api';
-import { setQueryParams } from '@/lib/features/querySlice';
-import { useAppDispatch, useAppSelector } from '@/lib/hooks';
-import { RootState } from '@/lib/store';
+import { useDeviceType } from '@/hooks/use-device-size';
+import { useLazyGetTransactionsQuery } from '@/lib/features/api';
 import { formatRupiah } from '@/utils/helpers';
 import TransactionHistoryCSS from './TransactionHistory.module.css';
 
@@ -31,111 +30,231 @@ const getLast12Months = () => {
     .reverse();
 };
 
-export default function TransactionHistory() {
-  const dispatch = useAppDispatch();
-  const queryParams = useAppSelector((state: RootState) => state.query);
+export function TransactionHistory() {
+  const route = useRouter();
 
+  const { isMobile } = useDeviceType();
   // TABS
   const [activeTab, setActiveTab] = useState<string>(getLast12Months()[11].value);
+  const [isIntersecting, setIsIntersecting] = useState<boolean>(false);
+  const months = getLast12Months();
+
+  // SCROLLING SETUP
+  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
+
+  // FETCHING DATA SETUP
+  const [trigger, { data, isFetching }] = useLazyGetTransactionsQuery();
+  const dataTransactions = data?.data?.data || [];
+
+  useEffect(() => {
+    console.log(route);
+    const startMonth = dayjs(activeTab).startOf('month').format('YYYY-MM-DD');
+    const endMonth = dayjs(activeTab).endOf('month').format('YYYY-MM-DD');
+
+    trigger({
+      startMonth,
+      endMonth,
+      limit: 4,
+      page: 1,
+      sortBy: 'created_at',
+      sortDirection: 'DESC',
+    });
+  }, [route]);
 
   useEffect(() => {
     const startMonth = dayjs(activeTab).startOf('month').format('YYYY-MM-DD');
     const endMonth = dayjs(activeTab).endOf('month').format('YYYY-MM-DD');
-
-    dispatch(setQueryParams({ ...queryParams, startMonth, endMonth }));
-  }, [activeTab, dispatch]);
-
-  // INFINITE SCROLL PAGINATION
-  const months = getLast12Months();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const { ref, entry } = useIntersection({ root: containerRef.current, threshold: 1 });
-
-  const { data, isFetching } = useGetTransactionsQuery(queryParams);
-  const dataTransactions = data?.data?.data || [];
+    // FETCH DATA ON TAB CHANGE
+    trigger({
+      startMonth,
+      endMonth,
+      limit: 4,
+      page: 1,
+      sortBy: 'created_at',
+      sortDirection: 'DESC',
+    });
+  }, [activeTab]);
 
   useEffect(() => {
-    if (
-      entry?.isIntersecting &&
-      !isFetching &&
-      data?.data.totalPages &&
-      data.data.totalPages > queryParams.page
-    ) {
-      console.log('setPage ', queryParams.page + 1);
-
-      dispatch(setQueryParams({ ...queryParams, page: queryParams.page + 1 }));
+    if (dataTransactions.length === 0) {
+      return;
     }
-  }, [entry, isFetching, data, queryParams]);
+
+    if (data?.data.totalPages && data.data.currentPage + 1 > data.data.totalPages) {
+      return;
+    }
+
+    if (isIntersecting && !isFetching) {
+      trigger({
+        startMonth: data!.data.filter.startMonth,
+        endMonth: data!.data.filter.endMonth,
+        limit: 4,
+        page: data!.data.currentPage + 1,
+        sortBy: 'created_at',
+        sortDirection: 'DESC',
+      });
+    }
+  }, [isIntersecting, isFetching]);
+
+  const tabsListRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const scrollToActiveTab = () => {
+      if (tabsListRef.current) {
+        const targetTab = tabsListRef.current.querySelector(`[data-value="${activeTab}"]`);
+        if (targetTab) {
+          targetTab.scrollIntoView({
+            behavior: 'smooth', // Menambahkan animasi scroll
+            inline: 'center', // Agar tab yang aktif berada di tengah secara horizontal
+          });
+        }
+      }
+    };
+
+    // Menggunakan setTimeout untuk memastikan elemen selesai dirender
+    setTimeout(scrollToActiveTab, 0);
+  }, [activeTab]); // Efek ini dipanggil saat activeTab berubah
 
   return (
-    <Card shadow="sm" padding="lg" radius="md">
-      <h2>Transaction History</h2>
+    <Card shadow="sm" padding="sm" radius="md">
+      <Title order={3} pb="sm">
+        Transaction History
+      </Title>
 
       <Tabs value={activeTab} onChange={(val: string | null) => setActiveTab(val || '')}>
         <ScrollArea scrollbarSize={6}>
-          <Tabs.List className={TransactionHistoryCSS.scrollbarHide}>
+          <Tabs.List
+            className={TransactionHistoryCSS.scrollbarHide}
+            style={{ flexWrap: isMobile ? 'unset' : 'wrap' }}
+            ref={tabsListRef} // Menambahkan ref ke Tabs.List
+          >
             {months.map((month) => (
-              <Tabs.Tab key={month.value} value={month.value}>
+              <Tabs.Tab key={month.value} value={month.value} data-value={month.value}>
                 {month.label}
               </Tabs.Tab>
             ))}
           </Tabs.List>
         </ScrollArea>
 
-        {months.map((month) => (
-          <Tabs.Panel key={month.value} value={month.value} pt="md" ref={containerRef}>
-            <ScrollArea h={400}>
-              {isFetching && dataTransactions.length === 0 ? (
-                <Loader size="sm" color="blue" />
-              ) : dataTransactions.length === 0 ? (
-                <Text ta="center" c="gray" fw="500">
-                  No transactions
-                </Text>
-              ) : (
-                dataTransactions.map((txn) => (
-                  <Card key={txn.id} withBorder padding="sm" mb="xs">
-                    <Text fw="100" c="gray" fz="xs" pb="sm">
-                      {txn.createdAt}
-                    </Text>
+        {months.map((month) => {
+          const { ref, entry } = useIntersection({
+            root: containerRefs.current[activeTab],
+            threshold: 1,
+          });
 
+          useEffect(() => {
+            if (!isFetching) {
+              setIsIntersecting(entry?.isIntersecting || false);
+            } else {
+              setIsIntersecting(false);
+            }
+          }, [entry, isFetching]);
+
+          return (
+            <Tabs.Panel key={month.value} value={month.value} pt="md">
+              <ScrollArea
+                h={400}
+                ref={(el) => {
+                  containerRefs.current[month.value] = el;
+                }}
+              >
+                {!isFetching && dataTransactions.length === 0 ? (
+                  <Text ta="center" c="gray" fw="500">
+                    No transactions
+                  </Text>
+                ) : (
+                  dataTransactions.map((txn, index) => (
+                    <Card
+                      key={index}
+                      withBorder
+                      padding="sm"
+                      mb="xs"
+                      ref={index === dataTransactions.length - 1 ? ref : null}
+                    >
+                      <Text fw="100" c="gray" fz="xs" pb="sm">
+                        {txn.createdAt} {index} {dataTransactions.length - 1}
+                      </Text>
+
+                      <Grid>
+                        <Grid.Col
+                          span={1}
+                          style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                          }}
+                        >
+                          <Avatar size="sm" radius="md">
+                            {transactionIcons[txn.transactionType] || <IconCash size={24} />}
+                          </Avatar>
+                        </Grid.Col>
+
+                        <Grid.Col span={7}>
+                          <Text fw="500">{txn.transactionType}</Text>
+                          <Text fz="xs" c="gray">
+                            {txn.note || '-'}
+                          </Text>
+                          <Text fz="xs" c="gray">
+                            {txn.store} - {txn.user}
+                          </Text>
+                          <Text fz="xs" c="gray">
+                            Debit dari {txn.debit.account} Kredit ke {txn.credit.account}
+                          </Text>
+                        </Grid.Col>
+
+                        <Grid.Col
+                          span={4}
+                          style={{
+                            whiteSpace: 'normal',
+                            wordWrap: 'break-word',
+                          }}
+                        >
+                          <Text fw={500} c="blue" fz="sm" ta="end">
+                            {formatRupiah(txn.amount, 'id-ID')}
+                          </Text>
+                        </Grid.Col>
+                      </Grid>
+                    </Card>
+                  ))
+                )}
+                {isFetching && (
+                  <Card key="loading-card" withBorder padding="sm" mb="xs">
+                    <Skeleton height={20} width={150} />
                     <Grid>
                       <Grid.Col
-                        span={1}
-                        style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+                        span={1.2}
+                        style={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                        }}
                       >
-                        <Avatar size="sm" radius="md">
-                          {transactionIcons[txn.transactionType] || <IconCash size={24} />}
-                        </Avatar>
+                        <Skeleton
+                          width="100%"
+                          style={{
+                            aspectRatio: '1 / 1', // Menyeting aspect ratio menjadi 1:1
+                            display: 'block', // Agar bisa menyesuaikan lebar dan tinggi dengan fleksibel
+                          }}
+                          circle
+                        />
                       </Grid.Col>
 
-                      <Grid.Col span={8}>
-                        <Text fw="500">{txn.transactionType}</Text>
-                        <Text fz="xs" c="gray">
-                          {txn.note || '-'}
-                        </Text>
-                        <Text fz="xs" c="gray">
-                          {txn.store} - {txn.user}
-                        </Text>
-                        <Text fz="xs" c="gray">
-                          Debit dari {txn.debit.account} Kredit ke {txn.credit.account}
-                        </Text>
+                      <Grid.Col span={7.8}>
+                        <Skeleton height={20} width="60%" mt="xs" />
+                        <Skeleton height={15} width="80%" mt="xs" />
+                        <Skeleton height={15} width="60%" mt="xs" />
                       </Grid.Col>
 
                       <Grid.Col span={3}>
-                        <Text fw={500} c="blue">
-                          {formatRupiah(txn.amount, 'id-ID')}
-                        </Text>
+                        <Skeleton height={20} width="70%" mt="xs" />
                       </Grid.Col>
                     </Grid>
                   </Card>
-                ))
-              )}
-              <div ref={ref} style={{ height: 40, textAlign: 'center', color: 'gray' }}>
-                {isFetching ? 'Loading more...' : 'Scroll down to load more'}
-              </div>
-            </ScrollArea>
-          </Tabs.Panel>
-        ))}
+                )}
+              </ScrollArea>
+            </Tabs.Panel>
+          );
+        })}
       </Tabs>
     </Card>
   );

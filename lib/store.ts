@@ -1,12 +1,10 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { api } from './features/api';
-import queryReducer from './features/querySlice';
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
       [api.reducerPath]: api.reducer,
-      query: queryReducer,
     },
     middleware: (getDefaultMiddleware) => getDefaultMiddleware().concat(api.middleware),
   });

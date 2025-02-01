@@ -1,5 +1,7 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { Mutex } from 'async-mutex';
+import { notifications } from '@mantine/notifications';
+import { notify } from '@/components/notify';
 import { formatRupiah } from '@/utils/helpers';
 
 interface ApiResponse<T = undefined> {
@@ -92,7 +94,7 @@ interface ProductQueryParams {
   };
 }
 
-interface Transaction {
+export interface Transaction {
   id: number;
   note: string;
   createdAt: string;
@@ -117,6 +119,8 @@ export interface TransactionQueryParams {
   endMonth: string;
   limit: number;
   page: number;
+  sortBy: string;
+  sortDirection: 'ASC' | 'DESC';
 }
 
 interface TransactionResponse {
@@ -124,6 +128,7 @@ interface TransactionResponse {
   total: number;
   currentPage: number;
   totalPages: number;
+  filter: { startMonth: string; endMonth: string };
 }
 
 const baseQuery = fetchBaseQuery({
@@ -277,7 +282,25 @@ export const api = createApi({
         method: 'POST',
         body: transaction,
       }),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      onQueryStarted: async (transaction, { dispatch, queryFulfilled }) => {
+        // Show the loading notification when the query is triggered
+        notify('loading', 'Creating transaction...');
+
+        try {
+          await queryFulfilled; // Await the response of the mutation
+          notifications.clean();
+          // Show the success notification when the transaction is successfully created
+          notify('success', 'Transaction created successfully!');
+          // Remove the loading notification
+          notifications.hide('loading');
+        } catch (error) {
+          // Show the error notification if the transaction creation fails
+          notify('error', 'Failed to create transaction.');
+        }
+      },
     }),
+
     getProducts: builder.query<ApiResponse<ProductResponse>, ProductQueryParams>({
       query: ({ page, limit, sortBy, sortDirection, storeId, filters }) => ({
         url: 'products',
@@ -306,7 +329,7 @@ export const api = createApi({
       },
     }),
     getTransactions: builder.query<ApiResponse<TransactionResponse>, TransactionQueryParams>({
-      query: ({ startMonth, endMonth, limit, page }) => ({
+      query: ({ startMonth, endMonth, limit, page, sortBy, sortDirection }) => ({
         url: 'transactions',
         method: 'GET',
         params: {
@@ -314,16 +337,43 @@ export const api = createApi({
           endMonth,
           limit,
           page,
+          sortBy,
+          sortDirection,
         },
       }),
+      serializeQueryArgs: ({ endpointName }) => {
+        return endpointName;
+      },
+      merge: (currentCache, newItems, { arg }) => {
+        // Jika bulan berubah, timpa seluruh data
+        if (
+          currentCache?.data.filter.startMonth !== arg.startMonth ||
+          currentCache?.data.filter.endMonth !== arg.endMonth
+        ) {
+          currentCache.data = newItems.data;
+        } else {
+          // Jika bulan sama, tambahkan data baru
+          currentCache.data.data.push(...newItems.data.data);
+        }
+        currentCache.data.totalPages = newItems.data.totalPages;
+        currentCache.data.currentPage = newItems.data.currentPage;
+      },
+      forceRefetch({ currentArg, previousArg }) {
+        if (!previousArg) {
+          return true;
+        } // Jika sebelumnya tidak ada argumen, lakukan refetch
+        return (
+          currentArg?.startMonth !== previousArg.startMonth ||
+          currentArg?.endMonth !== previousArg.endMonth
+        );
+      },
       transformResponse: (
         response: ApiResponse<TransactionResponse>
       ): ApiResponse<TransactionResponse> => {
-        return {
-          ...response,
-        };
+        return response;
       },
     }),
+
     // other endpoints...
   }),
 });
@@ -339,4 +389,5 @@ export const {
   useCreateTransactionMutation,
   useGetProductsQuery,
   useGetTransactionsQuery,
+  useLazyGetTransactionsQuery,
 } = api;

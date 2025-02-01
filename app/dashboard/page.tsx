@@ -1,14 +1,13 @@
 'use client';
 
 import React from 'react';
-import { BarChart } from '@mantine/charts';
 import { Container, Grid } from '@mantine/core';
-import TransactionHistory from '@/components/TransactionHistory';
+import { TransactionHistory } from '@/components/TransactionHistory';
 import InfoCard from '../../components/InfoCard';
 
 const DashboardPage = () => {
   return (
-    <Container>
+    <Container p={0}>
       <Grid>
         <Grid.Col span={12}>
           <InfoCard
