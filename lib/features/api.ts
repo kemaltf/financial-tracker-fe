@@ -186,6 +186,24 @@ export const api = createApi({
         method: 'POST',
         body: credentials,
       }),
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      onQueryStarted: async (credentials, { dispatch, queryFulfilled }) => {
+        // Menampilkan notifikasi loading saat login dimulai
+        notify('loading', 'Logging in...');
+
+        try {
+          await queryFulfilled; // Menunggu hasil login
+          notifications.clean();
+          // Jika berhasil, tampilkan notifikasi sukses
+          notify('success', 'Login successful!');
+          // Sembunyikan notifikasi loading
+          notifications.hide('loading');
+        } catch (error) {
+          notifications.hide('loading');
+          // Jika gagal, tampilkan notifikasi error
+          notify('error', 'Login failed. Please check your credentials.');
+        }
+      },
     }),
     refresh: builder.mutation<ApiResponse<undefined>, void>({
       query: () => ({
@@ -295,6 +313,7 @@ export const api = createApi({
           // Remove the loading notification
           notifications.hide('loading');
         } catch (error) {
+          notifications.hide('loading');
           // Show the error notification if the transaction creation fails
           notify('error', 'Failed to create transaction.');
         }
@@ -358,15 +377,7 @@ export const api = createApi({
         currentCache.data.totalPages = newItems.data.totalPages;
         currentCache.data.currentPage = newItems.data.currentPage;
       },
-      forceRefetch({ currentArg, previousArg }) {
-        if (!previousArg) {
-          return true;
-        } // Jika sebelumnya tidak ada argumen, lakukan refetch
-        return (
-          currentArg?.startMonth !== previousArg.startMonth ||
-          currentArg?.endMonth !== previousArg.endMonth
-        );
-      },
+
       transformResponse: (
         response: ApiResponse<TransactionResponse>
       ): ApiResponse<TransactionResponse> => {

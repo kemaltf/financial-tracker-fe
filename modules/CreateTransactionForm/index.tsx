@@ -1,8 +1,16 @@
 'use client';
 
+import { useRouter } from 'next/navigation';
+import { useDispatch } from 'react-redux';
 import { Container, Divider, Grid } from '@mantine/core';
 import { useDeviceType } from '@/hooks/use-device-size';
-import { TransactionDTO, useCreateTransactionMutation } from '@/lib/features/api';
+import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
+import {
+  api,
+  TransactionDTO,
+  useCreateTransactionMutation,
+  useLazyGetTransactionsQuery,
+} from '@/lib/features/api';
 import { stringToDate } from '@/utils/helpers';
 import { TransactionForm } from './form';
 import {
@@ -21,6 +29,11 @@ interface AddTransactionFormProps {
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   const { isMobile } = useDeviceType();
+  const router = useRouter();
+  const [trigger] = useLazyGetTransactionsQuery();
+  const dispatch = useDispatch();
+
+  const { filter } = useTransactionHistory();
 
   const [createTransaction] = useCreateTransactionMutation();
 
@@ -57,9 +70,14 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
     };
 
     try {
-      const response = await createTransaction(convertedValues).unwrap();
-      console.log('Transaction created successfully:', response);
+      await createTransaction(convertedValues).unwrap();
       onClose();
+      dispatch(api.util.resetApiState());
+      trigger({
+        ...filter,
+        page: 1,
+      });
+      router.refresh();
     } catch (error) {
       console.error('Failed to create transaction:', error);
     }

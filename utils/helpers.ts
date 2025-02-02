@@ -13,7 +13,7 @@ export const isNullOrUndefined = (value: any): value is null | undefined => {
  * @param value - The value to check.
  * @returns True if the value is zero, false otherwise.
  */
-export const isZero = (value: any): boolean => {
+export const isZero = (value: number): boolean => {
   return value === 0;
 };
 

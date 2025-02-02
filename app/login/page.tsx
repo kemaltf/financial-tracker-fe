@@ -39,13 +39,11 @@ const Login = () => {
   const handleSubmit = async (values: typeof form.values) => {
     try {
       const user = await login(values).unwrap();
-      console.log(user);
       if (user.code !== 200) {
         console.error('Failed to login:', user.message);
         return;
       }
-      console.log('Logged in redirecting to home page');
-      router.push('/'); // Redirect to home page
+      router.push('/dashboard'); // Redirect to home page
     } catch (err) {
       console.error('Failed to login:', err);
     }

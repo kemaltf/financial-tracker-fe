@@ -1,51 +1,32 @@
 import dayjs from 'dayjs';
-import { JSX, useEffect, useRef, useState } from 'react';
-import { IconBuildingBank, IconCash, IconTrendingDown, IconTrendingUp } from '@tabler/icons-react';
-import { Avatar, Card, Grid, ScrollArea, Skeleton, Tabs, Text, Title } from '@mantine/core';
-import { useIntersection } from '@mantine/hooks';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { Card, ScrollArea, Tabs, Title } from '@mantine/core';
 import { useDeviceType } from '@/hooks/use-device-size';
 import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
 import { useLazyGetTransactionsQuery } from '@/lib/features/api';
-import { formatRupiah } from '@/utils/helpers';
+import TransactionPanel from './section/TransactionPanel';
+import { getLast12Months } from './utils';
 import TransactionHistoryCSS from './TransactionHistory.module.css';
-
-const transactionIcons: Record<string, JSX.Element> = {
-  Pemasukan: <IconTrendingUp size={24} color="green" />,
-  Pengeluaran: <IconTrendingDown size={24} color="red" />,
-  Hutang: <IconBuildingBank size={24} color="yellow" />,
-  Piutang: <IconBuildingBank size={24} color="blue" />,
-  'Tanam Modal': <IconCash size={24} color="purple" />,
-  'Tarik Modal': <IconCash size={24} color="orange" />,
-  Transfer: <IconTrendingUp size={24} color="gray" />,
-  'Pemasukan Piutang': <IconTrendingUp size={24} color="green" />,
-  'Pengeluaran Piutang': <IconTrendingDown size={24} color="red" />,
-};
-
-const getLast12Months = () => {
-  return Array.from({ length: 12 })
-    .map((_, i) => {
-      const date = dayjs().subtract(i, 'month');
-      return { label: date.format('MMMM'), value: date.format('YYYY-MM') };
-    })
-    .reverse();
-};
 
 export function TransactionHistory() {
   const { isMobile } = useDeviceType();
   const { filter, clearFilter, updateFilter } = useTransactionHistory();
 
-  // TABS
-  const [activeTab, setActiveTab] = useState<string>(getLast12Months()[11].value);
-  const [isIntersecting, setIsIntersecting] = useState<boolean>(false);
-  const months = getLast12Months();
+  // GENERATE LAST 12 MONTH
+  const months = useMemo(() => {
+    return getLast12Months();
+  }, []);
 
-  // SCROLLING SETUP
-  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  // TABS
+  const [activeTab, setActiveTab] = useState<string>(months[11].value);
+  const [isIntersecting, setIsIntersecting] = useState<boolean>(false);
 
   // FETCHING DATA SETUP
   const [trigger, { data, isFetching }] = useLazyGetTransactionsQuery();
   const dataTransactions = data?.data?.data || [];
 
+  // INFINITE SCROLLING SETUP
+  const containerRefs = useRef<Record<string, HTMLDivElement | null>>({});
   useEffect(() => {
     if (dataTransactions.length === 0) {
       return;
@@ -67,8 +48,8 @@ export function TransactionHistory() {
     }
   }, [isIntersecting, isFetching]);
 
+  // SCROLL TO ACTIVE TAB
   const tabsListRef = useRef<HTMLDivElement>(null);
-
   useEffect(() => {
     const startMonth = dayjs(activeTab).startOf('month').format('YYYY-MM-DD');
     const endMonth = dayjs(activeTab).endOf('month').format('YYYY-MM-DD');
@@ -98,15 +79,32 @@ export function TransactionHistory() {
     setTimeout(scrollToActiveTab, 0);
   }, [activeTab]); // Efek ini dipanggil saat activeTab berubah
 
+  // FETCH DATA
   useEffect(() => {
     trigger(filter);
   }, [filter]);
 
+  // CLEAN UP
   useEffect(() => {
     return () => {
       clearFilter();
     };
   }, []);
+
+  // PANEL MEMO
+  const TransactionPanelMemo = useMemo(() => {
+    return months.map((month, index) => (
+      <TransactionPanel
+        key={index}
+        month={month}
+        activeTab={activeTab}
+        dataTransactions={dataTransactions}
+        isFetching={isFetching}
+        setIsIntersecting={setIsIntersecting}
+        containerRefs={containerRefs}
+      />
+    ));
+  }, [months, activeTab, data, isFetching, setIsIntersecting, containerRefs]);
 
   return (
     <Card shadow="sm" padding="sm" radius="md">
@@ -128,126 +126,7 @@ export function TransactionHistory() {
             ))}
           </Tabs.List>
         </ScrollArea>
-
-        {months.map((month) => {
-          const { ref, entry } = useIntersection({
-            root: containerRefs.current[activeTab],
-            threshold: 1,
-          });
-
-          useEffect(() => {
-            if (!isFetching) {
-              setIsIntersecting(entry?.isIntersecting || false);
-            } else {
-              setIsIntersecting(false);
-            }
-          }, [entry, isFetching]);
-
-          return (
-            <Tabs.Panel key={month.value} value={month.value} pt="md">
-              <ScrollArea
-                h={400}
-                ref={(el) => {
-                  containerRefs.current[month.value] = el;
-                }}
-              >
-                {!isFetching && dataTransactions.length === 0 ? (
-                  <Text ta="center" c="gray" fw="500">
-                    No transactions
-                  </Text>
-                ) : (
-                  dataTransactions.map((txn, index) => (
-                    <Card
-                      key={index}
-                      withBorder
-                      padding="sm"
-                      mb="xs"
-                      ref={index === dataTransactions.length - 1 ? ref : null}
-                    >
-                      <Text fw="100" c="gray" fz="xs" pb="sm">
-                        {txn.createdAt} {index} {dataTransactions.length - 1}
-                      </Text>
-
-                      <Grid>
-                        <Grid.Col
-                          span={1}
-                          style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                          }}
-                        >
-                          <Avatar size="sm" radius="md">
-                            {transactionIcons[txn.transactionType] || <IconCash size={24} />}
-                          </Avatar>
-                        </Grid.Col>
-
-                        <Grid.Col span={7}>
-                          <Text fw="500">{txn.transactionType}</Text>
-                          <Text fz="xs" c="gray">
-                            {txn.note || '-'}
-                          </Text>
-                          <Text fz="xs" c="gray">
-                            {txn.store} - {txn.user}
-                          </Text>
-                          <Text fz="xs" c="gray">
-                            Debit dari {txn.debit.account} Kredit ke {txn.credit.account}
-                          </Text>
-                        </Grid.Col>
-
-                        <Grid.Col
-                          span={4}
-                          style={{
-                            whiteSpace: 'normal',
-                            wordWrap: 'break-word',
-                          }}
-                        >
-                          <Text fw={500} c="blue" fz="sm" ta="end">
-                            {formatRupiah(txn.amount, 'id-ID')}
-                          </Text>
-                        </Grid.Col>
-                      </Grid>
-                    </Card>
-                  ))
-                )}
-                {isFetching && (
-                  <Card key="loading-card" withBorder padding="sm" mb="xs">
-                    <Skeleton height={20} width={150} />
-                    <Grid>
-                      <Grid.Col
-                        span={1.2}
-                        style={{
-                          display: 'flex',
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Skeleton
-                          width="100%"
-                          style={{
-                            aspectRatio: '1 / 1', // Menyeting aspect ratio menjadi 1:1
-                            display: 'block', // Agar bisa menyesuaikan lebar dan tinggi dengan fleksibel
-                          }}
-                          circle
-                        />
-                      </Grid.Col>
-
-                      <Grid.Col span={7.8}>
-                        <Skeleton height={20} width="60%" mt="xs" />
-                        <Skeleton height={15} width="80%" mt="xs" />
-                        <Skeleton height={15} width="60%" mt="xs" />
-                      </Grid.Col>
-
-                      <Grid.Col span={3}>
-                        <Skeleton height={20} width="70%" mt="xs" />
-                      </Grid.Col>
-                    </Grid>
-                  </Card>
-                )}
-              </ScrollArea>
-            </Tabs.Panel>
-          );
-        })}
+        {TransactionPanelMemo}
       </Tabs>
     </Card>
   );

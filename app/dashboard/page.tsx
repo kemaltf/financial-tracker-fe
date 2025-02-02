@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Container, Grid } from '@mantine/core';
-import { TransactionHistory } from '@/components/TransactionHistory';
+import { TransactionHistory } from '@/components/TransactionHistory/index';
 import InfoCard from '../../components/InfoCard';
 
 const DashboardPage = () => {

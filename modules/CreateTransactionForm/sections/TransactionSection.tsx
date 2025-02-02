@@ -27,6 +27,10 @@ export const TransactionSection = ({ form }: Props) => {
   const debitAccountsData = availableAccounts?.data.debitAccounts || [];
   const creditAccountsData = availableAccounts?.data.creditAccounts || [];
 
+  const transactionTypeIsExist =
+    !isNullOrUndefined(form.values.transactionTypeId) &&
+    !isZero(Number(form.values.transactionTypeId));
+
   useEffect(() => {
     if (transactionTypeIsExist) {
       fetchAvailableAccounts(Number(form.values.transactionTypeId));
@@ -35,9 +39,6 @@ export const TransactionSection = ({ form }: Props) => {
       resetAvailableAccounts();
     }
   }, [form.values.transactionTypeId, fetchAvailableAccounts]);
-
-  const transactionTypeIsExist =
-    !isNullOrUndefined(form.values.transactionTypeId) && !isZero(form.values.transactionTypeId);
 
   const selectedTransactionType = useMemo(
     () =>
