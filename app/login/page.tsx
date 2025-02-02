@@ -43,7 +43,6 @@ const Login = () => {
   const handleSubmit = async (values: typeof form.values) => {
     const user = await login(values).unwrap();
     if (user.code !== 200) {
-      console.error('Failed to login:', user.message);
       return;
     }
     router.push('/dashboard'); // Redirect to home page

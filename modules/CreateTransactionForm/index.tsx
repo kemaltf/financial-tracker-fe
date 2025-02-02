@@ -7,10 +7,11 @@ import { useDeviceType } from '@/hooks/use-device-size';
 import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
 import {
   api,
-  TransactionDTO,
   useCreateTransactionMutation,
+  useLazyGetFinancialSummaryQuery,
   useLazyGetTransactionsQuery,
 } from '@/lib/features/api';
+import { TransactionDTO } from '@/lib/features/api/types/transaction';
 import { stringToDate } from '@/utils/helpers';
 import { TransactionForm } from './form';
 import {
@@ -28,14 +29,15 @@ interface AddTransactionFormProps {
 }
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
-  const { isMobile } = useDeviceType();
   const router = useRouter();
-  const [trigger] = useLazyGetTransactionsQuery();
   const dispatch = useDispatch();
 
+  const { isMobile } = useDeviceType();
+  const [trigger, { reset: resetTransactionResult }] = useLazyGetTransactionsQuery();
   const { filter } = useTransactionHistory();
-
   const [createTransaction] = useCreateTransactionMutation();
+  const [triggerFinancialSummary, { reset: resetFinancialSummary }] =
+    useLazyGetFinancialSummaryQuery();
 
   const form = TransactionForm();
 
@@ -70,14 +72,30 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
     };
 
     try {
-      await createTransaction(convertedValues).unwrap();
-      onClose();
-      dispatch(api.util.resetApiState());
-      trigger({
-        ...filter,
-        page: 1,
-      });
-      router.refresh();
+      const result = await createTransaction(convertedValues).unwrap();
+      if (result.status === 'success') {
+        // close modals
+        onClose();
+
+        // reset all state
+        dispatch(api.util.resetApiState());
+
+        // reset
+        resetTransactionResult();
+        resetFinancialSummary();
+
+        trigger({
+          ...filter,
+          page: 1,
+        });
+
+        triggerFinancialSummary({
+          endMonth: filter.endMonth,
+          startMonth: filter.startMonth,
+        });
+
+        router.refresh();
+      }
     } catch (error) {
       console.error('Failed to create transaction:', error);
     }

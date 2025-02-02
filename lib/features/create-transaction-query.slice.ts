@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
 interface TransactionFilterState {
@@ -10,11 +11,11 @@ interface TransactionFilterState {
 }
 
 const initialState: TransactionFilterState = {
-  startMonth: '',
-  endMonth: '',
+  startMonth: dayjs().subtract(1, 'month').startOf('month').format('YYYY-MM-DD'),
+  endMonth: dayjs().format('YYYY-MM-DD'),
   limit: 4,
   page: 1,
-  sortBy: 'created_at',
+  sortBy: 'createdAt',
   sortDirection: 'DESC',
 };
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { IconCash } from '@tabler/icons-react';
 import { Avatar, Card, Grid, Text } from '@mantine/core';
-import { formatRupiah } from '@/utils/helpers';
+import { formatExchage, getReadableDate, parseDate } from '@/utils/helpers';
 import { transactionIcons } from './TransactionIcon';
 
 interface TransactionCardProps {
@@ -20,7 +20,7 @@ interface TransactionCardProps {
 const TransactionCard = React.forwardRef<HTMLDivElement, TransactionCardProps>(({ txn }, ref) => (
   <Card ref={ref} withBorder padding="sm" mb="xs">
     <Text fw="100" c="gray" fz="xs" pb="sm">
-      {txn.createdAt}
+      {getReadableDate(parseDate(txn.createdAt, 'id'), 'id', 'MMMM D, YYYY hh:mm A')}
     </Text>
     <Grid>
       <Grid.Col
@@ -47,7 +47,7 @@ const TransactionCard = React.forwardRef<HTMLDivElement, TransactionCardProps>((
 
       <Grid.Col span={4} style={{ whiteSpace: 'normal', wordWrap: 'break-word' }}>
         <Text fw={500} c="blue" fz="sm" ta="end">
-          {formatRupiah(txn.amount, 'id-ID')}
+          {formatExchage(txn.amount, 'id-ID')}
         </Text>
       </Grid.Col>
     </Grid>

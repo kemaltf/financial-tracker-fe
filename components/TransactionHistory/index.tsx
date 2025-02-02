@@ -10,7 +10,7 @@ import TransactionHistoryCSS from './TransactionHistory.module.css';
 
 export function TransactionHistory() {
   const { isMobile } = useDeviceType();
-  const { filter, clearFilter, updateFilter } = useTransactionHistory();
+  const { filter, updateFilter } = useTransactionHistory();
 
   // GENERATE LAST 12 MONTH
   const months = useMemo(() => {
@@ -38,58 +38,62 @@ export function TransactionHistory() {
 
     if (isIntersecting && !isFetching) {
       updateFilter({
+        ...filter,
         startMonth: data!.data.filter.startMonth,
         endMonth: data!.data.filter.endMonth,
-        limit: 4,
         page: data!.data.currentPage + 1,
-        sortBy: 'created_at',
-        sortDirection: 'DESC',
       });
     }
   }, [isIntersecting, isFetching]);
 
   // SCROLL TO ACTIVE TAB
-  const tabsListRef = useRef<HTMLDivElement>(null);
+  const viewport = useRef<HTMLDivElement>(null);
+  const isFirstRender = useRef(true); // Ref untuk mendeteksi render pertama
+
   useEffect(() => {
     const startMonth = dayjs(activeTab).startOf('month').format('YYYY-MM-DD');
     const endMonth = dayjs(activeTab).endOf('month').format('YYYY-MM-DD');
 
     updateFilter({
+      ...filter,
       startMonth,
       endMonth,
-      limit: 4,
       page: 1,
-      sortBy: 'created_at',
-      sortDirection: 'DESC',
     });
 
-    const scrollToActiveTab = () => {
-      if (tabsListRef.current) {
-        const targetTab = tabsListRef.current.querySelector(`[data-value="${activeTab}"]`);
-        if (targetTab) {
-          targetTab.scrollIntoView({
-            behavior: 'smooth', // Menambahkan animasi scroll
-            inline: 'center', // Agar tab yang aktif berada di tengah secara horizontal
+    // Jika ini adalah render pertama, jalankan scroll ke kanan
+    if (isFirstRender.current) {
+      isFirstRender.current = false; // Set false setelah pertama kali dijalankan
+      const scrollToRight = () => {
+        if (viewport.current) {
+          viewport.current.scrollTo({
+            left: viewport.current.scrollWidth, // Menggulung ke kanan
+            behavior: 'smooth',
           });
         }
-      }
-    };
-
-    // Menggunakan setTimeout untuk memastikan elemen selesai dirender
-    setTimeout(scrollToActiveTab, 0);
+      };
+      setTimeout(scrollToRight, 0);
+    } else {
+      // Jika bukan render pertama, scroll ke activeTab
+      const scrollToActiveTab = () => {
+        if (viewport.current) {
+          const targetTab = viewport.current.querySelector(`[data-value="${activeTab}"]`);
+          if (targetTab) {
+            targetTab.scrollIntoView({
+              behavior: 'smooth',
+              inline: 'center',
+            });
+          }
+        }
+      };
+      setTimeout(scrollToActiveTab, 0);
+    }
   }, [activeTab]); // Efek ini dipanggil saat activeTab berubah
 
   // FETCH DATA
   useEffect(() => {
     trigger(filter);
   }, [filter]);
-
-  // CLEAN UP
-  useEffect(() => {
-    return () => {
-      clearFilter();
-    };
-  }, []);
 
   // PANEL MEMO
   const TransactionPanelMemo = useMemo(() => {
@@ -113,11 +117,14 @@ export function TransactionHistory() {
       </Title>
 
       <Tabs value={activeTab} onChange={(val: string | null) => setActiveTab(val || '')}>
-        <ScrollArea scrollbarSize={6}>
+        <ScrollArea
+          scrollbarSize={0}
+          scrollbars="x"
+          viewportRef={viewport} // Menambahkan ref ke Tabs.List
+        >
           <Tabs.List
             className={TransactionHistoryCSS.scrollbarHide}
             style={{ flexWrap: isMobile ? 'unset' : 'wrap' }}
-            ref={tabsListRef} // Menambahkan ref ke Tabs.List
           >
             {months.map((month) => (
               <Tabs.Tab key={month.value} value={month.value} data-value={month.value}>
