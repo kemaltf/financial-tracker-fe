@@ -180,7 +180,10 @@ export const api = createApi({
   reducerPath: 'api',
   baseQuery: baseQueryWithReauth,
   endpoints: (builder) => ({
-    login: builder.mutation<ApiResponse<undefined>, { username: string; password: string }>({
+    login: builder.mutation<
+      ApiResponse<undefined>,
+      { username: string; password: string; rememberMe: boolean | undefined }
+    >({
       query: (credentials) => ({
         url: 'auth/signin',
         method: 'POST',

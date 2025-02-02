@@ -22,31 +22,31 @@ import { useLoginMutation } from '../../lib/features/api';
 const schema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters long' }),
   password: z.string().min(6, { message: 'Password should have at least 6 characters' }),
+  rememberMe: z.boolean(), // Tambahkan rememberMe sebagai boolean yang bersifat opsional
 });
+
+export type LoginFormValues = z.infer<typeof schema>;
 
 const Login = () => {
   const [login, { isLoading }] = useLoginMutation();
   const router = useRouter();
 
-  const form = useForm({
+  const form = useForm<LoginFormValues>({
     validate: zodResolver(schema),
     initialValues: {
       username: '',
       password: '',
+      rememberMe: false,
     },
   });
 
   const handleSubmit = async (values: typeof form.values) => {
-    try {
-      const user = await login(values).unwrap();
-      if (user.code !== 200) {
-        console.error('Failed to login:', user.message);
-        return;
-      }
-      router.push('/dashboard'); // Redirect to home page
-    } catch (err) {
-      console.error('Failed to login:', err);
+    const user = await login(values).unwrap();
+    if (user.code !== 200) {
+      console.error('Failed to login:', user.message);
+      return;
     }
+    router.push('/dashboard'); // Redirect to home page
   };
 
   return (
@@ -78,10 +78,7 @@ const Login = () => {
               mt="md"
             />
             <Group p="apart" mt="md">
-              <Checkbox label="Remember me" />
-              <Anchor<'a'> onClick={(event) => event.preventDefault()} href="#" size="sm">
-                Forgot password?
-              </Anchor>
+              <Checkbox label="Remember me" {...form.getInputProps('rememberMe')} />
             </Group>
             <Button type="submit" fullWidth mt="md" loading={isLoading}>
               Login

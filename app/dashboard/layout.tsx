@@ -1,15 +1,22 @@
 'use client';
 
-import { AppShell, Burger, Button, Group, ScrollArea, Text } from '@mantine/core';
+import { AppShell, Avatar, Burger, Button, Group, Menu, ScrollArea, Text } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import { useModals } from '@mantine/modals';
 import { useDeviceType } from '@/hooks/use-device-size';
+import { useLogoutMutation } from '@/lib/features/api';
 import AddTransactionForm from '@/modules/CreateTransactionForm';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
   const [opened, { toggle }] = useDisclosure();
   const { isMobile } = useDeviceType();
   const modals = useModals();
+
+  const [logoutMutation] = useLogoutMutation();
+
+  const handleLogout = async () => {
+    await logoutMutation(); // Panggil mutasi logout
+  };
 
   const openAddTransactionModal = () => {
     modals.openModal({
@@ -35,6 +42,15 @@ const DashboardLayout = ({ children }: { children: React.ReactNode }) => {
             </Text>
           </Group>
           <Button onClick={openAddTransactionModal}>+ Add Transaction</Button>
+          <Menu width={200} position="bottom-end">
+            <Menu.Target>
+              <Avatar src="/placeholder-image.jpg" alt="User Avatar" radius="xl" />
+            </Menu.Target>
+            <Menu.Dropdown>
+              <Menu.Item onClick={() => {}}>Profile</Menu.Item>
+              <Menu.Item onClick={handleLogout}>Logout</Menu.Item>
+            </Menu.Dropdown>
+          </Menu>
         </Group>
       </AppShell.Header>
       <AppShell.Navbar p="md">
