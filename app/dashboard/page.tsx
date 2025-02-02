@@ -19,7 +19,7 @@ const DashboardPage = () => {
   return (
     <Container p={0}>
       <Grid>
-        <Grid.Col span={12}>
+        <Grid.Col span={12} mb="md">
           <FinancialSummary />
         </Grid.Col>
         <Grid.Col span={12}>

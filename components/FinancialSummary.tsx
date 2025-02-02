@@ -10,7 +10,7 @@ import {
   IconTrendingDown,
   IconTrendingUp,
 } from '@tabler/icons-react';
-import { Group, SimpleGrid, Text } from '@mantine/core';
+import { Group, SimpleGrid, Spoiler, Text, Title } from '@mantine/core';
 import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
 import { useLazyGetFinancialSummaryQuery } from '@/lib/features/api';
 import { formatExchage } from '@/utils/helpers';
@@ -137,8 +137,15 @@ export function FinancialSummary() {
   }, [data]);
 
   return (
-    <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="md">
-      {cardMemo}
-    </SimpleGrid>
+    <>
+      <Group pb="sm">
+        <Title order={3}>Financial Summary</Title>
+      </Group>
+      <Spoiler maxHeight={200} showLabel="Show more" hideLabel="Hide" transitionDuration={200}>
+        <SimpleGrid cols={{ base: 1, lg: 3 }} spacing="md">
+          {cardMemo}
+        </SimpleGrid>
+      </Spoiler>
+    </>
   );
 }
