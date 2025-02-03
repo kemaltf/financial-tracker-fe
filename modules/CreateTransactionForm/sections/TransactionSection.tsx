@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo } from 'react';
-import { Grid, Group, NumberInput, Select, Text, Textarea, Title } from '@mantine/core';
+import { Grid, Group, NumberInput, Select, Text, Title } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
+import TextAreaWithCounter from '@/components/TextAreaCount';
 import { useGetTransactionTypesQuery, useLazyGetAvailableAccountsQuery } from '@/lib/features/api';
 import { isNullOrUndefined, isZero } from '@/utils/helpers';
 import { TransactionFormValues } from '../form';
@@ -104,34 +105,21 @@ export const TransactionSection = ({ form }: Props) => {
           />
         </Grid.Col>
         <Grid.Col span={12}>
-          <div style={{ position: 'relative', width: '100%', minHeight: '130px' }}>
-            <Textarea
-              label="Note"
-              placeholder="Note"
-              {...form.getInputProps('note')}
-              onChange={(event) => form.setFieldValue('note', event.currentTarget.value)}
-              minRows={4}
-              maxRows={10}
-              styles={{
-                input: {
-                  paddingBottom: '30px', // Tambahkan ruang di bawah untuk counter
-                  position: 'relative',
-                },
-              }}
-              withAsterisk
-            />
-            <div
-              style={{
-                position: 'absolute',
-                bottom: '30px', // Jarak dari bawah
-                right: '12px', // Jarak dari kanan
-                fontSize: '12px', // Ukuran font kecil
-                color: form.values.note.length >= 500 ? 'red' : 'gray', // Warna dinamis
-              }}
-            >
-              {form.values.note.length} / {500}
-            </div>
-          </div>
+          <TextAreaWithCounter
+            label="Note"
+            placeholder="Note"
+            {...form.getInputProps('note')}
+            onChange={(event) => form.setFieldValue('note', event.currentTarget.value.trim())}
+            minRows={4}
+            maxRows={10}
+            styles={{
+              input: {
+                paddingBottom: '30px', // Tambahkan ruang di bawah untuk counter
+                position: 'relative',
+              },
+            }}
+            withAsterisk
+          />
         </Grid.Col>
       </Grid>
     </Grid.Col>

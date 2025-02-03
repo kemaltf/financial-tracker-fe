@@ -60,6 +60,21 @@ export interface TransactionSummaryResponse {
   profitLossChange: number | null;
 }
 
+export interface TransactionBalanceSheet {
+  assets: {
+    name: string;
+    total: number;
+  }[];
+  liabilities: {
+    name: string;
+    total: number;
+  }[];
+  equity: {
+    name: string;
+    total: number;
+  }[];
+}
+
 export interface TransactionQueryParams {
   startMonth: string;
   endMonth: string;

@@ -1,6 +1,6 @@
 'use client';
 
-import { createTheme, rem } from '@mantine/core';
+import { createTheme, CSSVariablesResolver, rem } from '@mantine/core';
 
 export const theme = createTheme({
   colors: {
@@ -44,11 +44,24 @@ export const theme = createTheme({
     },
   },
 
-  breakpoints: {
-    xs: '30em',
-    sm: '48em',
-    md: '64em',
-    lg: '74em',
-    xl: '90em',
+  // breakpoints: {
+  //   xs: '30em',
+  //   sm: '48em',
+  //   md: '64em',
+  //   lg: '74em',
+  //   xl: '90em',
+  // },
+});
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const resolver: CSSVariablesResolver = (theme) => ({
+  variables: {
+    '--app-header-height': rem(60),
+  },
+  dark: {
+    '--app-header-height': rem(60),
+  },
+  light: {
+    '--app-header-height': rem(60),
   },
 });

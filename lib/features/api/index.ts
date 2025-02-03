@@ -29,8 +29,10 @@ export const {
   useLazyGetAvailableAccountsQuery,
   useGetStoreQuery,
   useCreateTransactionMutation,
+  useCreateStoreMutation,
   useGetProductsQuery,
   useGetTransactionsQuery,
   useLazyGetTransactionsQuery,
   useLazyGetFinancialSummaryQuery,
+  useLazyGetBalanceSheetQuery,
 } = api;

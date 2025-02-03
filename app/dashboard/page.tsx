@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { Container, Grid } from '@mantine/core';
+import { BalanceSheet } from '@/components/BalanceSheet';
 import { FinancialSummary } from '@/components/FinancialSummary';
 import { TransactionHistory } from '@/components/TransactionHistory/index';
 import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
@@ -21,6 +22,9 @@ const DashboardPage = () => {
       <Grid>
         <Grid.Col span={12} mb="md">
           <FinancialSummary />
+        </Grid.Col>
+        <Grid.Col span={12} mb="md">
+          <BalanceSheet />
         </Grid.Col>
         <Grid.Col span={12}>
           <TransactionHistory />

@@ -3,6 +3,7 @@ import { notifications } from '@mantine/notifications';
 import { notify } from '@/components/notify';
 import { type ApiResponse } from '../types/common';
 import type {
+  TransactionBalanceSheet,
   TransactionDTO,
   TransactionQueryParams,
   TransactionResponse,
@@ -18,6 +19,16 @@ export const transactionEndpoints = (builder: EndpointBuilder<any, never, 'api'>
   >({
     query: (transaction) => ({
       url: 'transactions/financial-summary',
+      method: 'GET',
+      params: transaction,
+    }),
+  }),
+  getBalanceSheet: builder.query<
+    ApiResponse<TransactionBalanceSheet>,
+    TransactionSummaryQueryParams
+  >({
+    query: (transaction) => ({
+      url: 'transactions/balance-sheet',
       method: 'GET',
       params: transaction,
     }),

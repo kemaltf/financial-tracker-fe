@@ -8,12 +8,13 @@ import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
 import {
   api,
   useCreateTransactionMutation,
+  useLazyGetBalanceSheetQuery,
   useLazyGetFinancialSummaryQuery,
   useLazyGetTransactionsQuery,
 } from '@/lib/features/api';
 import { TransactionDTO } from '@/lib/features/api/types/transaction';
 import { stringToDate } from '@/utils/helpers';
-import { TransactionForm } from './form';
+import { TransactionFormValues, useTransactionForm } from './form';
 import {
   ActionButton,
   Address,
@@ -33,19 +34,21 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   const dispatch = useDispatch();
 
   const { isMobile } = useDeviceType();
-  const [trigger, { reset: resetTransactionResult }] = useLazyGetTransactionsQuery();
+  const [trigger] = useLazyGetTransactionsQuery();
   const { filter } = useTransactionHistory();
   const [createTransaction] = useCreateTransactionMutation();
-  const [triggerFinancialSummary, { reset: resetFinancialSummary }] =
-    useLazyGetFinancialSummaryQuery();
+  const [triggerFinancialSummary] = useLazyGetFinancialSummaryQuery();
+  const [triggerBalanceSheet] = useLazyGetBalanceSheetQuery();
 
-  const form = TransactionForm();
+  const form = useTransactionForm();
 
-  const handleSubmit = async (values: typeof form.values) => {
+  console.log(form.values);
+
+  const handleSubmit = async (values: TransactionFormValues) => {
     const convertedValues: TransactionDTO = {
       transactionTypeId: Number(values.transactionTypeId),
       amount: values.amount,
-      note: values.note,
+      note: values.note.trim(),
       debitAccountId: Number(values.debitAccountId),
       creditAccountId: Number(values.creditAccountId),
       customerId: values.customerId ? Number(values.customerId) : undefined,
@@ -56,13 +59,13 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
       address:
         values.address && !Object.values(values.address).every((field) => field === '')
           ? {
-              recipientName: values.address.recipientName || '',
-              addressLine1: values.address.addressLine1 || '',
-              addressLine2: values.address.addressLine2 || '',
-              city: values.address.city || '',
-              state: values.address.state || '',
-              postalCode: values.address.postalCode || '',
-              phoneNumber: values.address.phoneNumber || '',
+              recipientName: values.address.recipientName?.trim() || '',
+              addressLine1: values.address.addressLine1?.trim() || '',
+              addressLine2: values.address.addressLine2?.trim() || '',
+              city: values.address.city?.trim() || '',
+              state: values.address.state?.trim() || '',
+              postalCode: values.address.postalCode?.trim() || '',
+              phoneNumber: values.address.phoneNumber?.trim() || '',
             }
           : undefined,
       orders: values.products?.map((product) => ({
@@ -71,33 +74,34 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
       })),
     };
 
-    try {
-      const result = await createTransaction(convertedValues).unwrap();
-      if (result.status === 'success') {
-        // close modals
-        onClose();
+    const result = await createTransaction(convertedValues).unwrap();
+    if (result.status === 'success') {
+      // close modals
+      onClose();
 
-        // reset all state
-        dispatch(api.util.resetApiState());
+      // reset all state
+      dispatch(api.util.resetApiState());
 
-        // reset
-        resetTransactionResult();
-        resetFinancialSummary();
+      // reset
+      // resetTransactionResult();
+      // resetFinancialSummary();
 
-        trigger({
-          ...filter,
-          page: 1,
-        });
+      trigger({
+        ...filter,
+        page: 1,
+      });
 
-        triggerFinancialSummary({
-          endMonth: filter.endMonth,
-          startMonth: filter.startMonth,
-        });
+      triggerFinancialSummary({
+        endMonth: filter.endMonth,
+        startMonth: filter.startMonth,
+      });
 
-        router.refresh();
-      }
-    } catch (error) {
-      console.error('Failed to create transaction:', error);
+      triggerBalanceSheet({
+        endMonth: filter.endMonth,
+        startMonth: filter.startMonth,
+      });
+
+      router.refresh();
     }
   };
 

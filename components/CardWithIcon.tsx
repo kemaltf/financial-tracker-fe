@@ -6,7 +6,7 @@ interface InfoCardProps {
   icon: JSX.Element;
   title: string;
   value: string;
-  children: ReactNode;
+  children?: ReactNode;
   isLoading: boolean; // Menambahkan properti untuk memeriksa status loading
   label: string;
 }

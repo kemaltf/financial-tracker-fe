@@ -3,12 +3,16 @@ import { useForm, zodResolver } from '@mantine/form';
 
 const transactionSchema = z
   .object({
-    transactionTypeId: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
-      message: 'Transaction Type is required',
-    }),
+    transactionTypeId: z
+      .string()
+      .trim()
+      .refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
+        message: 'Transaction Type is required',
+      }),
     amount: z.number().min(0.01, { message: 'Amount must be greater than 0' }),
     note: z
       .string()
+      .trim()
       .min(3, { message: 'Note must be at least 3 characters long' })
       .max(500, { message: 'Note cannot exceed 500 characters' }),
     debitAccountId: z
@@ -48,13 +52,13 @@ const transactionSchema = z
     dueDate: z.date().optional().nullable(),
     address: z
       .object({
-        recipientName: z.string().optional(),
-        addressLine1: z.string().optional(),
-        addressLine2: z.string().optional(),
-        city: z.string().optional(),
-        state: z.string().optional(),
-        postalCode: z.string().optional(),
-        phoneNumber: z.string().optional(),
+        recipientName: z.string().trim().optional(),
+        addressLine1: z.string().trim().optional(),
+        addressLine2: z.string().trim().optional(),
+        city: z.string().trim().optional(),
+        state: z.string().trim().optional(),
+        postalCode: z.string().trim().optional(),
+        phoneNumber: z.string().trim().optional(),
       })
       .optional(),
     products: z
@@ -106,7 +110,7 @@ const initialValues: TransactionFormValues = {
   products: [],
 };
 
-export function TransactionForm() {
+export function useTransactionForm() {
   const form = useForm<TransactionFormValues>({
     validate: zodResolver(transactionSchema),
     initialValues,
