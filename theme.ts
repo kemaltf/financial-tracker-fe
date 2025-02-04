@@ -44,19 +44,20 @@ export const theme = createTheme({
     },
   },
 
-  // breakpoints: {
-  //   xs: '30em',
-  //   sm: '48em',
-  //   md: '64em',
-  //   lg: '74em',
-  //   xl: '90em',
-  // },
+  breakpoints: {
+    xs: '30em',
+    sm: '48em',
+    md: '64em',
+    lg: '74em',
+    xl: '90em',
+  },
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const resolver: CSSVariablesResolver = (theme) => ({
   variables: {
     '--app-header-height': rem(60),
+    '--app-header-z-index': '200',
   },
   dark: {
     '--app-header-height': rem(60),
