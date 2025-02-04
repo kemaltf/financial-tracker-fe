@@ -2,11 +2,17 @@ import '@mantine/core/styles.css';
 
 import React from 'react';
 import { ColorSchemeScript, mantineHtmlProps, MantineProvider } from '@mantine/core';
-import { theme } from '../theme';
+import { resolver, theme } from '../theme';
 import StoreProvider from './StoreProvider';
 
 import '@mantine/charts/styles.css';
 import '@mantine/dates/styles.css';
+import '@mantine/notifications/styles.css';
+
+import { ModalsProvider } from '@mantine/modals';
+import { Notifications } from '@mantine/notifications';
+
+import './global.css';
 
 export const metadata = {
   title: 'Mantine Next.js template',
@@ -25,8 +31,12 @@ export default function RootLayout({ children }: { children: any }) {
         />
       </head>
       <body>
-        <MantineProvider theme={theme}>
-          <StoreProvider>{children}</StoreProvider>
+        {/* https://mantine.dev/styles/css-variables/#css-variables-resolver */}
+        <MantineProvider theme={theme} cssVariablesResolver={resolver}>
+          <Notifications />
+          <StoreProvider>
+            <ModalsProvider>{children}</ModalsProvider>
+          </StoreProvider>
         </MantineProvider>
       </body>
     </html>
