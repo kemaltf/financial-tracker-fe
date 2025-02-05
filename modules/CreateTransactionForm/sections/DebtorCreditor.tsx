@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Grid, Group, Select, Title, Tooltip } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { UseFormReturnType } from '@mantine/form';
-import { useGetCustomersQuery } from '@/lib/features/api';
+import { useGetFinancialPartyOptQuery } from '@/lib/features/api';
 import { TransactionFormValues } from '../form';
 
 type Props = {
@@ -10,8 +10,10 @@ type Props = {
 };
 
 export const DebtorCreditor = ({ form }: Props) => {
-  const { data: debtors, isLoading: isLoadingDebtors } = useGetCustomersQuery({ role: 'DEBTOR' });
-  const { data: creditors, isLoading: isLoadingCreditors } = useGetCustomersQuery({
+  const { data: debtors, isLoading: isLoadingDebtors } = useGetFinancialPartyOptQuery({
+    role: 'DEBTOR',
+  });
+  const { data: creditors, isLoading: isLoadingCreditors } = useGetFinancialPartyOptQuery({
     role: 'CREDITOR',
   });
   return (

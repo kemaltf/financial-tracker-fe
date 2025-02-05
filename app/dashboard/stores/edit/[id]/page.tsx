@@ -1,7 +1,7 @@
-import CreateTransactionForm from '@/modules/CreateStoreForm';
+import StoreForm from '@/modules/CreateStoreForm';
 
 const EditStore = () => {
-  return <CreateTransactionForm />;
+  return <StoreForm />;
 };
 
 export default EditStore;

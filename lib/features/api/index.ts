@@ -9,7 +9,7 @@ import {
 import { baseQueryWithReauth } from './base-query';
 import { accountEndpoints } from './features/account-endpoints';
 import { authEndpoints } from './features/auth-endpoints';
-import { customerEndpoints } from './features/customer-endpoints';
+import { financialPartyEndpoints } from './features/financial-party-endpoints';
 import { productEndpoints } from './features/product-endpoints';
 import { storeEndpoints } from './features/store-endpoints';
 import { transactionEndpoints } from './features/transaction-endpoints';
@@ -17,6 +17,7 @@ import { transactionEndpoints } from './features/transaction-endpoints';
 export enum ApiTags {
   Store = 'Store',
   Transaction = 'Transaction',
+  FinancialParty = 'FinancialParty',
 }
 
 export type BuilderType = EndpointBuilder<
@@ -34,7 +35,7 @@ export const api = createApi({
     ...transactionEndpoints(builder),
     ...accountEndpoints(builder),
     ...storeEndpoints(builder),
-    ...customerEndpoints(builder),
+    ...financialPartyEndpoints(builder),
     ...productEndpoints(builder),
   }),
 });
@@ -44,7 +45,7 @@ export const {
   useRefreshMutation,
   useLogoutMutation,
   useGetTransactionTypesQuery,
-  useGetCustomersQuery,
+  useGetFinancialPartyOptQuery,
   useLazyGetAvailableAccountsQuery,
   useGetStoresQuery,
   useCreateTransactionMutation,
@@ -57,4 +58,9 @@ export const {
   useLazyGetStoreQuery,
   useEditStoreMutation,
   useDeleteStoreMutation,
+  useGetFinancialPartiesQuery,
+  useDeleteFinancialPartyMutation,
+  useCreateFinancialPartyMutation,
+  useLazyGetFinancialPartyQuery,
+  useEditFinancialPartyMutation,
 } = api;

@@ -11,7 +11,7 @@ import {
 } from '@/lib/features/api';
 import { StoreFormValues, useStoreForm } from '@/modules/CreateStoreForm/form';
 
-const CreateTransactionForm = () => {
+const StoreForm = () => {
   const params = useParams(); // Ambil ID dari URL
   const path = usePathname().split('/')[3];
 
@@ -88,4 +88,4 @@ const CreateTransactionForm = () => {
   );
 };
 
-export default CreateTransactionForm;
+export default StoreForm;

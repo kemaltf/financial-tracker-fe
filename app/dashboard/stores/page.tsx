@@ -1,6 +1,5 @@
 'use client';
 
-import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Group, Table, Text } from '@mantine/core';
@@ -8,8 +7,8 @@ import { modals } from '@mantine/modals';
 import { useDeleteStoreMutation, useGetStoresQuery } from '@/lib/features/api';
 
 function Stores() {
-  const { data, refetch } = useGetStoresQuery();
-  const [deleteStore, { isLoading }] = useDeleteStoreMutation();
+  const { data } = useGetStoresQuery();
+  const [deleteStore] = useDeleteStoreMutation();
 
   const router = useRouter();
 
@@ -25,15 +24,9 @@ function Stores() {
       labels: { confirm: 'Delete store', cancel: "No don't delete it" },
       confirmProps: { color: 'red' },
       onConfirm: () => {
-        console.log(id);
-        // Call the delete store function (assuming it's a mutation or API call)
         deleteStore({ id });
       },
     });
-
-  // useEffect(() => {
-  //   refetch();
-  // }, [router]);
 
   const rows = data?.data.map((item) => (
     <Table.Tr key={item.value}>
@@ -54,18 +47,20 @@ function Stores() {
   ));
 
   return (
-    <Table stickyHeader stickyHeaderOffset={60}>
-      <Table.Thead>
-        <Table.Tr>
-          <Table.Th>ID</Table.Th>
-          <Table.Th>Label</Table.Th>
-          <Table.Th>Description</Table.Th>
-          <Table.Th>Actions</Table.Th>
-        </Table.Tr>
-      </Table.Thead>
-      <Table.Tbody>{rows}</Table.Tbody>
-      <Table.Caption>Scroll page to see sticky thead</Table.Caption>
-    </Table>
+    <>
+      <Table stickyHeader stickyHeaderOffset={60}>
+        <Table.Thead>
+          <Table.Tr>
+            <Table.Th>ID</Table.Th>
+            <Table.Th>Label</Table.Th>
+            <Table.Th>Description</Table.Th>
+            <Table.Th>Actions</Table.Th>
+          </Table.Tr>
+        </Table.Thead>
+        <Table.Tbody>{rows}</Table.Tbody>
+        <Table.Caption>Scroll page to see sticky thead</Table.Caption>
+      </Table>
+    </>
   );
 }
 

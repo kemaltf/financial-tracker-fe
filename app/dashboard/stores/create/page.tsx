@@ -1,7 +1,7 @@
-import CreateTransactionForm from '@/modules/CreateStoreForm';
+import StoreForm from '@/modules/CreateStoreForm';
 
 const CreateForm = () => {
-  return <CreateTransactionForm />;
+  return <StoreForm />;
 };
 
 export default CreateForm;

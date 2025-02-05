@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Grid, Group, Select, Title, Tooltip } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { useGetCustomersQuery } from '@/lib/features/api';
+import { useGetFinancialPartyOptQuery } from '@/lib/features/api';
 import { TransactionFormValues } from '../form';
 
 type Props = {
@@ -9,7 +9,7 @@ type Props = {
 };
 
 export const CustomerSection = ({ form }: Props) => {
-  const { data, isLoading } = useGetCustomersQuery({
+  const { data, isLoading } = useGetFinancialPartyOptQuery({
     role: 'CUSTOMER',
   });
 
