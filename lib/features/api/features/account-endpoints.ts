@@ -1,8 +1,8 @@
-import { EndpointBuilder } from '@reduxjs/toolkit/query';
+import { BuilderType } from '..';
 import { type AvailableAccounts } from '../types/account';
 import { type ApiResponse } from '../types/common';
 
-export const accountEndpoints = (builder: EndpointBuilder<any, never, 'api'>) => ({
+export const accountEndpoints = (builder: BuilderType) => ({
   getAvailableAccounts: builder.query<ApiResponse<AvailableAccounts>, number>({
     query: (id) => ({
       url: `accounts/options/${id}`,

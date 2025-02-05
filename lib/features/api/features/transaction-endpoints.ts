@@ -1,4 +1,4 @@
-import { EndpointBuilder } from '@reduxjs/toolkit/query';
+import { ApiTags, BuilderType } from '..';
 import { notifications } from '@mantine/notifications';
 import { notify } from '@/components/notify';
 import { type ApiResponse } from '../types/common';
@@ -12,7 +12,7 @@ import type {
   TransactionTypeWithDescription,
 } from '../types/transaction';
 
-export const transactionEndpoints = (builder: EndpointBuilder<any, never, 'api'>) => ({
+export const transactionEndpoints = (builder: BuilderType) => ({
   getFinancialSummary: builder.query<
     ApiResponse<TransactionSummaryResponse>,
     TransactionSummaryQueryParams
@@ -22,6 +22,9 @@ export const transactionEndpoints = (builder: EndpointBuilder<any, never, 'api'>
       method: 'GET',
       params: transaction,
     }),
+    providesTags: (result) => [
+      { type: ApiTags.Transaction, id: 'FINANCIAL_SUMMARY' }, // Menandai query summary dengan tag 'FINANCIAL_SUMMARY'
+    ],
   }),
   getBalanceSheet: builder.query<
     ApiResponse<TransactionBalanceSheet>,
@@ -64,6 +67,17 @@ export const transactionEndpoints = (builder: EndpointBuilder<any, never, 'api'>
         sortDirection,
       },
     }),
+    providesTags: (result) =>
+      result
+        ? [
+            // Menandai setiap transaksi dengan ID atau tag lainnya
+            ...result.data.data.map(({ id }) => ({
+              type: ApiTags.Transaction, // Menandai dengan type 'Transaction'
+              id, // ID transaksi
+            })),
+            { type: ApiTags.Transaction, id: 'LIST' }, // Menandai daftar transaksi secara keseluruhan
+          ]
+        : [{ type: ApiTags.Transaction, id: 'LIST' }],
     serializeQueryArgs: ({ endpointName }) => {
       return endpointName;
     },
@@ -75,13 +89,13 @@ export const transactionEndpoints = (builder: EndpointBuilder<any, never, 'api'>
       ) {
         currentCache.data = newItems.data;
       } else {
-        // Jika bulan sama, tambahkan data baru
         currentCache.data.data.push(...newItems.data.data);
+        // Jika bulan sama, tambahkan data baru dan urutkan
+        currentCache.data.data.sort((a, b) => b.id - a.id); // Sort berdasarkan ID dari besar ke kecil
       }
       currentCache.data.totalPages = newItems.data.totalPages;
       currentCache.data.currentPage = newItems.data.currentPage;
     },
-
     transformResponse: (
       response: ApiResponse<TransactionResponse>
     ): ApiResponse<TransactionResponse> => {
@@ -94,6 +108,11 @@ export const transactionEndpoints = (builder: EndpointBuilder<any, never, 'api'>
       method: 'POST',
       body: transaction,
     }),
+    // Invalidasi tag untuk getTransactions dan getFinancialSummary setelah mutasi berhasil
+    invalidatesTags: [
+      { type: ApiTags.Transaction, id: 'LIST' }, // Untuk getTransactions
+      { type: ApiTags.Transaction, id: 'FINANCIAL_SUMMARY' }, // Untuk getFinancialSummary
+    ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onQueryStarted: async (transaction, { dispatch, queryFulfilled }) => {
       // Show the loading notification when the query is triggered
@@ -102,6 +121,7 @@ export const transactionEndpoints = (builder: EndpointBuilder<any, never, 'api'>
       try {
         await queryFulfilled; // Await the response of the mutation
         notifications.clean();
+        // Invalidate cache getTransactions setelah transaksi berhasil dibuat
         // Show the success notification when the transaction is successfully created
         notify('success', 'Transaction created successfully!');
         // Remove the loading notification

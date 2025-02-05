@@ -1,9 +1,9 @@
-import { EndpointBuilder } from '@reduxjs/toolkit/query';
+import { BuilderType } from '..';
 import { notifications } from '@mantine/notifications';
 import { notify } from '@/components/notify';
 import { type ApiResponse } from '../types/common';
 
-export const authEndpoints = (builder: EndpointBuilder<any, never, 'api'>) => ({
+export const authEndpoints = (builder: BuilderType) => ({
   login: builder.mutation<
     ApiResponse<undefined>,
     { username: string; password: string; rememberMe: boolean | undefined }

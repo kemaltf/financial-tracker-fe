@@ -1,9 +1,9 @@
-import { EndpointBuilder } from '@reduxjs/toolkit/query';
+import { BuilderType } from '..';
 import { formatExchage } from '@/utils/helpers';
 import { type ApiResponse } from '../types/common';
 import type { ProductQueryParams, ProductResponse } from '../types/product';
 
-export const productEndpoints = (builder: EndpointBuilder<any, never, 'api'>) => ({
+export const productEndpoints = (builder: BuilderType) => ({
   getProducts: builder.query<ApiResponse<ProductResponse>, ProductQueryParams>({
     query: ({ page, limit, sortBy, sortDirection, storeId, filters }) => ({
       url: 'products',

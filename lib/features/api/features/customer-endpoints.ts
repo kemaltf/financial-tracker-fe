@@ -1,7 +1,7 @@
-import { EndpointBuilder } from '@reduxjs/toolkit/query';
+import { BuilderType } from '..';
 import { SelectType, type ApiResponse } from '../types/common';
 
-export const customerEndpoints = (builder: EndpointBuilder<any, never, 'api'>) => ({
+export const customerEndpoints = (builder: BuilderType) => ({
   getCustomers: builder.query<ApiResponse<SelectType[]>, { role: string }>({
     query: ({ role }) => ({
       url: `financial-party?role=${role}`,

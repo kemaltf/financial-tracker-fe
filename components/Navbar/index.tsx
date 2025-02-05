@@ -1,18 +1,21 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
-  IconAmbulance,
-  IconCategory,
-  IconCode,
-  IconFolder,
+  IconBrandMinecraft,
+  IconBuildingStore,
   IconHome2,
+  IconImageInPicture,
   IconMessageCircle,
   IconMessageQuestion,
   IconMinus,
+  IconMoneybag,
+  IconReport,
   IconSelector,
   IconSettings,
   IconSettings2,
+  IconTransactionBitcoin,
   IconTrash,
+  IconUsers,
 } from '@tabler/icons-react';
 import {
   Badge,
@@ -147,9 +150,11 @@ const Folder = ({ title, icon: Icon, files }: NavLink) => {
               style={{ textDecoration: 'none' }}
             >
               <Text lts={-0.5}>{file.name}</Text>
-              <Badge radius={6} className={classes.noti} px={6}>
-                {file.noti}
-              </Badge>
+              {file?.noti && (
+                <Badge radius={6} className={classes.noti} px={6}>
+                  {file.noti}
+                </Badge>
+              )}
             </Link>
           ))}
         </Flex>
@@ -158,75 +163,226 @@ const Folder = ({ title, icon: Icon, files }: NavLink) => {
   );
 };
 
-type NavLink = (typeof navlinks)[number];
+interface FileItem {
+  id: number;
+  name: string;
+  link: string;
+  noti?: number;
+}
 
-const navlinks = [
+interface NavLink {
+  id: number;
+  icon: any;
+  title: string;
+  link: string;
+  files: FileItem[];
+  hasBorderBottom?: boolean;
+}
+
+// https://tabler.io/icons
+const navlinks: NavLink[] = [
   {
     id: 1,
     icon: IconHome2,
     title: 'Home',
-    link: '/insight-grid',
-    files: [],
-  },
-  {
-    id: 2,
-    icon: IconCode,
-    title: 'My projects',
-    link: '/insight-grid/dashboard',
+    link: '/dashboard',
     files: [],
     hasBorderBottom: true,
   },
+
   {
     id: 3,
-    icon: IconFolder,
-    title: 'Folders',
-    link: '/insight-grid/dashboard',
+    icon: IconBuildingStore,
+    title: 'Stores',
+    link: '/dashboard/stores',
     files: [
       {
         id: 1,
-        name: 'View all',
-        link: '/insight-grid/dashboard/view-all',
-        noti: 48,
+        name: '+ Create new store',
+        link: '/dashboard/stores/create',
+        // noti: 1,
       },
       {
         id: 2,
-        name: 'Recent',
-        link: '/insight-grid/dashboard/recent',
-        noti: 6,
-      },
-      {
-        id: 3,
-        name: 'Favourites',
-        link: '/insight-grid/dashboard/favourite',
-        noti: 4,
-      },
-      {
-        id: 4,
-        name: 'Shared',
-        link: '/insight-grid/dashboard/shared',
-        noti: 22,
-      },
-      {
-        id: 5,
-        name: 'Achived',
-        link: '/insight-grid/dashboard/achieved',
-        noti: 14,
+        name: 'Store management',
+        link: '/dashboard/stores',
+        // noti: 1,
       },
     ],
   },
   {
     id: 4,
-    icon: IconCategory,
-    title: 'All files',
-    link: '/insight-grid/all-files',
-    files: [],
+    icon: IconBrandMinecraft,
+    title: 'Products',
+    link: '/dashboard/products',
+    files: [
+      {
+        id: 1,
+        name: 'Product management',
+        link: '/dashboard/products',
+        // noti: 1,
+      },
+      {
+        id: 2,
+        name: '+ Create new product',
+        link: '/dashboard/products/create',
+        // noti: 1,
+      },
+      {
+        id: 3,
+        name: 'Category',
+        link: '/dashboard/products/categories',
+        // noti: 1,
+      },
+      {
+        id: 4,
+        name: 'Variant Type',
+        link: '/dashboard/products/variant-types',
+        // noti: 1,
+      },
+    ],
   },
   {
     id: 5,
-    icon: IconAmbulance,
-    title: 'Team Members',
-    link: '/insight-grid/team-members',
-    files: [],
+    icon: IconImageInPicture,
+    title: 'Images',
+    link: '/dashboard/images',
+    files: [
+      {
+        id: 1,
+        name: 'Image management',
+        link: '/dashboard/images',
+        // noti: 1,
+      },
+      {
+        id: 2,
+        name: '+ Upload new images',
+        link: '/dashboard/images/upload',
+        // noti: 1,
+      },
+    ],
+  },
+  {
+    id: 6,
+    icon: IconUsers,
+    title: 'Financial Party',
+    link: '/dashboard/financial-party',
+    files: [
+      {
+        id: 1,
+        name: 'Customer',
+        link: '/dashboard/financial-party/customer',
+        // noti: 1,
+      },
+      {
+        id: 2,
+        name: 'Debtor',
+        link: '/dashboard/financial-party/debtor',
+        // noti: 1,
+      },
+      {
+        id: 3,
+        name: 'Creditor',
+        link: '/dashboard/financial-party/creditor',
+        // noti: 1,
+      },
+      {
+        id: 4,
+        name: 'Create Financial Party',
+        link: '/dashboard/financial-party/create',
+        // noti: 1,
+      },
+    ],
+  },
+  {
+    id: 7,
+    icon: IconMoneybag,
+    title: 'Accounts',
+    link: '/dashboard/accounts',
+    files: [
+      {
+        id: 1,
+        name: 'Account Management',
+        link: '/dashboard/accounts',
+        // noti: 1,
+      },
+      {
+        id: 2,
+        name: 'Debtor',
+        link: '/dashboard/accounts/create',
+        // noti: 1,
+      },
+    ],
+  },
+  {
+    id: 8,
+    icon: IconTransactionBitcoin,
+    title: 'Transactions',
+    link: '/dashboard/transactions',
+    files: [
+      {
+        id: 1,
+        name: 'Transaction history',
+        link: '/dashboard/transactions',
+        // noti: 1,
+      },
+      {
+        id: 2,
+        name: '+ Create transaction type',
+        link: '/dashboard/transactions/types',
+        // noti: 1,
+      },
+    ],
+  },
+  {
+    id: 9,
+    icon: IconReport,
+    title: 'Reports',
+    link: '/dashboard/reports',
+    files: [
+      {
+        id: 1,
+        name: 'Financial Summary',
+        link: '/dashboard/reports/summary',
+        // noti: 1,
+      },
+      {
+        id: 2,
+        name: 'Ledger',
+        link: '/dashboard/transactions/ledger',
+        // noti: 1,
+      },
+      {
+        id: 3,
+        name: 'Trial Balance',
+        link: '/dashboard/transactions/trial-balance',
+        // noti: 1,
+      },
+      {
+        id: 4,
+        name: 'Income Statement',
+        link: '/dashboard/transactions/income-statement',
+        // noti: 1,
+      },
+      {
+        id: 5,
+        name: 'Balance Sheet',
+        link: '/dashboard/transactions/balance-sheet',
+        // noti: 1,
+      },
+      {
+        id: 6,
+        name: 'Cash Flow',
+        link: '/dashboard/transactions/cash-flow',
+        // noti: 1,
+      },
+      {
+        id: 7,
+        name: 'Monthly Trends',
+        link: '/dashboard/transactions/monthly-trends',
+        // noti: 1,
+      },
+    ],
   },
 ];
 

@@ -1,4 +1,4 @@
-import { IconNotification, IconPlus, IconSearch, IconSettings } from '@tabler/icons-react';
+import { IconNotification, IconPlus, IconSettings } from '@tabler/icons-react';
 import {
   ActionIcon,
   Avatar,
@@ -10,7 +10,6 @@ import {
   Menu,
   ScrollArea,
   Text,
-  TextInput,
   Tooltip,
 } from '@mantine/core';
 import { useModals } from '@mantine/modals';
@@ -39,12 +38,12 @@ export default function Header({ opened, toggle, handleLogout }: Props) {
   return (
     <Flex h="100%" gap={10} w="100%" direction={{ base: 'row', md: 'column' }} align="center">
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
-      <Group className={classes.wrapper}>
+      <Flex className={classes.wrapper}>
         <Text visibleFrom="md" className={classes.title} fz={24} fw={800}>
           Welcome back
         </Text>
         <Flex align="center" gap={24}>
-          <TextInput
+          {/* <TextInput
             visibleFrom="md"
             radius="md"
             w={260}
@@ -53,7 +52,7 @@ export default function Header({ opened, toggle, handleLogout }: Props) {
             classNames={{
               input: classes.searchInput,
             }}
-          />
+          /> */}
 
           <Group>
             <Flex align="center" gap={8}>
@@ -110,7 +109,7 @@ export default function Header({ opened, toggle, handleLogout }: Props) {
             </Flex>
           </Group>
         </Flex>
-      </Group>
+      </Flex>
       <Divider visibleFrom="md" w="100%" />
     </Flex>
   );

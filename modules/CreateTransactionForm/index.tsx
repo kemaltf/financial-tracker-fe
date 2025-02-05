@@ -1,17 +1,9 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useDispatch } from 'react-redux';
 import { Container, Divider, Grid } from '@mantine/core';
 import { useDeviceType } from '@/hooks/use-device-size';
-import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
-import {
-  api,
-  useCreateTransactionMutation,
-  useLazyGetBalanceSheetQuery,
-  useLazyGetFinancialSummaryQuery,
-  useLazyGetTransactionsQuery,
-} from '@/lib/features/api';
+import { useCreateTransactionMutation } from '@/lib/features/api';
 import { TransactionDTO } from '@/lib/features/api/types/transaction';
 import { stringToDate } from '@/utils/helpers';
 import { TransactionFormValues, useTransactionForm } from './form';
@@ -31,18 +23,11 @@ interface AddTransactionFormProps {
 
 const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   const router = useRouter();
-  const dispatch = useDispatch();
 
   const { isMobile } = useDeviceType();
-  const [trigger] = useLazyGetTransactionsQuery();
-  const { filter } = useTransactionHistory();
   const [createTransaction] = useCreateTransactionMutation();
-  const [triggerFinancialSummary] = useLazyGetFinancialSummaryQuery();
-  const [triggerBalanceSheet] = useLazyGetBalanceSheetQuery();
 
   const form = useTransactionForm();
-
-  console.log(form.values);
 
   const handleSubmit = async (values: TransactionFormValues) => {
     const convertedValues: TransactionDTO = {
@@ -78,28 +63,6 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
     if (result.status === 'success') {
       // close modals
       onClose();
-
-      // reset all state
-      dispatch(api.util.resetApiState());
-
-      // reset
-      // resetTransactionResult();
-      // resetFinancialSummary();
-
-      trigger({
-        ...filter,
-        page: 1,
-      });
-
-      triggerFinancialSummary({
-        endMonth: filter.endMonth,
-        startMonth: filter.startMonth,
-      });
-
-      triggerBalanceSheet({
-        endMonth: filter.endMonth,
-        startMonth: filter.startMonth,
-      });
 
       router.refresh();
     }
