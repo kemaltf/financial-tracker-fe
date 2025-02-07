@@ -109,7 +109,6 @@ export const TransactionSection = ({ form }: Props) => {
             label="Note"
             placeholder="Note"
             {...form.getInputProps('note')}
-            onChange={(event) => form.setFieldValue('note', event.currentTarget.value.trim())}
             minRows={4}
             maxRows={10}
             styles={{

@@ -6,9 +6,9 @@ import { ActionIcon, Container, Group, Stack, Table, Text, Title } from '@mantin
 import { modals } from '@mantine/modals';
 import { useDeleteFinancialPartyMutation, useGetFinancialPartiesQuery } from '@/lib/features/api';
 
-function Customer() {
-  const { data } = useGetFinancialPartiesQuery({ role: 'CUSTOMER' });
-  const [deleteCustomer] = useDeleteFinancialPartyMutation();
+function Creditor() {
+  const { data } = useGetFinancialPartiesQuery({ role: 'CREDITOR' });
+  const [deleteCreditor] = useDeleteFinancialPartyMutation();
   const router = useRouter();
 
   const handleEditClick = (id: number) => {
@@ -17,13 +17,13 @@ function Customer() {
 
   const openDeleteModal = (id: number) =>
     modals.openConfirmModal({
-      title: 'Delete customer',
+      title: 'Delete creditor',
       centered: true,
       children: <Text size="sm">Are you sure you want to delete your store?</Text>,
-      labels: { confirm: 'Delete customer', cancel: "No don't delete it" },
+      labels: { confirm: 'Delete creditor', cancel: "No don't delete it" },
       confirmProps: { color: 'red' },
       onConfirm: () => {
-        deleteCustomer({ id: id.toString() });
+        deleteCreditor({ id: id.toString() });
       },
     });
 
@@ -53,7 +53,7 @@ function Customer() {
   return (
     <Container>
       <Stack>
-        <Title order={4}>Customer Manager</Title>
+        <Title order={4}>Creditor Manager</Title>
         <Table stickyHeader stickyHeaderOffset={60}>
           <Table.Thead>
             <Table.Tr>
@@ -76,4 +76,4 @@ function Customer() {
   );
 }
 
-export default Customer;
+export default Creditor;

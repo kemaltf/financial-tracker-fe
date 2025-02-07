@@ -63,4 +63,5 @@ export const {
   useCreateFinancialPartyMutation,
   useLazyGetFinancialPartyQuery,
   useEditFinancialPartyMutation,
+  useGetAccountsQuery,
 } = api;

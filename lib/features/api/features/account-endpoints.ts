@@ -1,5 +1,5 @@
 import { BuilderType } from '..';
-import { type AvailableAccounts } from '../types/account';
+import type { Account, AvailableAccounts } from '../types/account';
 import { type ApiResponse } from '../types/common';
 
 export const accountEndpoints = (builder: BuilderType) => ({
@@ -24,6 +24,15 @@ export const accountEndpoints = (builder: BuilderType) => ({
           })),
         },
       };
+    },
+  }),
+  getAccounts: builder.query<ApiResponse<Account[]>, void>({
+    query: () => ({
+      url: 'accounts',
+      method: 'GET',
+    }),
+    transformResponse: (response: ApiResponse<Account[]>): ApiResponse<Account[]> => {
+      return response;
     },
   }),
 });

@@ -38,7 +38,7 @@ const FinancialPartyForm = () => {
     } else {
       const result = await createFinancialParty(values).unwrap();
       if (result.status === 'success') {
-        router.push(`/dashboard/financial-party${values.role.toLowerCase()}`);
+        router.push(`/dashboard/financial-party/${values.role.toLowerCase()}`);
         form.reset();
       }
     }

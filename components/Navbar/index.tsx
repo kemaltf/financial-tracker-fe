@@ -302,14 +302,14 @@ const navlinks: NavLink[] = [
     files: [
       {
         id: 1,
-        name: 'Account Management',
-        link: '/dashboard/accounts',
+        name: '+ Create new account',
+        link: '/dashboard/accounts/create',
         // noti: 1,
       },
       {
         id: 2,
-        name: 'Debtor',
-        link: '/dashboard/accounts/create',
+        name: 'Account Management',
+        link: '/dashboard/accounts',
         // noti: 1,
       },
     ],

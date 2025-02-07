@@ -35,6 +35,9 @@ export const transactionEndpoints = (builder: BuilderType) => ({
       method: 'GET',
       params: transaction,
     }),
+    providesTags: (result) => [
+      { type: ApiTags.Transaction, id: 'BALANCE_SHEET' }, // Menandai query summary dengan tag 'FINANCIAL_SUMMARY'
+    ],
   }),
   getTransactionTypes: builder.query<ApiResponse<TransactionTypeWithDescription[]>, void>({
     query: () => ({
@@ -89,9 +92,17 @@ export const transactionEndpoints = (builder: BuilderType) => ({
       ) {
         currentCache.data = newItems.data;
       } else {
-        currentCache.data.data.push(...newItems.data.data);
-        // Jika bulan sama, tambahkan data baru dan urutkan
-        currentCache.data.data.sort((a, b) => b.id - a.id); // Sort berdasarkan ID dari besar ke kecil
+        // Gabungkan data lama dengan data baru
+        const mergedData = [...currentCache.data.data, ...newItems.data.data];
+
+        // Gunakan Map untuk menghapus duplikasi berdasarkan id
+        const uniqueData = Array.from(new Map(mergedData.map((item) => [item.id, item])).values());
+
+        // Urutkan berdasarkan ID dari besar ke kecil
+        uniqueData.sort((a, b) => b.id - a.id);
+
+        // Simpan hasil yang sudah di-filter dan diurutkan
+        currentCache.data.data = uniqueData;
       }
       currentCache.data.totalPages = newItems.data.totalPages;
       currentCache.data.currentPage = newItems.data.currentPage;
@@ -112,6 +123,7 @@ export const transactionEndpoints = (builder: BuilderType) => ({
     invalidatesTags: [
       { type: ApiTags.Transaction, id: 'LIST' }, // Untuk getTransactions
       { type: ApiTags.Transaction, id: 'FINANCIAL_SUMMARY' }, // Untuk getFinancialSummary
+      { type: ApiTags.Transaction, id: 'BALANCE_SHEET' }, // Untuk getFinancialSummary
     ],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     onQueryStarted: async (transaction, { dispatch, queryFulfilled }) => {
