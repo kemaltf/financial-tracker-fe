@@ -9,6 +9,7 @@ import {
 import { baseQueryWithReauth } from './base-query';
 import { accountEndpoints } from './features/account-endpoints';
 import { authEndpoints } from './features/auth-endpoints';
+import { categoryEndpoints } from './features/category-endpoints';
 import { financialPartyEndpoints } from './features/financial-party-endpoints';
 import { productEndpoints } from './features/product-endpoints';
 import { storeEndpoints } from './features/store-endpoints';
@@ -19,6 +20,7 @@ export enum ApiTags {
   Transaction = 'Transaction',
   FinancialParty = 'FinancialParty',
   Account = 'Account',
+  Category = 'Category',
 }
 
 export type BuilderType = EndpointBuilder<
@@ -38,35 +40,54 @@ export const api = createApi({
     ...storeEndpoints(builder),
     ...financialPartyEndpoints(builder),
     ...productEndpoints(builder),
+    ...categoryEndpoints(builder),
   }),
 });
 
 export const {
+  // auth
   useLoginMutation,
   useRefreshMutation,
   useLogoutMutation,
+
+  // transaction
   useGetTransactionTypesQuery,
   useGetFinancialPartyOptQuery,
-  useLazyGetAvailableAccountsQuery,
-  useGetStoresQuery,
   useCreateTransactionMutation,
-  useCreateStoreMutation,
-  useGetProductsQuery,
   useGetTransactionsQuery,
   useLazyGetTransactionsQuery,
   useLazyGetFinancialSummaryQuery,
   useLazyGetBalanceSheetQuery,
-  useLazyGetStoreQuery,
-  useEditStoreMutation,
-  useDeleteStoreMutation,
-  useGetFinancialPartiesQuery,
-  useDeleteFinancialPartyMutation,
-  useCreateFinancialPartyMutation,
-  useLazyGetFinancialPartyQuery,
-  useEditFinancialPartyMutation,
+
+  // Account
+  useLazyGetAvailableAccountsQuery,
   useGetAccountsQuery,
   useCreateAccountMutation,
   useEditAccountMutation,
   useLazyGetAccountQuery,
   useDeleteAccountMutation,
+
+  // Store
+  useGetStoresQuery,
+  useCreateStoreMutation,
+
+  // product
+  useGetProductsQuery,
+  useLazyGetStoreQuery,
+  useEditStoreMutation,
+  useDeleteStoreMutation,
+
+  // financial party
+  useGetFinancialPartiesQuery,
+  useDeleteFinancialPartyMutation,
+  useCreateFinancialPartyMutation,
+  useLazyGetFinancialPartyQuery,
+  useEditFinancialPartyMutation,
+
+  // category
+  useGetCategoriesQuery,
+  useDeleteCategoryMutation,
+  useCreateCategoryMutation,
+  useLazyGetCategoriesQuery,
+  useEditCategoryMutation,
 } = api;

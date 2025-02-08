@@ -1,4 +1,4 @@
-import AccountForm from '@/modules/CreateAccountForm';
+import AccountForm from '@/modules/AccountForm';
 
 const EditAccountFormPage = () => {
   return <AccountForm />;

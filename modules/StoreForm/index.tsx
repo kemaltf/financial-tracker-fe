@@ -9,7 +9,7 @@ import {
   useEditStoreMutation,
   useLazyGetStoreQuery,
 } from '@/lib/features/api';
-import { StoreFormValues, useStoreForm } from '@/modules/CreateStoreForm/form';
+import { StoreFormValues, useStoreForm } from '@/modules/StoreForm/form';
 
 const StoreForm = () => {
   const params = useParams(); // Ambil ID dari URL

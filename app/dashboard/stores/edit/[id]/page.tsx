@@ -1,4 +1,4 @@
-import StoreForm from '@/modules/CreateStoreForm';
+import StoreForm from '@/modules/StoreForm';
 
 const EditStore = () => {
   return <StoreForm />;
