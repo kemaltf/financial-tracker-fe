@@ -11,6 +11,7 @@ const baseQuery = fetchBaseQuery({
 export const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOptions) => {
   await mutex.waitForUnlock();
   let result = await baseQuery(args, api, extraOptions);
+  let hasRetried = false;
 
   if (result.error && result.error.status === 401) {
     if (!mutex.isLocked()) {
@@ -22,16 +23,17 @@ export const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOpti
           api,
           extraOptions
         );
+
         if (refreshResult.data) {
-          // Store the new token
+          // Store the new token and retry the original request
           result = await baseQuery(args, api, extraOptions);
+
+          // Jika setelah refresh token, request kedua tetap 401, logout
+          if (result.error && result.error.status === 401) {
+            hasRetried = true;
+          }
         } else {
-          // If refresh token fails, remove existing cookies
-          await baseQuery(
-            { url: 'auth/logout', method: 'POST', credentials: 'include' },
-            api,
-            extraOptions
-          );
+          hasRetried = true;
         }
       } finally {
         release();
@@ -39,7 +41,21 @@ export const baseQueryWithReauth: typeof baseQuery = async (args, api, extraOpti
     } else {
       await mutex.waitForUnlock();
       result = await baseQuery(args, api, extraOptions);
+
+      // Jika setelah refresh token, request kedua tetap 401, logout
+      if (result.error && result.error.status === 401) {
+        hasRetried = true;
+      }
     }
+  }
+
+  // Jika sudah mencoba refresh token dan tetap gagal, jalankan logout
+  if (hasRetried) {
+    await baseQuery(
+      { url: 'auth/logout', method: 'POST', credentials: 'include' },
+      api,
+      extraOptions
+    );
   }
 
   return result;

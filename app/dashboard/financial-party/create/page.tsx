@@ -1,7 +1,7 @@
 import FinancialPartyForm from '@/modules/FinancialPartyForm';
 
-const CreateFinancialPartyForm = () => {
+const FinancialPartyFormPage = () => {
   return <FinancialPartyForm />;
 };
 
-export default CreateFinancialPartyForm;
+export default FinancialPartyFormPage;

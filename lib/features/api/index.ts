@@ -18,6 +18,7 @@ export enum ApiTags {
   Store = 'Store',
   Transaction = 'Transaction',
   FinancialParty = 'FinancialParty',
+  Account = 'Account',
 }
 
 export type BuilderType = EndpointBuilder<
@@ -64,4 +65,8 @@ export const {
   useLazyGetFinancialPartyQuery,
   useEditFinancialPartyMutation,
   useGetAccountsQuery,
+  useCreateAccountMutation,
+  useEditAccountMutation,
+  useLazyGetAccountQuery,
+  useDeleteAccountMutation,
 } = api;

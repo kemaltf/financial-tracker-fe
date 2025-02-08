@@ -270,26 +270,26 @@ const navlinks: NavLink[] = [
     files: [
       {
         id: 1,
+        name: '+ Create Financial Party',
+        link: '/dashboard/financial-party/create',
+        // noti: 1,
+      },
+      {
+        id: 2,
         name: 'Customer',
         link: '/dashboard/financial-party/customer',
         // noti: 1,
       },
       {
-        id: 2,
+        id: 3,
         name: 'Debtor',
         link: '/dashboard/financial-party/debtor',
         // noti: 1,
       },
       {
-        id: 3,
+        id: 4,
         name: 'Creditor',
         link: '/dashboard/financial-party/creditor',
-        // noti: 1,
-      },
-      {
-        id: 4,
-        name: 'Create Financial Party',
-        link: '/dashboard/financial-party/create',
         // noti: 1,
       },
     ],

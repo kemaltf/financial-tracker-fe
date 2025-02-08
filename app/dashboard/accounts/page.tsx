@@ -4,12 +4,13 @@ import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Container, Group, Stack, Table, Text, Title } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { useGetAccountsQuery } from '@/lib/features/api';
+import { useDeleteAccountMutation, useGetAccountsQuery } from '@/lib/features/api';
 import { formatExchage } from '@/utils/helpers';
 
 function FinancialAccounts() {
   const router = useRouter();
   const { data } = useGetAccountsQuery();
+  const [deleteAccount] = useDeleteAccountMutation();
 
   const handleEditClick = (id: number) => {
     router.push(`/dashboard/accounts/edit/${id}`);
@@ -23,7 +24,7 @@ function FinancialAccounts() {
       labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
       onConfirm: () => {
-        console.log(`Deleted account ID: ${id}`);
+        deleteAccount({ id: id.toString() });
       },
     });
 

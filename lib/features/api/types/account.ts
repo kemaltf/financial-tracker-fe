@@ -19,3 +19,35 @@ export type Account = {
     normalBalance: string;
   };
 };
+
+export type CreateAccountResponse = {
+  code: string;
+  name: string;
+  description: string;
+  balance: number;
+  Account: {
+    id: number;
+    type: string;
+    normalBalance: string;
+  };
+  id: number;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export type CreateAccountDto = {
+  name: string;
+  type: string;
+  description: string;
+};
+
+export type EditAccountDto = {
+  name: string;
+  type: string;
+  description: string;
+  id: string;
+};
+
+export interface GetAccountQueryParams {
+  id: string;
+}
