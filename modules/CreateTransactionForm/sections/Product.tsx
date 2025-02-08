@@ -13,7 +13,8 @@ import {
 } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import SelectProduct from '@/components/SelectProduct';
-import { Product, useGetProductsQuery } from '@/lib/features/api';
+import { useGetProductsQuery } from '@/lib/features/api';
+import { Product } from '@/lib/features/api/types/product';
 import { TransactionFormValues } from '../form';
 
 type Props = {
