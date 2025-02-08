@@ -3,15 +3,13 @@
 import { useEffect } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { Box, Button, rem, Select, Stack, TextInput, Title } from '@mantine/core';
-import { useForm } from '@mantine/form';
 import TextAreaWithCounter from '@/components/TextAreaCount';
 import {
   useCreateAccountMutation,
   useEditAccountMutation,
   useLazyGetAccountQuery,
 } from '@/lib/features/api';
-
-const accountTypes = ['ASSET', 'LIABILITY', 'REVENUE', 'EXPENSE', 'EQUITY'];
+import { accountTypes, useAccountForm } from './form';
 
 const AccountForm = () => {
   const params = useParams();
@@ -22,22 +20,10 @@ const AccountForm = () => {
   const [createAccount] = useCreateAccountMutation();
   const [editAccount] = useEditAccountMutation();
 
-  const form = useForm({
-    initialValues: {
-      name: '',
-      type: '',
-      description: '',
-    },
-    validate: {
-      name: (value) => (value.trim().length > 0 ? null : 'Nama harus diisi'),
-      type: (value) => (accountTypes.includes(value) ? null : 'Tipe akun tidak valid'),
-      description: (value) => (value.trim().length > 0 ? null : 'Deskripsi harus diisi'),
-    },
-  });
+  const form = useAccountForm();
 
   const handleSubmit = async (values: typeof form.values) => {
     if (path === 'edit' && id) {
-      console.log('ini values', values);
       const result = await editAccount({ ...values, id }).unwrap();
       if (result.status === 'success') {
         router.push('/dashboard/accounts');
