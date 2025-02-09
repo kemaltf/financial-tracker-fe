@@ -4,7 +4,6 @@ import { handleQueryNotification } from '../helpers';
 import {
   Category,
   CreateCategoryDto,
-  CreateCategoryResponse,
   EditCategoryDto,
   GetCategoryQueryParams,
 } from '../types/category';
@@ -28,7 +27,7 @@ export const categoryEndpoints = (builder: BuilderType) => ({
           ]
         : [{ type: ApiTags.Category, id: 'LIST' }],
   }),
-  createCategory: builder.mutation<ApiResponse<CreateCategoryResponse>, CreateCategoryDto>({
+  createCategory: builder.mutation<ApiResponse<Category>, CreateCategoryDto>({
     query: (store) => ({
       url: API_URL.CATEGORIES,
       method: 'POST',
@@ -46,7 +45,7 @@ export const categoryEndpoints = (builder: BuilderType) => ({
       method: 'GET',
     }),
   }),
-  editCategory: builder.mutation<ApiResponse<CreateCategoryResponse>, EditCategoryDto>({
+  editCategory: builder.mutation<ApiResponse<Category>, EditCategoryDto>({
     query: ({ id, ...store }) => ({
       url: `${API_URL.CATEGORIES}/${id}`,
       method: 'PUT',

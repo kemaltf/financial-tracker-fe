@@ -20,19 +20,6 @@ export interface CreateCategoryDto {
   storeId: number;
 }
 
-export interface CreateCategoryResponse {
-  name: string;
-  description: string;
-  store: {
-    id: number;
-    name: string;
-    description: string;
-  };
-  id: number;
-  createdAt: string;
-  updatedAt: string;
-}
-
 export interface GetCategoryQueryParams {
   id: string;
 }

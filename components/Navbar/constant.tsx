@@ -94,12 +94,12 @@ export const navlinks: NavLinkType[] = [
     files: [
       {
         name: '+ Create new variant type',
-        link: '/dashboard/products/variants/create',
+        link: '/dashboard/products/variant-types/create',
         // noti: 1,
       },
       {
         name: 'Variants',
-        link: '/dashboard/products/variants',
+        link: '/dashboard/products/variant-types',
         // noti: 1,
       },
     ],

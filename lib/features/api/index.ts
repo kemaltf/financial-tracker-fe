@@ -14,6 +14,7 @@ import { financialPartyEndpoints } from './features/financial-party-endpoints';
 import { productEndpoints } from './features/product-endpoints';
 import { storeEndpoints } from './features/store-endpoints';
 import { transactionEndpoints } from './features/transaction-endpoints';
+import { variantTypeEndpoints } from './features/variant-type-endpoints';
 
 export enum ApiTags {
   Store = 'Store',
@@ -21,6 +22,7 @@ export enum ApiTags {
   FinancialParty = 'FinancialParty',
   Account = 'Account',
   Category = 'Category',
+  VariantType = 'VariantType',
 }
 
 export type BuilderType = EndpointBuilder<
@@ -41,6 +43,7 @@ export const api = createApi({
     ...financialPartyEndpoints(builder),
     ...productEndpoints(builder),
     ...categoryEndpoints(builder),
+    ...variantTypeEndpoints(builder),
   }),
 });
 
@@ -90,4 +93,11 @@ export const {
   useCreateCategoryMutation,
   useLazyGetCategoryQuery,
   useEditCategoryMutation,
+
+  // variant type
+  useGetVariantTypesQuery,
+  useDeleteVariantTypeMutation,
+  useCreateVariantTypeMutation,
+  useLazyGetVariantTypeQuery,
+  useEditVariantTypeMutation,
 } = api;
