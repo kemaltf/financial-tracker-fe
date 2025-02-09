@@ -10,6 +10,7 @@ import {
   IconSettings2,
   IconTransactionBitcoin,
   IconUsers,
+  IconVersions,
 } from '@tabler/icons-react';
 
 export interface FileItem {
@@ -84,10 +85,21 @@ export const navlinks: NavLinkType[] = [
         link: '/dashboard/products',
         // noti: 1,
       },
-
+    ],
+  },
+  {
+    icon: IconVersions,
+    title: 'Product Variant Type',
+    link: '/dashboard/products/variants',
+    files: [
       {
-        name: 'Variant Type',
-        link: '/dashboard/products/variant-types',
+        name: '+ Create new variant type',
+        link: '/dashboard/products/variants/create',
+        // noti: 1,
+      },
+      {
+        name: 'Variants',
+        link: '/dashboard/products/variants',
         // noti: 1,
       },
     ],

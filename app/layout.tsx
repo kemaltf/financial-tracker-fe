@@ -15,8 +15,8 @@ import { Notifications } from '@mantine/notifications';
 import './global.css';
 
 export const metadata = {
-  title: 'Mantine Next.js template',
-  description: 'I am using Mantine with Next.js!',
+  title: 'Financial Tracker',
+  description: 'Financial Tracker',
 };
 
 export default function RootLayout({ children }: { children: any }) {
