@@ -4,11 +4,19 @@ export interface Category {
   description: string;
   createdAt: string;
   updatedAt: string;
+
+  store: {
+    id: number;
+    name: string;
+    user: {
+      id: string;
+    };
+  };
 }
 
 export interface CreateCategoryDto {
   name: string;
-  description: string;
+  description?: string | undefined;
   storeId: number;
 }
 

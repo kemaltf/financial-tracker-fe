@@ -65,4 +65,19 @@
     color: light-dark(var(--mantine-color-gray-8), var(--mantine-color-gray-3));
     background-color: light-dark(var(--mantine-color-gray-2), var(--mantine-color-dark-6));
   }
+
+  &[data-active='true'] {
+    & > p {
+      color: light-dark(var(--mantine-color-black));
+    }
+    background-color: var(--mantine-color-gray-3);
+
+    .title {
+      font-weight: 700;
+    }
+
+    svg {
+      color: white;
+    }
+  }
 }

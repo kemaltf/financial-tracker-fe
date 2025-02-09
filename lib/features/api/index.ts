@@ -88,6 +88,6 @@ export const {
   useGetCategoriesQuery,
   useDeleteCategoryMutation,
   useCreateCategoryMutation,
-  useLazyGetCategoriesQuery,
+  useLazyGetCategoryQuery,
   useEditCategoryMutation,
 } = api;
