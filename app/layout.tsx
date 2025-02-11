@@ -8,6 +8,7 @@ import StoreProvider from './StoreProvider';
 import '@mantine/charts/styles.css';
 import '@mantine/dates/styles.css';
 import '@mantine/notifications/styles.css';
+import '@mantine/dropzone/styles.css';
 
 import { ModalsProvider } from '@mantine/modals';
 import { Notifications } from '@mantine/notifications';

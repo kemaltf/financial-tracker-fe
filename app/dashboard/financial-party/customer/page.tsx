@@ -4,28 +4,38 @@ import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Container, Group, Stack, Table, Text, Title } from '@mantine/core';
 import { modals } from '@mantine/modals';
+import { notifications } from '@mantine/notifications';
 import { useDeleteFinancialPartyMutation, useGetFinancialPartiesQuery } from '@/lib/features/api';
 
 function Customer() {
   const { data } = useGetFinancialPartiesQuery({ role: 'CUSTOMER' });
-  const [deleteCustomer] = useDeleteFinancialPartyMutation();
+  const [deleteImage] = useDeleteFinancialPartyMutation();
   const router = useRouter();
 
   const handleEditClick = (id: number) => {
     router.push(`/dashboard/financial-party/edit/${id}`);
   };
 
-  const openDeleteModal = (id: number) =>
+  const openDeleteModal = (id: number) => {
     modals.openConfirmModal({
-      title: 'Delete customer',
+      title: 'Confirm Delete',
       centered: true,
-      children: <Text size="sm">Are you sure you want to delete your store?</Text>,
-      labels: { confirm: 'Delete customer', cancel: "No don't delete it" },
+      children: <Text size="sm">Are you sure you want to delete this image?</Text>,
+      labels: { confirm: 'Delete', cancel: 'Cancel' },
       confirmProps: { color: 'red' },
-      onConfirm: () => {
-        deleteCustomer({ id: id.toString() });
+      onConfirm: async () => {
+        try {
+          await deleteImage({ id: id.toString() }).unwrap(); // Tunggu sampai selesai
+          modals.closeAll(); // Tutup semua modal setelah sukses
+        } catch (error) {
+          notifications.show({
+            title: 'Delete Failed',
+            message: 'Failed to delete image:',
+          });
+        }
       },
     });
+  };
 
   const rows = data?.data.map((item, index) => (
     <Table.Tr key={item.id}>

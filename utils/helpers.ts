@@ -86,3 +86,18 @@ export const convertDate = (
   const date = parseDate(dateString, locale);
   return formatDate(date, format, locale);
 };
+
+export function formatBytes(bytes: number, decimals = 2): string {
+  if (bytes === 0) {
+    return '0 Bytes';
+  }
+
+  const k = 1024;
+  const sizes = ['Bytes', 'KB', 'MB'];
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+
+  // Pastikan tidak melebihi MB
+  const formattedSize = parseFloat((bytes / k ** i).toFixed(decimals));
+
+  return `${formattedSize} ${sizes[i]}`;
+}

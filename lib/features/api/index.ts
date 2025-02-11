@@ -11,6 +11,7 @@ import { accountEndpoints } from './features/account-endpoints';
 import { authEndpoints } from './features/auth-endpoints';
 import { categoryEndpoints } from './features/category-endpoints';
 import { financialPartyEndpoints } from './features/financial-party-endpoints';
+import { imagesEndpoints } from './features/image-endpoints';
 import { productEndpoints } from './features/product-endpoints';
 import { storeEndpoints } from './features/store-endpoints';
 import { transactionEndpoints } from './features/transaction-endpoints';
@@ -23,6 +24,7 @@ export enum ApiTags {
   Account = 'Account',
   Category = 'Category',
   VariantType = 'VariantType',
+  Image = 'Image',
 }
 
 export type BuilderType = EndpointBuilder<
@@ -44,6 +46,7 @@ export const api = createApi({
     ...productEndpoints(builder),
     ...categoryEndpoints(builder),
     ...variantTypeEndpoints(builder),
+    ...imagesEndpoints(builder),
   }),
 });
 
@@ -100,4 +103,10 @@ export const {
   useCreateVariantTypeMutation,
   useLazyGetVariantTypeQuery,
   useEditVariantTypeMutation,
+
+  // IMAGES
+  useGetImagesQuery,
+  useDeleteImageMutation,
+  useUploadImagesMutation,
+  useLazyGetImageQuery,
 } = api;
