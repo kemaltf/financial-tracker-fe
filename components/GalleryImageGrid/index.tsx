@@ -17,17 +17,13 @@ export function GalleryImageGrid() {
       <Title order={4}>Gallery</Title>
 
       <Grid gutter="md" justify="center" align="stretch" grow>
-        {isLoading
-          ? // Skeleton loader saat loading
-            Array.from({ length: 12 }).map((_, index) => (
-              <Grid.Col key={index} span={{ base: 12, sm: 6, md: 4, lg: 2 }}>
-                <Container p={0}>
-                  <Skeleton height={200} width="100%" radius="md" />
-                </Container>
-              </Grid.Col>
-            ))
-          : // Menampilkan gambar saat sudah dimuat
-            images?.map((image) => <GalleryImage key={image.id} image={image} />)}
+        {isLoading ? (
+          // Skeleton loader saat loading
+          <GalleryImageSkeleton />
+        ) : (
+          // Menampilkan gambar saat sudah dimuat
+          images?.map((image) => <GalleryImage key={image.id} image={image} />)
+        )}
       </Grid>
     </Stack>
   );
@@ -52,4 +48,14 @@ function GalleryImage({ image }: { image: ImageType }) {
       </Container>
     </Grid.Col>
   );
+}
+
+function GalleryImageSkeleton() {
+  return Array.from({ length: 12 }).map((_, index) => (
+    <Grid.Col key={index} span={{ base: 12, sm: 6, md: 4, lg: 2 }}>
+      <Container p={0}>
+        <Skeleton height={200} width="100%" radius="md" />
+      </Container>
+    </Grid.Col>
+  ));
 }

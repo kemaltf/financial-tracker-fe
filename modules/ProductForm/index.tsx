@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Group, MultiSelect, NumberInput, Select, Stack, TextInput } from '@mantine/core';
+import { ImageUpload } from '@/components/ImageUpload';
 import TextAreaWithCounter from '@/components/TextAreaCount';
 import {
   useGetCategoriesQuery,
@@ -84,11 +85,16 @@ export default function CreateProductForm() {
       />
 
       <Variant form={form} />
-      <Button
-        onClick={() => handleSelectImages([{ id: 1, url: 'https://via.placeholder.com/150' }])}
-      >
-        Select Images
-      </Button>
+      <ImageUpload
+        existingImages={[
+          'https://via.placeholder.com/100',
+          'https://via.placeholder.com/100/111',
+          'https://via.placeholder.com/100/222',
+        ]}
+        onChange={() => {
+          console.log('tes');
+        }}
+      />
       <Group>
         {selectedImages.map((img) => (
           <img key={img.id} src={img.url} alt="Selected" width={100} />
