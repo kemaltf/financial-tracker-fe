@@ -5,15 +5,19 @@ import { type ApiResponse } from '../types/common';
 import {
   CreateVariantTypeDto,
   EditVariantTypeDto,
+  GetVariantsTypeParams,
   GetVariantTypeParams,
   VariantType,
 } from '../types/variant-type';
 
 export const variantTypeEndpoints = (builder: BuilderType) => ({
-  getVariantTypes: builder.query<ApiResponse<VariantType[]>, void>({
-    query: () => ({
+  getVariantTypes: builder.query<ApiResponse<VariantType[]>, GetVariantsTypeParams>({
+    query: ({ storeId }) => ({
       url: API_URL.VARIANT_TYPES,
       method: 'GET',
+      params: {
+        storeId,
+      },
     }),
     providesTags: (result) =>
       result

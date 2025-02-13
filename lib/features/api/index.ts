@@ -25,6 +25,7 @@ export enum ApiTags {
   Category = 'Category',
   VariantType = 'VariantType',
   Image = 'Image',
+  Produt = 'Product',
 }
 
 export type BuilderType = EndpointBuilder<
@@ -78,7 +79,7 @@ export const {
   useCreateStoreMutation,
 
   // product
-  useGetProductsQuery,
+  useGetProductsOptionQuery,
   useLazyGetStoreQuery,
   useEditStoreMutation,
   useDeleteStoreMutation,
@@ -96,12 +97,14 @@ export const {
   useCreateCategoryMutation,
   useLazyGetCategoryQuery,
   useEditCategoryMutation,
+  useLazyGetCategoryOptionQuery,
 
   // variant type
   useGetVariantTypesQuery,
   useDeleteVariantTypeMutation,
   useCreateVariantTypeMutation,
   useLazyGetVariantTypeQuery,
+  useLazyGetVariantTypesQuery,
   useEditVariantTypeMutation,
 
   // IMAGES

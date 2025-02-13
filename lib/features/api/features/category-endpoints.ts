@@ -5,14 +5,33 @@ import {
   Category,
   CreateCategoryDto,
   EditCategoryDto,
+  GetCategoryOptQueryParams,
   GetCategoryQueryParams,
 } from '../types/category';
-import { type ApiResponse } from '../types/common';
+import { SelectType, type ApiResponse } from '../types/common';
 
 export const categoryEndpoints = (builder: BuilderType) => ({
+  getCategoryOption: builder.query<ApiResponse<SelectType[]>, GetCategoryOptQueryParams>({
+    query: ({ storeId }) => ({
+      url: `${API_URL.CATEGORIES}/opt`,
+      method: 'GET',
+      params: {
+        storeId,
+      },
+    }),
+    transformResponse: (response: ApiResponse<SelectType[]>): ApiResponse<SelectType[]> => {
+      return {
+        ...response,
+        data: response.data.map((item) => ({
+          value: item.value.toString(),
+          label: item.label,
+        })),
+      };
+    },
+  }),
   getCategories: builder.query<ApiResponse<Category[]>, void>({
     query: () => ({
-      url: 'categories',
+      url: API_URL.CATEGORIES,
       method: 'GET',
     }),
     providesTags: (result) =>

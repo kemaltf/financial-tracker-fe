@@ -15,9 +15,7 @@ export const financialPartyEndpoints = (builder: BuilderType) => ({
       url: `financial-party/opt?role=${role}`,
       method: 'GET',
     }),
-    transformResponse: (
-      response: ApiResponse<SelectType[]>
-    ): ApiResponse<{ value: string; label: string }[]> => {
+    transformResponse: (response: ApiResponse<SelectType[]>): ApiResponse<SelectType[]> => {
       return {
         ...response,
         data: response.data.map((item) => ({

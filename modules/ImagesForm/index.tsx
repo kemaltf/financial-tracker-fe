@@ -2,15 +2,17 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Button, Group, Image, SimpleGrid, Text } from '@mantine/core';
+import { IconPhoto, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
+import { ActionIcon, Button, Flex, Group, Image, SimpleGrid, Text } from '@mantine/core';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
+import { notifications } from '@mantine/notifications';
 import { useUploadImagesMutation } from '@/lib/features/api';
 import { useImageUploadForm } from './form';
 
 const ImageUploadForm = () => {
   const form = useImageUploadForm();
   const [uploadMultipleImages, { isLoading }] = useUploadImagesMutation();
-  const [previews, setPreviews] = useState<string[]>([]);
+  const [previews, setPreviews] = useState<{ url: string; file: FileWithPath }[]>([]);
   const router = useRouter();
 
   const handleDrop = async (files: FileWithPath[]) => {
@@ -36,12 +38,27 @@ const ImageUploadForm = () => {
       }
     }
 
-    form.setFieldValue('files', validFiles);
-    setPreviews(validFiles.map((file) => URL.createObjectURL(file)));
+    form.setFieldValue('files', [...form.values.files, ...validFiles]);
+    setPreviews((prev) => [
+      ...prev,
+      ...validFiles.map((file) => ({ url: URL.createObjectURL(file), file })),
+    ]);
 
     if (errors.length > 0) {
       form.setErrors({ files: errors.join(', ') });
     }
+  };
+
+  const handleDeleteImage = (index: number) => {
+    setPreviews((prev) => {
+      URL.revokeObjectURL(prev[index].url);
+      return prev.filter((_, i) => i !== index);
+    });
+
+    form.setFieldValue(
+      'files',
+      form.values.files.filter((_, i) => i !== index)
+    );
   };
 
   const handleUpload = async () => {
@@ -51,8 +68,9 @@ const ImageUploadForm = () => {
     const result = await uploadMultipleImages(formData);
     console.log(result);
     if (result.data?.status === 'success') {
-      router.push('/dashboard/products/categories');
+      router.push('/dashboard/images');
       form.reset();
+      setPreviews([]); // Reset preview setelah upload berhasil
     }
   };
 
@@ -64,22 +82,52 @@ const ImageUploadForm = () => {
         multiple
         maxSize={1048576} // 1MB
       >
-        <Text ta="center">Drop images here (JPEG, PNG, WebP, max 1MB)</Text>
+        <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
+          <Dropzone.Accept>
+            <IconUpload size={52} color="var(--mantine-color-blue-6)" stroke={1.5} />
+          </Dropzone.Accept>
+          <Dropzone.Reject>
+            <IconX size={52} color="var(--mantine-color-red-6)" stroke={1.5} />
+          </Dropzone.Reject>
+          <Dropzone.Idle>
+            <IconPhoto size={52} color="var(--mantine-color-dimmed)" stroke={1.5} />
+          </Dropzone.Idle>
+
+          <div>
+            <Text size="xl" inline>
+              Drag images here or click to select files
+            </Text>
+            <Text size="sm" c="dimmed" inline mt={7}>
+              Attach as many files as you like, each file should not exceed 1MB
+            </Text>
+          </div>
+        </Group>
       </Dropzone>
 
       {form.errors.files && <Text c="red">{form.errors.files}</Text>}
 
       <SimpleGrid cols={{ base: 1, sm: 4 }} mt="md">
-        {previews.map((src, index) => (
-          <Image key={index} src={src} onLoad={() => URL.revokeObjectURL(src)} />
+        {previews.map((preview, index) => (
+          <div key={index} style={{ position: 'relative' }}>
+            <Image src={preview.url} onLoad={() => URL.revokeObjectURL(preview.url)} />
+            <ActionIcon
+              color="red"
+              variant="filled"
+              size="sm"
+              style={{ position: 'absolute', top: 5, right: 5 }}
+              onClick={() => handleDeleteImage(index)}
+            >
+              <IconTrash size={16} />
+            </ActionIcon>
+          </div>
         ))}
       </SimpleGrid>
 
-      <Group p="right" mt="md">
-        <Button type="submit" disabled={isLoading}>
+      <Flex justify="center" mt="md">
+        <Button type="submit" disabled={isLoading || previews.length === 0}>
           {isLoading ? 'Uploading...' : 'Upload'}
         </Button>
-      </Group>
+      </Flex>
     </form>
   );
 };

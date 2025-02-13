@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import SelectProduct from '@/components/SelectProduct';
-import { useGetProductsQuery } from '@/lib/features/api';
+import { useGetProductsOptionQuery } from '@/lib/features/api';
 import { Product } from '@/lib/features/api/types/product';
 import { TransactionFormValues } from '../form';
 
@@ -24,9 +24,9 @@ type Props = {
 export const ProductSection = ({ form }: Props) => {
   const [page, setPage] = useState(1);
   const [productData, setProductData] = useState<Product[]>([]);
-  const { data, isLoading } = useGetProductsQuery({
+  const { data, isLoading } = useGetProductsOptionQuery({
     page,
-    limit: 100,
+    limit: 5,
     sortBy: 'price',
     sortDirection: 'DESC',
     storeId: 1,

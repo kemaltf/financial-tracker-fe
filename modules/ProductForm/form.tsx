@@ -1,0 +1,54 @@
+import { z } from 'zod';
+import { useForm, UseFormReturnType, zodResolver } from '@mantine/form';
+
+export const MAX_VARIANT_TYPES = 3;
+
+export const productSchema = z.object({
+  name: z.string().min(1, 'Name is required'),
+  sku: z.string().optional(),
+  description: z.string().min(1, 'Description is required'),
+  stock: z.number().min(0, 'Stock must be at least 0'),
+  price: z.string().min(1, 'Price is required'),
+  categories: z.array(z.number()),
+  storeId: z.string().min(1, 'Store is required'),
+  imageIds: z.array(z.number()),
+  variants: z.array(
+    z.object({
+      values: z.array(z.string()),
+      price: z.string().min(1, 'Price is required'),
+      stock: z.number().min(0, 'Stock must be at least 0'),
+      sku: z.string().optional(),
+      imageIds: z.array(z.number()),
+    })
+  ),
+  variantTypeSelections: z.array(z.string()),
+  variantValues: z.record(z.array(z.string())),
+  isVariantMode: z.boolean(),
+});
+
+export type ProductSchemaFormValues = z.infer<typeof productSchema>;
+
+const defaultProductValues: ProductSchemaFormValues = {
+  name: '',
+  sku: '',
+  description: '',
+  stock: 0,
+  price: '',
+  categories: [],
+  storeId: '',
+  imageIds: [],
+  variants: [],
+  variantTypeSelections: [],
+  variantValues: {},
+  isVariantMode: false,
+};
+
+export function useProductForm(initialValues?: ProductSchemaFormValues | undefined) {
+  const form = useForm<ProductSchemaFormValues>({
+    validate: zodResolver(productSchema),
+    initialValues: initialValues || defaultProductValues,
+  });
+  return form;
+}
+
+export type ProductFormType = UseFormReturnType<ProductSchemaFormValues>;

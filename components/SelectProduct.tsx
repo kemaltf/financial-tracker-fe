@@ -13,18 +13,10 @@ import {
   useCombobox,
 } from '@mantine/core';
 import { useIntersection } from '@mantine/hooks';
-
-interface ProductData {
-  value: string;
-  label: string;
-  image?: string;
-  sku: string;
-  stock: number;
-  price: number;
-}
+import { Product } from '@/lib/features/api/types/product';
 
 interface InfiniteScrollSelectProps {
-  data: ProductData[];
+  data: Product[];
   loading?: boolean;
   onBottomReached?: () => void;
   onChange?: (value: string) => void;
@@ -131,7 +123,8 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
               }}
               {...optionProps}
               value={item.value}
-              disabled={selectedProductIds.includes(item.value)} // Disable if already selected
+              disabled={selectedProductIds.includes(item.value) || item.disabled} // Disable if already selected
+              ref={index === filteredData.length - 1 ? ref : null}
             >
               <Group gap="sm" wrap="nowrap">
                 <Image
@@ -158,9 +151,8 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
         ) : (
           <div style={{ padding: '10px', textAlign: 'center' }}>Tidak ada data</div>
         )}
-        <div ref={ref} style={{ padding: '10px', textAlign: 'center', background: 'red' }}>
-          {loading && <Loader size="sm" />}
-        </div>
+
+        {loading && <Loader size="sm" />}
       </Combobox.Dropdown>
     </Combobox>
   );

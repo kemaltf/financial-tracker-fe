@@ -27,3 +27,7 @@ export interface GetCategoryQueryParams {
 export interface EditCategoryDto extends CreateCategoryDto {
   id: string;
 }
+
+export interface GetCategoryOptQueryParams {
+  storeId: number;
+}

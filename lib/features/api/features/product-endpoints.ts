@@ -1,12 +1,19 @@
-import { BuilderType } from '..';
+import { ApiTags, BuilderType } from '..';
 import { formatExchage } from '@/utils/helpers';
+import { API_URL } from '../constants';
+import { handleQueryNotification } from '../helpers';
 import { type ApiResponse } from '../types/common';
-import type { ProductQueryParams, ProductResponse } from '../types/product';
+import type {
+  CreateProductDto,
+  CreateProductResponse,
+  ProductQueryParams,
+  ProductResponse,
+} from '../types/product';
 
 export const productEndpoints = (builder: BuilderType) => ({
-  getProducts: builder.query<ApiResponse<ProductResponse>, ProductQueryParams>({
+  getProductsOption: builder.query<ApiResponse<ProductResponse>, ProductQueryParams>({
     query: ({ page, limit, sortBy, sortDirection, storeId, filters }) => ({
-      url: 'products',
+      url: 'products/opt',
       method: 'GET',
       params: {
         page,
@@ -29,6 +36,19 @@ export const productEndpoints = (builder: BuilderType) => ({
           })),
         },
       };
+    },
+  }),
+  createStore: builder.mutation<ApiResponse<CreateProductResponse>, CreateProductDto>({
+    query: (store) => ({
+      url: API_URL.PRODUCT,
+      method: 'POST',
+      body: store,
+    }),
+    // Menambahkan invalidasi setelah mutasi berhasil
+    invalidatesTags: [{ type: ApiTags.Produt, id: 'LIST' }], // Invalidate daftar store setelah store baru dibuat
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onQueryStarted: async (store, { dispatch, queryFulfilled }) => {
+      await handleQueryNotification('Creating product', queryFulfilled);
     },
   }),
 });
