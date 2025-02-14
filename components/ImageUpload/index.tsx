@@ -1,10 +1,9 @@
 'use client';
 
-import { useState } from 'react';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconPlus, IconUpload } from '@tabler/icons-react';
-import { Button, Grid, Group, Image, Modal, SimpleGrid, Stack, Text } from '@mantine/core';
+import { Button, Grid, Group, Stack, Text } from '@mantine/core';
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
 import { SortableItem } from './SortableItem';
 
@@ -13,11 +12,16 @@ interface ImageUploadProps {
   maxImages?: number;
   value?: string[];
   error?: string;
+  onClick: () => void;
 }
 
-export function ImageUpload({ onChange, maxImages = 5, value = [], error }: ImageUploadProps) {
-  const [opened, setOpened] = useState(false);
-
+export function ImageUpload({
+  onChange,
+  maxImages = 5,
+  value = [],
+  error,
+  onClick,
+}: ImageUploadProps) {
   const handleDrop = (files: FileWithPath[]) => {
     const newImages = files.map((file) => URL.createObjectURL(file));
     const updatedImages = [...value, ...newImages].slice(0, maxImages);
@@ -27,14 +31,6 @@ export function ImageUpload({ onChange, maxImages = 5, value = [], error }: Imag
   const handleDelete = (index: number) => {
     const updatedImages = value.filter((_, i) => i !== index);
     onChange?.(updatedImages);
-  };
-
-  const handleSelectExisting = (img: string) => {
-    if (value.length < maxImages) {
-      const updatedImages = [...value, img];
-      onChange?.(updatedImages);
-      setOpened(false);
-    }
   };
 
   const handleDragEnd = (event: any) => {
@@ -85,7 +81,7 @@ export function ImageUpload({ onChange, maxImages = 5, value = [], error }: Imag
                   radius="md"
                   h="100%"
                   w="100%"
-                  onClick={() => setOpened(true)}
+                  onClick={onClick}
                 >
                   <IconPlus size={16} />
                   Select Image
@@ -101,22 +97,6 @@ export function ImageUpload({ onChange, maxImages = 5, value = [], error }: Imag
           </Stack>
         </SortableContext>
       </DndContext>
-
-      <Modal opened={opened} onClose={() => setOpened(false)} title="Select Existing Image">
-        <SimpleGrid cols={4} spacing="sm">
-          {value.map((img, index) => (
-            <Image
-              key={index}
-              src={img}
-              width={80}
-              height={80}
-              radius="md"
-              onClick={() => handleSelectExisting(img)}
-              style={{ cursor: 'pointer', border: '1px solid #ddd' }}
-            />
-          ))}
-        </SimpleGrid>
-      </Modal>
     </>
   );
 }
