@@ -67,7 +67,18 @@ export const Variant = ({ form }: Props) => {
       <Switch
         label="Use Variants"
         checked={form.values.isVariantMode}
-        {...form.getInputProps('isVariantMode')}
+        {...form.getInputProps('isVariantMode', { type: 'checkbox' })} // Pastikan tipe benar
+        onChange={(event) => {
+          const newValue = event.currentTarget.checked; // Toggle nilai
+
+          form.setFieldValue('isVariantMode', newValue); // Update nilai switch
+
+          if (newValue) {
+            form.insertListItem('variantTypeSelections', { id: -1, name: '' });
+          } else {
+            form.setFieldValue('variantTypeSelections', []); // Hapus semua jika dimatikan
+          }
+        }}
       />
 
       {form.values.isVariantMode && (
@@ -75,7 +86,7 @@ export const Variant = ({ form }: Props) => {
           <Group>
             {form.values.variantTypeSelections.map((_, index) => (
               <Card key={index} shadow="sm" p="md" radius="md" withBorder>
-                <Group>
+                <Group align="end">
                   <Select
                     label="Variant Type"
                     placeholder="Variant Type"
@@ -90,35 +101,40 @@ export const Variant = ({ form }: Props) => {
                     placeholder="Select or create items..."
                   />
 
-                  <Button
-                    variant="light"
-                    color="red"
-                    onClick={() => {
-                      form.setValues({
-                        variantTypeSelections: form.values.variantTypeSelections.filter(
-                          (_, i) => i !== index
-                        ),
-                        variantValues: Object.fromEntries(
-                          Object.entries(form.values.variantValues).filter(
-                            ([key]) => Number(key) !== index
-                          )
-                        ),
-                      });
-                    }}
-                  >
-                    <IconTrash size={16} />
-                  </Button>
+                  {index !== 0 && (
+                    <Button
+                      variant="light"
+                      color="red"
+                      onClick={() => {
+                        form.setValues({
+                          variantTypeSelections: form.values.variantTypeSelections.filter(
+                            (_, i) => i !== index
+                          ),
+                          variantValues: Object.fromEntries(
+                            Object.entries(form.values.variantValues).filter(
+                              ([key]) => Number(key) !== index
+                            )
+                          ),
+                        });
+                      }}
+                    >
+                      <IconTrash size={16} />
+                    </Button>
+                  )}
+                  {form.values.variantTypeSelections.length < MAX_VARIANT_TYPES &&
+                    index === form.values.variantTypeSelections.length - 1 && (
+                      <Button
+                        variant="light"
+                        onClick={() =>
+                          form.insertListItem('variantTypeSelections', [{ id: -1, name: '' }])
+                        }
+                      >
+                        <IconPlus size={16} />
+                      </Button>
+                    )}
                 </Group>
               </Card>
             ))}
-            {form.values.variantTypeSelections.length < MAX_VARIANT_TYPES && (
-              <Button
-                leftSection={<IconPlus size={16} />}
-                onClick={() => form.insertListItem('variantTypeSelections', [{ id: -1, name: '' }])}
-              >
-                Add Variant Type
-              </Button>
-            )}
           </Group>
 
           <Table>

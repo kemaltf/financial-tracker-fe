@@ -13,24 +13,31 @@ interface ImageUploadProps {
   value?: string[];
   error?: string;
   onClick: () => void;
+  predefinedBoxes?: boolean;
+  label?: string;
 }
 
+const gridColSetting = { base: 6, sm: 3, md: 2, lg: 2 };
 export function ImageUpload({
   onChange,
   maxImages = 5,
   value = [],
   error,
   onClick,
+  predefinedBoxes = false,
+  label = '',
 }: ImageUploadProps) {
-  const handleDrop = (files: FileWithPath[]) => {
+  const handleDrop = (files: FileWithPath[], index: number) => {
     const newImages = files.map((file) => URL.createObjectURL(file));
-    const updatedImages = [...value, ...newImages].slice(0, maxImages);
-    onChange?.(updatedImages);
+    const updatedImages = [...value];
+    updatedImages[index] = newImages[0] || updatedImages[index];
+    onChange?.(updatedImages.slice(0, maxImages));
   };
 
   const handleDelete = (index: number) => {
-    const updatedImages = value.filter((_, i) => i !== index);
-    onChange?.(updatedImages);
+    const updatedImages = [...value];
+    updatedImages.splice(index, 1);
+    onChange?.(updatedImages.filter(Boolean));
   };
 
   const handleDragEnd = (event: any) => {
@@ -47,48 +54,52 @@ export function ImageUpload({
     <>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
         <SortableContext items={value} strategy={verticalListSortingStrategy}>
-          <Stack p={0} m={0}>
-            <Grid grow justify="center" align="stretch" gutter="md">
-              {value.map((src, index) => (
-                <Grid.Col key={src} span={{ base: 6, sm: 3, md: 2, lg: 1 }}>
-                  <SortableItem id={src} src={src} index={index} onDelete={handleDelete} />
+          <Stack p={0} m={0} gap="sm">
+            <Text fw={500} fz="sm">
+              {label}
+            </Text>
+            <Grid justify="start" align="stretch" gutter="md" pt={0}>
+              {Array.from({ length: maxImages }).map((_, index) => (
+                <Grid.Col key={index} span={gridColSetting} style={{ aspectRatio: '1 / 1' }}>
+                  {value[index] ? (
+                    <SortableItem
+                      id={value[index]}
+                      src={value[index]}
+                      index={index}
+                      onDelete={handleDelete}
+                    />
+                  ) : (
+                    <Dropzone
+                      h="100%"
+                      w="100%"
+                      display="flex"
+                      onDrop={(files) => handleDrop(files, index)}
+                      accept={['image/*']}
+                      style={{ justifyContent: 'center', alignItems: 'center', flex: '1 1 auto' }}
+                    >
+                      <Group>
+                        <IconUpload size={24} />
+                      </Group>
+                    </Dropzone>
+                  )}
                 </Grid.Col>
               ))}
-
-              {value.length < maxImages && (
-                <Grid.Col span={{ base: 6, sm: 3, md: 2, lg: 1 }}>
-                  <Dropzone
+              {!predefinedBoxes && value.length < maxImages && (
+                <Grid.Col span={gridColSetting} style={{ aspectRatio: '1 / 1' }}>
+                  <Button
+                    variant="light"
+                    color="blue"
+                    size="xs"
+                    radius="md"
                     h="100%"
                     w="100%"
-                    display="flex"
-                    onDrop={handleDrop}
-                    multiple
-                    accept={['image/*']}
-                    style={{ justifyContent: 'center', alignItems: 'center' }}
+                    onClick={onClick}
                   >
-                    <Group>
-                      <IconUpload size={24} />
-                    </Group>
-                  </Dropzone>
+                    <IconPlus size={16} />
+                  </Button>
                 </Grid.Col>
               )}
-
-              <Grid.Col span={{ base: 6, sm: 3, md: 2, lg: 1 }}>
-                <Button
-                  variant="light"
-                  color="blue"
-                  size="xs"
-                  radius="md"
-                  h="100%"
-                  w="100%"
-                  onClick={onClick}
-                >
-                  <IconPlus size={16} />
-                  Select Image
-                </Button>
-              </Grid.Col>
             </Grid>
-            {/* Tambahkan Error Message di Sini */}
             {error && (
               <Text c="red" size="sm">
                 {error}

@@ -12,6 +12,7 @@ export const productSchema = z.object({
   categories: z.array(z.number()),
   storeId: z.string().min(1, 'Store is required'),
   imageIds: z.array(z.number()),
+  images: z.array(z.number()),
   variants: z.array(
     z.object({
       values: z.array(z.string()),
@@ -37,6 +38,7 @@ const defaultProductValues: ProductSchemaFormValues = {
   categories: [],
   storeId: '',
   imageIds: [],
+  images: [],
   variants: [],
   variantTypeSelections: [],
   variantValues: {},

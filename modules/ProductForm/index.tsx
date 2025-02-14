@@ -1,9 +1,21 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Button, Group, MultiSelect, NumberInput, Select, Stack, TextInput } from '@mantine/core';
+import {
+  Button,
+  Group,
+  MultiSelect,
+  NumberInput,
+  ScrollArea,
+  Select,
+  Stack,
+  TextInput,
+} from '@mantine/core';
+import { useModals } from '@mantine/modals';
+import { GalleryImageSelector } from '@/components/GalleryImageSelector';
 import { ImageUpload } from '@/components/ImageUpload';
 import TextAreaWithCounter from '@/components/TextAreaCount';
+import { useDeviceType } from '@/hooks/use-device-size';
 import {
   useGetCategoriesQuery,
   useGetStoresQuery,
@@ -12,13 +24,7 @@ import {
 import { useProductForm } from './form';
 import { Variant } from './section/Variant';
 
-interface Image {
-  id: number;
-  url: string;
-}
-
 export default function CreateProductForm() {
-  const [selectedImages, setSelectedImages] = useState<Image[]>([]);
   const { data: storeData, isLoading } = useGetStoresQuery();
   const [fetchCategory, { isFetchingdata, data }] = useLazyGetCategoryOptionQuery();
 
@@ -30,16 +36,36 @@ export default function CreateProductForm() {
     }
   }, [form.values.storeId]);
 
-  const handleSelectImages = (images: Image[]) => {
-    setSelectedImages(images);
-    form.setFieldValue(
-      'imageIds',
-      images.map((img) => img.id)
-    );
+  const { isMobile } = useDeviceType();
+  const modals = useModals();
+
+  const openAddTransactionModal = () => {
+    modals.openModal({
+      title: 'Add New Transaction',
+      size: isMobile ? '100%' : '70%',
+      radius: 'md',
+      scrollAreaComponent: ScrollArea.Autosize,
+      children: (
+        <GalleryImageSelector {...form.getInputProps('images')} onClose={() => modals.closeAll()} />
+      ),
+    });
   };
+
+  console.log(form.values);
 
   return (
     <Stack>
+      <Select
+        label="Store"
+        placeholder="Select store"
+        data={storeData?.data}
+        {...form.getInputProps('storeId')}
+        disabled={isLoading}
+        searchable
+        allowDeselect
+        w="100%"
+        required
+      />
       <TextInput
         label="Product Name"
         {...form.getInputProps('name')}
@@ -47,6 +73,15 @@ export default function CreateProductForm() {
         placeholder="Product name"
       />
       <TextInput label="SKU" {...form.getInputProps('sku')} placeholder="SKU" />
+      <ImageUpload
+        {...form.getInputProps('imageIds')}
+        onClick={() => {
+          openAddTransactionModal();
+        }}
+        maxImages={6}
+        // predefinedBoxes
+        label="Product Images"
+      />
       <TextAreaWithCounter
         label="Description"
         {...form.getInputProps('description')}
@@ -72,25 +107,7 @@ export default function CreateProductForm() {
         placeholder="Categories"
       />
 
-      <Select
-        label="Store"
-        placeholder="Select store"
-        data={storeData?.data}
-        {...form.getInputProps('storeId')}
-        disabled={isLoading}
-        searchable
-        allowDeselect
-        w="100%"
-        required
-      />
-
       <Variant form={form} />
-      <ImageUpload {...form.getInputProps('imageIds')} />
-      <Group>
-        {selectedImages.map((img) => (
-          <img key={img.id} src={img.url} alt="Selected" width={100} />
-        ))}
-      </Group>
 
       <Button type="submit">Create Product</Button>
     </Stack>
