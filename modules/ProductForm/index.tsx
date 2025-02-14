@@ -85,16 +85,7 @@ export default function CreateProductForm() {
       />
 
       <Variant form={form} />
-      <ImageUpload
-        existingImages={[
-          'https://via.placeholder.com/100',
-          'https://via.placeholder.com/100/111',
-          'https://via.placeholder.com/100/222',
-        ]}
-        onChange={() => {
-          console.log('tes');
-        }}
-      />
+      <ImageUpload {...form.getInputProps('imageIds')} />
       <Group>
         {selectedImages.map((img) => (
           <img key={img.id} src={img.url} alt="Selected" width={100} />

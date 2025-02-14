@@ -4,37 +4,34 @@ import { useState } from 'react';
 import { closestCenter, DndContext } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { IconPlus, IconUpload } from '@tabler/icons-react';
-import { Button, Grid, Group, Image, Modal, rem, SimpleGrid, Stack } from '@mantine/core';
+import { Button, Grid, Group, Image, Modal, SimpleGrid, Stack, Text } from '@mantine/core';
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
 import { SortableItem } from './SortableItem';
 
 interface ImageUploadProps {
-  existingImages?: string[];
   onChange?: (images: string[]) => void;
   maxImages?: number;
+  value?: string[];
+  error?: string;
 }
 
-export function ImageUpload({ existingImages = [], onChange, maxImages = 5 }: ImageUploadProps) {
-  const [images, setImages] = useState<string[]>(existingImages);
+export function ImageUpload({ onChange, maxImages = 5, value = [], error }: ImageUploadProps) {
   const [opened, setOpened] = useState(false);
 
   const handleDrop = (files: FileWithPath[]) => {
     const newImages = files.map((file) => URL.createObjectURL(file));
-    const updatedImages = [...images, ...newImages].slice(0, maxImages);
-    setImages(updatedImages);
+    const updatedImages = [...value, ...newImages].slice(0, maxImages);
     onChange?.(updatedImages);
   };
 
   const handleDelete = (index: number) => {
-    const updatedImages = images.filter((_, i) => i !== index);
-    setImages(updatedImages);
+    const updatedImages = value.filter((_, i) => i !== index);
     onChange?.(updatedImages);
   };
 
   const handleSelectExisting = (img: string) => {
-    if (images.length < maxImages) {
-      const updatedImages = [...images, img];
-      setImages(updatedImages);
+    if (value.length < maxImages) {
+      const updatedImages = [...value, img];
       onChange?.(updatedImages);
       setOpened(false);
     }
@@ -43,37 +40,37 @@ export function ImageUpload({ existingImages = [], onChange, maxImages = 5 }: Im
   const handleDragEnd = (event: any) => {
     const { active, over } = event;
     if (active.id !== over.id) {
-      setImages((prev) => {
-        const oldIndex = prev.indexOf(active.id);
-        const newIndex = prev.indexOf(over.id);
-        const reordered = arrayMove(prev, oldIndex, newIndex);
-        onChange?.(reordered);
-        return reordered;
-      });
+      const oldIndex = value.indexOf(active.id);
+      const newIndex = value.indexOf(over.id);
+      const reordered = arrayMove(value, oldIndex, newIndex);
+      onChange?.(reordered);
     }
   };
 
   return (
     <>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={images} strategy={verticalListSortingStrategy}>
+        <SortableContext items={value} strategy={verticalListSortingStrategy}>
           <Stack p={0} m={0}>
             <Grid grow justify="center" align="stretch" gutter="md">
-              {images.map((src, index) => (
+              {value.map((src, index) => (
                 <Grid.Col key={src} span={{ base: 6, sm: 3, md: 2, lg: 1 }}>
                   <SortableItem id={src} src={src} index={index} onDelete={handleDelete} />
                 </Grid.Col>
               ))}
 
-              {images.length < maxImages && (
+              {value.length < maxImages && (
                 <Grid.Col span={{ base: 6, sm: 3, md: 2, lg: 1 }}>
                   <Dropzone
+                    h="100%"
+                    w="100%"
+                    display="flex"
                     onDrop={handleDrop}
                     multiple
                     accept={['image/*']}
-                    style={{ width: '100%', height: rem(100) }}
+                    style={{ justifyContent: 'center', alignItems: 'center' }}
                   >
-                    <Group align="center" justify="center" style={{ height: '100%' }}>
+                    <Group>
                       <IconUpload size={24} />
                     </Group>
                   </Dropzone>
@@ -86,7 +83,8 @@ export function ImageUpload({ existingImages = [], onChange, maxImages = 5 }: Im
                   color="blue"
                   size="xs"
                   radius="md"
-                  style={{ width: '100%', height: rem(100) }}
+                  h="100%"
+                  w="100%"
                   onClick={() => setOpened(true)}
                 >
                   <IconPlus size={16} />
@@ -94,13 +92,19 @@ export function ImageUpload({ existingImages = [], onChange, maxImages = 5 }: Im
                 </Button>
               </Grid.Col>
             </Grid>
+            {/* Tambahkan Error Message di Sini */}
+            {error && (
+              <Text c="red" size="sm">
+                {error}
+              </Text>
+            )}
           </Stack>
         </SortableContext>
       </DndContext>
 
       <Modal opened={opened} onClose={() => setOpened(false)} title="Select Existing Image">
         <SimpleGrid cols={4} spacing="sm">
-          {existingImages.map((img, index) => (
+          {value.map((img, index) => (
             <Image
               key={index}
               src={img}
