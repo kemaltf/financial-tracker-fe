@@ -12,15 +12,17 @@ import {
 const { IMAGES } = API_URL;
 
 export const imagesEndpoints = (builder: BuilderType) => ({
-  getImages: builder.query<ApiResponse<GetImageResponseType>, void>({
-    query: () => ({
-      url: IMAGES,
-      method: 'GET',
-    }),
+  getImages: builder.query<ApiResponse<GetImageResponseType>, { storeId?: number } | void>({
+    query: (params = {}) => {
+      const queryString = params?.storeId ? `?storeId=${params.storeId}` : '';
+      return {
+        url: `${IMAGES}${queryString}`,
+        method: 'GET',
+      };
+    },
     providesTags: (result) =>
       result
         ? [
-            // Menandai setiap store dengan ID
             ...result.data.images.map(({ id }) => ({
               type: ApiTags.Image,
               id,
@@ -29,6 +31,7 @@ export const imagesEndpoints = (builder: BuilderType) => ({
           ]
         : [{ type: ApiTags.Image, id: 'LIST' }],
   }),
+
   uploadImages: builder.mutation<ApiResponse<ImageType[]>, CreateImagesDTO>({
     query: (formData) => {
       return {

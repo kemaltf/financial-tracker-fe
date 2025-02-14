@@ -3,6 +3,15 @@ import { useForm, UseFormReturnType, zodResolver } from '@mantine/form';
 
 export const MAX_VARIANT_TYPES = 3;
 
+export const imageFileSchema = z.object({
+  file: z.instanceof(File).nullable(), // Bisa `null` jika dari server
+  source: z.enum(['upload', 'select']),
+  id: z.union([z.string(), z.number()]),
+  url: z.string().url(), // Pastikan URL valid
+});
+
+export type ImageFileSchemaType = z.infer<typeof imageFileSchema>;
+
 export const productSchema = z.object({
   name: z.string().min(1, 'Name is required'),
   sku: z.string().optional(),
@@ -12,7 +21,7 @@ export const productSchema = z.object({
   categories: z.array(z.number()),
   storeId: z.string().min(1, 'Store is required'),
   imageIds: z.array(z.number()),
-  images: z.array(z.number()),
+  images: z.array(imageFileSchema), // ✅ Tambahkan array `imageFiles`
   variants: z.array(
     z.object({
       values: z.array(z.string()),

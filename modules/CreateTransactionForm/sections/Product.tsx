@@ -24,14 +24,32 @@ type Props = {
 export const ProductSection = ({ form }: Props) => {
   const [page, setPage] = useState(1);
   const [productData, setProductData] = useState<Product[]>([]);
-  const { data, isLoading } = useGetProductsOptionQuery({
-    page,
-    limit: 5,
-    sortBy: 'price',
-    sortDirection: 'DESC',
-    storeId: 1,
-    filters: {},
-  });
+  // Ambil storeId dari form
+  const storeId = Number(form.values.storeId);
+
+  const { data, isLoading } = useGetProductsOptionQuery(
+    {
+      page,
+      limit: 5,
+      sortBy: 'price',
+      sortDirection: 'DESC',
+      storeId, // Gunakan storeId dari form
+      filters: {},
+    },
+    { skip: !storeId } // Hanya fetch jika storeId ada
+  );
+
+  useEffect(() => {
+    if (data) {
+      setProductData((prevData) => [...prevData, ...data.data.data]);
+    }
+  }, [data]);
+
+  // Reset product data saat storeId berubah
+  useEffect(() => {
+    setProductData([]);
+    setPage(1);
+  }, [storeId]);
 
   useEffect(() => {
     if (data) {

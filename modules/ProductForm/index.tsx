@@ -1,9 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import {
   Button,
-  Group,
   MultiSelect,
   NumberInput,
   ScrollArea,
@@ -46,13 +45,29 @@ export default function CreateProductForm() {
       radius: 'md',
       scrollAreaComponent: ScrollArea.Autosize,
       children: (
-        <GalleryImageSelector {...form.getInputProps('images')} onClose={() => modals.closeAll()} />
+        <GalleryImageSelector
+          storeId={Number(form.values.storeId)}
+          {...form.getInputProps('images')}
+          onClose={() => modals.closeAll()}
+          onChange={(newImages) => {
+            const currentImages = form.values.images || []; // Ambil data lama
+
+            // ✅ Hindari duplikasi dengan filter berdasarkan `id`
+            const uniqueImages = [
+              ...currentImages,
+              ...newImages.filter((newImg) => !currentImages.some((img) => img.id === newImg.id)),
+            ];
+
+            form.setValues({ images: uniqueImages });
+          }}
+        />
       ),
     });
   };
 
-  console.log(form.values);
+  const storeIdNotExist = !form.values.storeId;
 
+  console.log(form.values);
   return (
     <Stack>
       <Select
@@ -71,25 +86,39 @@ export default function CreateProductForm() {
         {...form.getInputProps('name')}
         withAsterisk
         placeholder="Product name"
+        disabled={storeIdNotExist}
       />
-      <TextInput label="SKU" {...form.getInputProps('sku')} placeholder="SKU" />
+      <TextInput
+        label="SKU"
+        {...form.getInputProps('sku')}
+        placeholder="SKU"
+        disabled={storeIdNotExist}
+      />
       <ImageUpload
-        {...form.getInputProps('imageIds')}
+        {...form.getInputProps('images')}
         onClick={() => {
           openAddTransactionModal();
         }}
         maxImages={6}
         // predefinedBoxes
         label="Product Images"
+        disabled={storeIdNotExist}
       />
       <TextAreaWithCounter
         label="Description"
         {...form.getInputProps('description')}
         withAsterisk
         placeholder="Description"
+        disabled={storeIdNotExist}
       />
 
-      <NumberInput label="Stock" {...form.getInputProps('stock')} placeholder="Stock" />
+      <NumberInput
+        label="Stock"
+        {...form.getInputProps('stock')}
+        placeholder="Stock"
+        disabled={storeIdNotExist}
+        allowNegative={false}
+      />
       <NumberInput
         leftSection="Rp"
         label="Price (Rupiah)"
@@ -99,12 +128,14 @@ export default function CreateProductForm() {
         thousandSeparator
         hideControls
         allowNegative={false}
+        disabled={storeIdNotExist}
       />
       <MultiSelect
         label="Categories"
         data={data?.data} // Replace with real categories
         {...form.getInputProps('categories')}
         placeholder="Categories"
+        disabled={storeIdNotExist}
       />
 
       <Variant form={form} />

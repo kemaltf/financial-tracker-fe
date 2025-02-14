@@ -14,6 +14,8 @@ export function SortableItem({
   id: string;
   src: string;
   index: number;
+  disabled?: boolean; // ✅ Tambahkan prop disabled
+
   onDelete: (index: number) => void;
 }) {
   const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id });

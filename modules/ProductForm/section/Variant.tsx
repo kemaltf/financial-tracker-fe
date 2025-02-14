@@ -67,6 +67,7 @@ export const Variant = ({ form }: Props) => {
       <Switch
         label="Use Variants"
         checked={form.values.isVariantMode}
+        disabled={!form.values.storeId}
         {...form.getInputProps('isVariantMode', { type: 'checkbox' })} // Pastikan tipe benar
         onChange={(event) => {
           const newValue = event.currentTarget.checked; // Toggle nilai

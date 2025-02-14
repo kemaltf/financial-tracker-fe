@@ -5,16 +5,18 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { IconPlus, IconUpload } from '@tabler/icons-react';
 import { Button, Grid, Group, Stack, Text } from '@mantine/core';
 import { Dropzone, FileWithPath } from '@mantine/dropzone';
+import { ImageFileSchemaType } from '@/modules/ProductForm/form';
 import { SortableItem } from './SortableItem';
 
 interface ImageUploadProps {
-  onChange?: (images: string[]) => void;
+  onChange?: (images: ImageFileSchemaType[]) => void;
   maxImages?: number;
-  value?: string[];
+  value?: ImageFileSchemaType[];
   error?: string;
   onClick: () => void;
   predefinedBoxes?: boolean;
   label?: string;
+  disabled?: boolean; // ✅ Tambahkan prop disabled
 }
 
 const gridColSetting = { base: 6, sm: 3, md: 2, lg: 2 };
@@ -26,25 +28,40 @@ export function ImageUpload({
   onClick,
   predefinedBoxes = false,
   label = '',
+  disabled = false, // ✅ Default false (tidak disable)
 }: ImageUploadProps) {
   const handleDrop = (files: FileWithPath[], index: number) => {
-    const newImages = files.map((file) => URL.createObjectURL(file));
-    const updatedImages = [...value];
-    updatedImages[index] = newImages[0] || updatedImages[index];
-    onChange?.(updatedImages.slice(0, maxImages));
+    if (disabled) {
+      return;
+    } // ✅ Blokir jika disable
+    const updatedFiles = [...value];
+    updatedFiles[index] = {
+      file: files[0],
+      source: 'upload',
+      url: URL.createObjectURL(files[0]),
+      id: crypto.randomUUID(), // ✅ ID unik
+    };
+
+    onChange?.(updatedFiles.slice(0, maxImages));
   };
 
   const handleDelete = (index: number) => {
-    const updatedImages = [...value];
-    updatedImages.splice(index, 1);
-    onChange?.(updatedImages.filter(Boolean));
+    if (disabled) {
+      return;
+    } // ✅ Blokir jika disable
+    const updatedFiles = [...value];
+    updatedFiles.splice(index, 1);
+    onChange?.(updatedFiles.filter(Boolean));
   };
 
   const handleDragEnd = (event: any) => {
+    if (disabled) {
+      return;
+    } // ✅ Blokir jika disable
     const { active, over } = event;
     if (active.id !== over.id) {
-      const oldIndex = value.indexOf(active.id);
-      const newIndex = value.indexOf(over.id);
+      const oldIndex = value.findIndex((file) => file.id === active.id);
+      const newIndex = value.findIndex((file) => file.id === over.id);
       const reordered = arrayMove(value, oldIndex, newIndex);
       onChange?.(reordered);
     }
@@ -53,7 +70,10 @@ export function ImageUpload({
   return (
     <>
       <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext items={value} strategy={verticalListSortingStrategy}>
+        <SortableContext
+          items={value.map((file) => file.id.toString())}
+          strategy={verticalListSortingStrategy}
+        >
           <Stack p={0} m={0} gap="sm">
             <Text fw={500} fz="sm">
               {label}
@@ -63,8 +83,12 @@ export function ImageUpload({
                 <Grid.Col key={index} span={gridColSetting} style={{ aspectRatio: '1 / 1' }}>
                   {value[index] ? (
                     <SortableItem
-                      id={value[index]}
-                      src={value[index]}
+                      id={value[index].id.toString()} // ✅ ID tetap unik
+                      src={
+                        value[index].source === 'upload'
+                          ? URL.createObjectURL(value[index].file!)
+                          : value[index].url
+                      } // ✅ Bedakan upload & select
                       index={index}
                       onDelete={handleDelete}
                     />
@@ -75,7 +99,14 @@ export function ImageUpload({
                       display="flex"
                       onDrop={(files) => handleDrop(files, index)}
                       accept={['image/*']}
-                      style={{ justifyContent: 'center', alignItems: 'center', flex: '1 1 auto' }}
+                      disabled={disabled} // ✅ Nonaktifkan upload jika disabled
+                      style={{
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                        flex: '1 1 auto',
+                        opacity: disabled ? 0.5 : 1, // ✅ Tambahkan efek visual
+                        cursor: disabled ? 'not-allowed' : 'pointer',
+                      }}
                     >
                       <Group>
                         <IconUpload size={24} />
@@ -94,6 +125,7 @@ export function ImageUpload({
                     h="100%"
                     w="100%"
                     onClick={onClick}
+                    disabled={disabled} // ✅ Nonaktifkan upload jika disabled
                   >
                     <IconPlus size={16} />
                   </Button>

@@ -3,10 +3,19 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconPhoto, IconTrash, IconUpload, IconX } from '@tabler/icons-react';
-import { ActionIcon, Button, Flex, Group, Image, SimpleGrid, Text } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Flex,
+  Group,
+  Image,
+  Select,
+  SimpleGrid,
+  Stack,
+  Text,
+} from '@mantine/core';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { notifications } from '@mantine/notifications';
-import { useUploadImagesMutation } from '@/lib/features/api';
+import { useGetStoresQuery, useUploadImagesMutation } from '@/lib/features/api';
 import { useImageUploadForm } from './form';
 
 const ImageUploadForm = () => {
@@ -14,6 +23,10 @@ const ImageUploadForm = () => {
   const [uploadMultipleImages, { isLoading }] = useUploadImagesMutation();
   const [previews, setPreviews] = useState<{ url: string; file: FileWithPath }[]>([]);
   const router = useRouter();
+
+  const { data, isLoading: isLoadingStore } = useGetStoresQuery();
+
+  const storesData = data?.data || [];
 
   const handleDrop = async (files: FileWithPath[]) => {
     const validFiles: FileWithPath[] = [];
@@ -66,7 +79,6 @@ const ImageUploadForm = () => {
     form.values.files.forEach((file) => formData.append('files', file));
 
     const result = await uploadMultipleImages(formData);
-    console.log(result);
     if (result.data?.status === 'success') {
       router.push('/dashboard/images');
       form.reset();
@@ -76,33 +88,46 @@ const ImageUploadForm = () => {
 
   return (
     <form onSubmit={form.onSubmit(handleUpload)}>
-      <Dropzone
-        accept={IMAGE_MIME_TYPE}
-        onDrop={handleDrop}
-        multiple
-        maxSize={1048576} // 1MB
-      >
-        <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
-          <Dropzone.Accept>
-            <IconUpload size={52} color="var(--mantine-color-blue-6)" stroke={1.5} />
-          </Dropzone.Accept>
-          <Dropzone.Reject>
-            <IconX size={52} color="var(--mantine-color-red-6)" stroke={1.5} />
-          </Dropzone.Reject>
-          <Dropzone.Idle>
-            <IconPhoto size={52} color="var(--mantine-color-dimmed)" stroke={1.5} />
-          </Dropzone.Idle>
+      <Stack>
+        <Select
+          label="Store"
+          placeholder="Select store"
+          data={storesData}
+          {...form.getInputProps('storeId')}
+          disabled={isLoadingStore}
+          searchable
+          allowDeselect
+          w="100%"
+          required
+        />
+        <Dropzone
+          accept={IMAGE_MIME_TYPE}
+          onDrop={handleDrop}
+          multiple
+          maxSize={1048576} // 1MB
+        >
+          <Group justify="center" gap="xl" mih={220} style={{ pointerEvents: 'none' }}>
+            <Dropzone.Accept>
+              <IconUpload size={52} color="var(--mantine-color-blue-6)" stroke={1.5} />
+            </Dropzone.Accept>
+            <Dropzone.Reject>
+              <IconX size={52} color="var(--mantine-color-red-6)" stroke={1.5} />
+            </Dropzone.Reject>
+            <Dropzone.Idle>
+              <IconPhoto size={52} color="var(--mantine-color-dimmed)" stroke={1.5} />
+            </Dropzone.Idle>
 
-          <div>
-            <Text size="xl" inline>
-              Drag images here or click to select files
-            </Text>
-            <Text size="sm" c="dimmed" inline mt={7}>
-              Attach as many files as you like, each file should not exceed 1MB
-            </Text>
-          </div>
-        </Group>
-      </Dropzone>
+            <div>
+              <Text size="xl" inline>
+                Drag images here or click to select files
+              </Text>
+              <Text size="sm" c="dimmed" inline mt={7}>
+                Attach as many files as you like, each file should not exceed 1MB
+              </Text>
+            </div>
+          </Group>
+        </Dropzone>
+      </Stack>
 
       {form.errors.files && <Text c="red">{form.errors.files}</Text>}
 

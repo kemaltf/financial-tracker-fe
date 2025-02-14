@@ -7,34 +7,51 @@ import { ImageType } from '@/lib/features/api/types/images';
 
 import './galleryStyles.css'; // CSS Module
 
+import { ImageFileSchemaType } from '@/modules/ProductForm/form';
 import { GalleryImageSkeleton } from './GalleryImageSelector';
 
 type GalleryImageSelectorProps = {
-  value?: number[]; // List ID gambar yang dipilih dari parent
-  onChange?: (selectedIds: number[]) => void; // Callback update ke parent
+  value?: ImageFileSchemaType[];
+  onChange?: (selectedImages: ImageFileSchemaType[]) => void;
   onClose: () => void;
+  storeId: number;
 };
 
-export function GalleryImageSelector({ value = [], onChange, onClose }: GalleryImageSelectorProps) {
-  const { data, isLoading } = useGetImagesQuery();
+export function GalleryImageSelector({
+  value = [],
+  onChange,
+  onClose,
+  storeId,
+}: GalleryImageSelectorProps) {
+  const { data, isLoading } = useGetImagesQuery({
+    storeId,
+  });
   const images = data?.data.images;
 
-  // ✅ State lokal untuk menyimpan selected images dalam modal
-  const [selectedImages, setSelectedImages] = useState<number[]>(value);
+  // ✅ State lokal menyimpan objek gambar
+  const [selectedImages, setSelectedImages] = useState<ImageFileSchemaType[]>(value);
 
-  // ✅ Pastikan state lokal ter-update ketika modal dibuka dengan value dari parent
+  // ✅ Update state ketika modal dibuka kembali
   useEffect(() => {
     setSelectedImages(value);
   }, [value]);
 
-  // ✅ Handle pemilihan gambar (update hanya ke state lokal)
-  const handleSelectImage = (imageId: number) => {
-    setSelectedImages(
-      (prevSelected) =>
-        prevSelected.includes(imageId)
-          ? prevSelected.filter((id) => id !== imageId) // Hapus jika sudah ada
-          : [...prevSelected, imageId] // Tambahkan jika belum ada
-    );
+  // ✅ Handle pemilihan gambar
+  const handleSelectImage = (image: ImageType) => {
+    setSelectedImages((prevSelected) => {
+      const exists = prevSelected.some((img) => img.id === image.id);
+      return exists
+        ? prevSelected.filter((img) => img.id !== image.id) // Hapus jika sudah ada
+        : [
+            ...prevSelected,
+            {
+              id: image.id,
+              file: null, // ✅ Tidak ada file karena dari server
+              url: image.url, // ✅ URL dari server
+              source: 'select', // ✅ Pastikan `source` adalah `select`
+            },
+          ];
+    });
   };
 
   // ✅ Confirm button mengupdate ke parent
@@ -46,7 +63,6 @@ export function GalleryImageSelector({ value = [], onChange, onClose }: GalleryI
   return (
     <Stack p={0} m={0}>
       <Title order={4}>Select Images</Title>
-
       <Grid gutter="md" justify="center" align="stretch" grow>
         {isLoading ? (
           <GalleryImageSkeleton />
@@ -55,8 +71,8 @@ export function GalleryImageSelector({ value = [], onChange, onClose }: GalleryI
             <GalleryImage
               key={image.id}
               image={image}
-              isSelected={selectedImages.includes(image.id)}
-              onSelect={() => handleSelectImage(image.id)}
+              isSelected={selectedImages.some((img) => img.id === image.id)}
+              onSelect={() => handleSelectImage(image)}
             />
           ))
         )}
@@ -66,7 +82,7 @@ export function GalleryImageSelector({ value = [], onChange, onClose }: GalleryI
   );
 }
 
-// ✅ Komponen Gambar (tidak berubah)
+// ✅ Komponen Gambar
 function GalleryImage({
   image,
   isSelected,
