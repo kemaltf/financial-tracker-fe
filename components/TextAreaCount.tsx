@@ -1,14 +1,15 @@
 import { forwardRef } from 'react';
-import { Textarea, TextareaProps } from '@mantine/core';
+import { rem, Textarea, TextareaProps } from '@mantine/core';
 
 interface TextAreaWithCounterProps extends TextareaProps {
   maxLength?: number;
+  inputHeight?: number | string;
 }
 
 const TextAreaWithCounter = forwardRef<HTMLTextAreaElement, TextAreaWithCounterProps>(
-  ({ maxLength = 500, value, onChange, ...props }, ref) => {
+  ({ maxLength = 500, value, onChange, inputHeight = rem(130), ...props }, ref) => {
     return (
-      <div style={{ position: 'relative', width: '100%', minHeight: '130px' }}>
+      <div style={{ position: 'relative', width: '100%' }}>
         <Textarea
           ref={ref}
           value={value}
@@ -18,6 +19,7 @@ const TextAreaWithCounter = forwardRef<HTMLTextAreaElement, TextAreaWithCounterP
           {...props}
           styles={{
             input: {
+              height: inputHeight,
               paddingBottom: '30px', // Tambahkan ruang untuk counter
               position: 'relative',
             },
@@ -26,8 +28,8 @@ const TextAreaWithCounter = forwardRef<HTMLTextAreaElement, TextAreaWithCounterP
         <div
           style={{
             position: 'absolute',
-            bottom: '30px',
-            right: '12px',
+            bottom: '10px',
+            right: '10px',
             fontSize: '12px',
             color: value && value.toString().length >= maxLength ? 'red' : 'gray',
           }}

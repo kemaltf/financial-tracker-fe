@@ -20,15 +20,14 @@ export const productSchema = z.object({
   price: z.string().min(1, 'Price is required'),
   categories: z.array(z.number()),
   storeId: z.string().min(1, 'Store is required'),
-  imageIds: z.array(z.number()),
   images: z.array(imageFileSchema), // ✅ Tambahkan array `imageFiles`
   variants: z.array(
     z.object({
       values: z.array(z.string()),
       price: z.string().min(1, 'Price is required'),
       stock: z.number().min(0, 'Stock must be at least 0'),
-      sku: z.string().optional(),
-      imageIds: z.array(z.number()),
+      sku: z.string(),
+      image: z.array(imageFileSchema),
     })
   ),
   variantTypeSelections: z.array(z.string()),
@@ -46,7 +45,6 @@ const defaultProductValues: ProductSchemaFormValues = {
   price: '',
   categories: [],
   storeId: '',
-  imageIds: [],
   images: [],
   variants: [],
   variantTypeSelections: [],

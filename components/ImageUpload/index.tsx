@@ -13,13 +13,14 @@ interface ImageUploadProps {
   maxImages?: number;
   value?: ImageFileSchemaType[];
   error?: string;
-  onClick: () => void;
+  onClick?: () => void;
   predefinedBoxes?: boolean;
   label?: string;
-  disabled?: boolean; // ✅ Tambahkan prop disabled
+  disabled?: boolean;
 }
 
 const gridColSetting = { base: 6, sm: 3, md: 2, lg: 2 };
+
 export function ImageUpload({
   onChange,
   maxImages = 5,
@@ -28,118 +29,128 @@ export function ImageUpload({
   onClick,
   predefinedBoxes = false,
   label = '',
-  disabled = false, // ✅ Default false (tidak disable)
+  disabled = false,
 }: ImageUploadProps) {
-  const handleDrop = (files: FileWithPath[], index: number) => {
+  const handleDrop = (files: FileWithPath[]) => {
     if (disabled) {
       return;
-    } // ✅ Blokir jika disable
-    const updatedFiles = [...value];
-    updatedFiles[index] = {
-      file: files[0],
-      source: 'upload',
-      url: URL.createObjectURL(files[0]),
-      id: crypto.randomUUID(), // ✅ ID unik
-    };
+    } // Blokir jika disabled
 
-    onChange?.(updatedFiles.slice(0, maxImages));
+    const newFiles = files
+      .slice(0, maxImages - value.length) // Batasi jumlah agar tidak melebihi maxImages
+      .map((file) => ({
+        file,
+        source: 'upload' as const,
+        url: URL.createObjectURL(file),
+        id: crypto.randomUUID(),
+      }));
+
+    onChange?.([...value, ...newFiles].slice(0, maxImages)); // Tambahkan file baru ke daftar
   };
 
   const handleDelete = (index: number) => {
     if (disabled) {
       return;
-    } // ✅ Blokir jika disable
+    }
     const updatedFiles = [...value];
     updatedFiles.splice(index, 1);
-    onChange?.(updatedFiles.filter(Boolean));
+    onChange?.(updatedFiles);
   };
 
   const handleDragEnd = (event: any) => {
     if (disabled) {
       return;
-    } // ✅ Blokir jika disable
+    }
     const { active, over } = event;
+
     if (active.id !== over.id) {
-      const oldIndex = value.findIndex((file) => file.id === active.id);
-      const newIndex = value.findIndex((file) => file.id === over.id);
+      const oldIndex = value.findIndex((file) => file.id.toString() === active.id);
+      const newIndex = value.findIndex((file) => file.id.toString() === over.id);
       const reordered = arrayMove(value, oldIndex, newIndex);
       onChange?.(reordered);
     }
   };
 
   return (
-    <>
-      <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-        <SortableContext
-          items={value.map((file) => file.id.toString())}
-          strategy={verticalListSortingStrategy}
-        >
-          <Stack p={0} m={0} gap="sm">
+    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+      <SortableContext
+        items={value.map((file) => file.id.toString())}
+        strategy={verticalListSortingStrategy}
+      >
+        <Stack p={0} m={0} gap="sm" h="100%">
+          {label && (
             <Text fw={500} fz="sm">
               {label}
             </Text>
-            <Grid justify="start" align="stretch" gutter="md" pt={0}>
-              {Array.from({ length: maxImages }).map((_, index) => (
-                <Grid.Col key={index} span={gridColSetting} style={{ aspectRatio: '1 / 1' }}>
-                  {value[index] ? (
-                    <SortableItem
-                      id={value[index].id.toString()} // ✅ ID tetap unik
-                      src={
-                        value[index].source === 'upload'
-                          ? URL.createObjectURL(value[index].file!)
-                          : value[index].url
-                      } // ✅ Bedakan upload & select
-                      index={index}
-                      onDelete={handleDelete}
-                    />
-                  ) : (
-                    <Dropzone
-                      h="100%"
-                      w="100%"
-                      display="flex"
-                      onDrop={(files) => handleDrop(files, index)}
-                      accept={['image/*']}
-                      disabled={disabled} // ✅ Nonaktifkan upload jika disabled
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        flex: '1 1 auto',
-                        opacity: disabled ? 0.5 : 1, // ✅ Tambahkan efek visual
-                        cursor: disabled ? 'not-allowed' : 'pointer',
-                      }}
-                    >
-                      <Group>
-                        <IconUpload size={24} />
-                      </Group>
-                    </Dropzone>
-                  )}
-                </Grid.Col>
-              ))}
-              {!predefinedBoxes && value.length < maxImages && (
-                <Grid.Col span={gridColSetting} style={{ aspectRatio: '1 / 1' }}>
-                  <Button
-                    variant="light"
-                    color="blue"
-                    size="xs"
-                    radius="md"
+          )}
+          <Grid justify="start" align="stretch" gutter="md" pt={0} w="100%" h="100%">
+            {Array.from({ length: maxImages }).map((_, index) => (
+              <Grid.Col
+                key={index}
+                span={gridColSetting}
+                style={{ aspectRatio: '1 / 1' }}
+                w="100%"
+                h="100%"
+                // bg="red"
+              >
+                {value[index] ? (
+                  <SortableItem
+                    id={value[index].id.toString()} // ✅ ID tetap unik
+                    src={
+                      value[index].source === 'upload'
+                        ? URL.createObjectURL(value[index].file!)
+                        : value[index].url
+                    } // ✅ Bedakan upload & select
+                    index={index}
+                    onDelete={handleDelete}
+                  />
+                ) : (
+                  <Dropzone
                     h="100%"
                     w="100%"
-                    onClick={onClick}
+                    display="flex"
+                    onDrop={(files) => handleDrop(files)}
+                    accept={['image/*']}
                     disabled={disabled} // ✅ Nonaktifkan upload jika disabled
+                    style={{
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      flex: '1 1 auto',
+                      opacity: disabled ? 0.5 : 1, // ✅ Tambahkan efek visual
+                      cursor: disabled ? 'not-allowed' : 'pointer',
+                    }}
                   >
-                    <IconPlus size={16} />
-                  </Button>
-                </Grid.Col>
-              )}
-            </Grid>
-            {error && (
-              <Text c="red" size="sm">
-                {error}
-              </Text>
+                    <Group>
+                      <IconUpload size={24} />
+                    </Group>
+                  </Dropzone>
+                )}
+              </Grid.Col>
+            ))}
+            {!predefinedBoxes && value.length < maxImages && (
+              <Grid.Col span={gridColSetting} style={{ aspectRatio: '1 / 1' }}>
+                <Button
+                  variant="light"
+                  color="blue"
+                  size="xs"
+                  radius="md"
+                  h="100%"
+                  w="100%"
+                  onClick={onClick}
+                  disabled={disabled} // ✅ Nonaktifkan upload jika disabled
+                >
+                  <IconPlus size={16} />
+                </Button>
+              </Grid.Col>
             )}
-          </Stack>
-        </SortableContext>
-      </DndContext>
-    </>
+          </Grid>
+          {error && (
+            <Text c="red" size="sm">
+              {error}
+            </Text>
+          )}
+        </Stack>
+      </SortableContext>
+    </DndContext>
   );
 }

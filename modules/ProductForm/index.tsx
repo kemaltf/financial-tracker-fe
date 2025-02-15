@@ -1,33 +1,21 @@
 'use client';
 
 import { useEffect } from 'react';
-import {
-  Button,
-  MultiSelect,
-  NumberInput,
-  ScrollArea,
-  Select,
-  Stack,
-  TextInput,
-} from '@mantine/core';
-import { useModals } from '@mantine/modals';
-import { GalleryImageSelector } from '@/components/GalleryImageSelector';
+import { Button, MultiSelect, NumberInput, rem, Select, Stack, TextInput } from '@mantine/core';
 import { ImageUpload } from '@/components/ImageUpload';
+import { opeImageSelectorModal } from '@/components/Modals/ImageSelector';
 import TextAreaWithCounter from '@/components/TextAreaCount';
 import { useDeviceType } from '@/hooks/use-device-size';
-import {
-  useGetCategoriesQuery,
-  useGetStoresQuery,
-  useLazyGetCategoryOptionQuery,
-} from '@/lib/features/api';
+import { useGetStoresQuery, useLazyGetCategoryOptionQuery } from '@/lib/features/api';
 import { useProductForm } from './form';
 import { Variant } from './section/Variant';
 
 export default function CreateProductForm() {
   const { data: storeData, isLoading } = useGetStoresQuery();
-  const [fetchCategory, { isFetchingdata, data }] = useLazyGetCategoryOptionQuery();
+  const [fetchCategory, { data, isFetching: isFetchingCategory }] = useLazyGetCategoryOptionQuery();
 
   const form = useProductForm();
+  const { isMobile } = useDeviceType();
 
   useEffect(() => {
     if (form.values.storeId) {
@@ -35,39 +23,29 @@ export default function CreateProductForm() {
     }
   }, [form.values.storeId]);
 
-  const { isMobile } = useDeviceType();
-  const modals = useModals();
+  const openImageModal = () => {
+    opeImageSelectorModal({
+      storeId: Number(form.values.storeId),
+      value: form.getInputProps('images').value,
+      onChange: (newImages) => {
+        const currentImages = form.values.images || []; // Ambil data lama
 
-  const openAddTransactionModal = () => {
-    modals.openModal({
-      title: 'Add New Transaction',
+        // ✅ Hindari duplikasi dengan filter berdasarkan `id`
+        const uniqueImages = [
+          ...currentImages,
+          ...newImages.filter((newImg) => !currentImages.some((img) => img.id === newImg.id)),
+        ];
+
+        form.setValues({ images: uniqueImages });
+      },
       size: isMobile ? '100%' : '70%',
-      radius: 'md',
-      scrollAreaComponent: ScrollArea.Autosize,
-      children: (
-        <GalleryImageSelector
-          storeId={Number(form.values.storeId)}
-          {...form.getInputProps('images')}
-          onClose={() => modals.closeAll()}
-          onChange={(newImages) => {
-            const currentImages = form.values.images || []; // Ambil data lama
-
-            // ✅ Hindari duplikasi dengan filter berdasarkan `id`
-            const uniqueImages = [
-              ...currentImages,
-              ...newImages.filter((newImg) => !currentImages.some((img) => img.id === newImg.id)),
-            ];
-
-            form.setValues({ images: uniqueImages });
-          }}
-        />
-      ),
     });
   };
 
   const storeIdNotExist = !form.values.storeId;
 
   console.log(form.values);
+
   return (
     <Stack>
       <Select
@@ -97,7 +75,7 @@ export default function CreateProductForm() {
       <ImageUpload
         {...form.getInputProps('images')}
         onClick={() => {
-          openAddTransactionModal();
+          openImageModal();
         }}
         maxImages={6}
         // predefinedBoxes
@@ -110,6 +88,7 @@ export default function CreateProductForm() {
         withAsterisk
         placeholder="Description"
         disabled={storeIdNotExist}
+        inputHeight={rem(200)}
       />
 
       <NumberInput
@@ -135,7 +114,7 @@ export default function CreateProductForm() {
         data={data?.data} // Replace with real categories
         {...form.getInputProps('categories')}
         placeholder="Categories"
-        disabled={storeIdNotExist}
+        disabled={storeIdNotExist || isFetchingCategory}
       />
 
       <Variant form={form} />
