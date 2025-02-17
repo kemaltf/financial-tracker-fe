@@ -17,9 +17,13 @@ interface ImageUploadProps {
   predefinedBoxes?: boolean;
   label?: string;
   disabled?: boolean;
+  gridColSetting?: {
+    base?: number;
+    sm?: number;
+    md?: number;
+    lg?: number;
+  };
 }
-
-const gridColSetting = { base: 6, sm: 3, md: 2, lg: 2 };
 
 export function ImageUpload({
   onChange,
@@ -30,6 +34,7 @@ export function ImageUpload({
   predefinedBoxes = false,
   label = '',
   disabled = false,
+  gridColSetting = { base: 6, sm: 3, md: 2, lg: 2 }, // ✅ Bisa dikirim dari props
 }: ImageUploadProps) {
   const handleDrop = (files: FileWithPath[]) => {
     if (disabled) {
@@ -77,7 +82,7 @@ export function ImageUpload({
         items={value.map((file) => file.id.toString())}
         strategy={verticalListSortingStrategy}
       >
-        <Stack p={0} m={0} gap="sm" h="100%">
+        <Stack p={0} m={0} gap="sm" h="100%" w="100%">
           {label && (
             <Text fw={500} fz="sm">
               {label}
@@ -91,7 +96,6 @@ export function ImageUpload({
                 style={{ aspectRatio: '1 / 1' }}
                 w="100%"
                 h="100%"
-                // bg="red"
               >
                 {value[index] ? (
                   <SortableItem
