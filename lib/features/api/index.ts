@@ -25,7 +25,7 @@ export enum ApiTags {
   Category = 'Category',
   VariantType = 'VariantType',
   Image = 'Image',
-  Produt = 'Product',
+  Product = 'Product',
 }
 
 export type BuilderType = EndpointBuilder<
@@ -77,12 +77,13 @@ export const {
   // Store
   useGetStoresQuery,
   useCreateStoreMutation,
+  useLazyGetStoreQuery,
 
   // product
   useGetProductsOptionQuery,
-  useLazyGetStoreQuery,
   useEditStoreMutation,
   useDeleteStoreMutation,
+  useCreateProductMutation,
 
   // financial party
   useGetFinancialPartiesQuery,

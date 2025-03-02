@@ -6,8 +6,8 @@ import { ActionIcon, Group, Table, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { useDeleteVariantTypeMutation, useGetVariantTypesQuery } from '@/lib/features/api';
 
-function Categories() {
-  const { data } = useGetVariantTypesQuery();
+function VariantTypes() {
+  const { data } = useGetVariantTypesQuery({ storeId: null });
   const [deleteVariantType] = useDeleteVariantTypeMutation();
 
   const router = useRouter();
@@ -64,4 +64,4 @@ function Categories() {
   );
 }
 
-export default Categories;
+export default VariantTypes;

@@ -12,13 +12,19 @@ import {
 
 export const variantTypeEndpoints = (builder: BuilderType) => ({
   getVariantTypes: builder.query<ApiResponse<VariantType[]>, GetVariantsTypeParams>({
-    query: ({ storeId }) => ({
-      url: API_URL.VARIANT_TYPES,
-      method: 'GET',
-      params: {
-        storeId,
-      },
-    }),
+    query: ({ storeId }) => {
+      const params: Record<string, any> = {};
+
+      if (storeId) {
+        params.storeId = storeId;
+      }
+
+      return {
+        url: API_URL.VARIANT_TYPES,
+        method: 'GET',
+        params,
+      };
+    },
     providesTags: (result) =>
       result
         ? [
@@ -30,6 +36,7 @@ export const variantTypeEndpoints = (builder: BuilderType) => ({
           ]
         : [{ type: ApiTags.VariantType, id: 'LIST' }],
   }),
+
   createVariantType: builder.mutation<ApiResponse<VariantType>, CreateVariantTypeDto>({
     query: (variantType) => ({
       url: API_URL.VARIANT_TYPES,

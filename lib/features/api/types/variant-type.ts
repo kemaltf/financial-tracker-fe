@@ -20,7 +20,7 @@ export interface GetVariantTypeParams {
 }
 
 export interface GetVariantsTypeParams {
-  storeId: string;
+  storeId: string | null;
 }
 
 export interface EditVariantTypeDto extends CreateVariantTypeDto {

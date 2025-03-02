@@ -17,14 +17,14 @@ export const productSchema = z.object({
   sku: z.string().optional(),
   description: z.string().min(1, 'Description is required'),
   stock: z.number().min(0, 'Stock must be at least 0'),
-  price: z.string().min(1, 'Price is required'),
-  categories: z.array(z.number()),
+  price: z.number().min(1, 'Price is required'),
+  categories: z.array(z.string()),
   storeId: z.string().min(1, 'Store is required'),
   images: z.array(imageFileSchema), // ✅ Tambahkan array `imageFiles`
   variants: z.array(
     z.object({
-      values: z.array(z.string()),
-      price: z.string().min(1, 'Price is required'),
+      variantOptions: z.record(z.string(), z.string()), // Object key-value seperti { "COLOR": "Red", "SIZE": "M" }
+      price: z.number().min(1, 'Price is required'),
       stock: z.number().min(0, 'Stock must be at least 0'),
       sku: z.string(),
       image: z.array(imageFileSchema),
@@ -42,7 +42,7 @@ const defaultProductValues: ProductSchemaFormValues = {
   sku: '',
   description: '',
   stock: 0,
-  price: '',
+  price: 0,
   categories: [],
   storeId: '',
   images: [],

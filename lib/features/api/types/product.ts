@@ -1,3 +1,5 @@
+import { ProductSchemaFormValues } from '@/modules/ProductForm/form';
+
 export interface Product {
   value: string;
   label: string;
@@ -29,25 +31,10 @@ export interface ProductQueryParams {
   };
 }
 
-export type VariantDto = {
-  variantTypeId: number;
-  variant_value: string;
-  sku: string;
-  price: string;
-  stock: number;
-  imageIds: number[];
-};
-
-export type CreateProductDto = {
-  name: string;
-  sku: string;
-  description: string;
-  stock: number;
-  price: string;
+// Tipe data untuk CreateProductDto
+export type CreateProductDto = Omit<ProductSchemaFormValues, 'storeId' | 'categories'> & {
+  storeId: number;
   categories: number[];
-  store: number;
-  imageIds: number[];
-  variants: VariantDto[];
 };
 
 export type ProductStore = {

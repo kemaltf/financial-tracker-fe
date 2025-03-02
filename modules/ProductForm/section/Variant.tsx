@@ -49,8 +49,10 @@ export const Variant = ({ form }: Props) => {
 
     return combinations.map((values, index) => ({
       id: index + 1,
-      values,
-      price: '',
+      variantOptions: Object.fromEntries(
+        values.map((value, i) => [data?.data?.[i]?.name ?? `Option ${i + 1}`, value])
+      ),
+      price: 0,
       stock: 0,
       sku: '',
       image: [],
@@ -109,8 +111,8 @@ export const Variant = ({ form }: Props) => {
     return generatedVariants?.map((variant, index) => (
       <Table.Tr key={index}>
         <Table.Td>{index + 1}</Table.Td>
-        {variant.values.map((value, i) => (
-          <Table.Td key={i}>{value}</Table.Td>
+        {Object.entries(variant.variantOptions).map(([key, value]) => (
+          <Table.Td key={key}>{value}</Table.Td>
         ))}
         <Table.Td>
           <NumberInput
@@ -133,12 +135,13 @@ export const Variant = ({ form }: Props) => {
             value={form.values.variants?.[index]?.sku || ''}
           />
         </Table.Td>
-        <Table.Td style={{ width: '100px', height: '100px' }} bg="green" display="flex">
+        <Table.Td style={{ width: '100px' }}>
           <ImageUpload
-            {...form.getInputProps(`variants.${index}.image`)}
+            {...form.getInputProps(`variants.${index}.imageIds`)}
             maxImages={1}
             predefinedBoxes
             disabled={!form.values.storeId}
+            gridColSetting={{ base: 12 }}
           />
         </Table.Td>
       </Table.Tr>
