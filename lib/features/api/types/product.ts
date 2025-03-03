@@ -1,7 +1,18 @@
 import { ProductSchemaFormValues } from '@/modules/ProductForm/form';
 
+export interface Variant {
+  value: string | number;
+  label: string;
+  sku: string;
+  description: string;
+  stock: number;
+  price: number;
+  id: number;
+  image?: string;
+}
+
 export interface Product {
-  value: string;
+  value: string | number;
   label: string;
   sku: string;
   description: string;
@@ -9,7 +20,7 @@ export interface Product {
   price: number;
   image?: string;
   id: number;
-  disabled: boolean;
+  variant?: Variant[];
 }
 
 export interface ProductResponse {

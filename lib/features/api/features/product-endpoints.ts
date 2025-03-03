@@ -23,6 +23,17 @@ export const productEndpoints = (builder: BuilderType) => ({
         ...filters,
       },
     }),
+    providesTags: (result) =>
+      result
+        ? [
+            // Menandai setiap transaksi dengan ID atau tag lainnya
+            ...result.data.data.map(({ id }) => ({
+              type: ApiTags.Product, // Menandai dengan type 'Transaction'
+              id, // ID transaksi
+            })),
+            { type: ApiTags.Product, id: 'LIST' }, // Menandai daftar transaksi secara keseluruhan
+          ]
+        : [{ type: ApiTags.Product, id: 'LIST' }],
     transformResponse: (response: ApiResponse<ProductResponse>): ApiResponse<ProductResponse> => {
       return {
         ...response,
@@ -31,10 +42,28 @@ export const productEndpoints = (builder: BuilderType) => ({
           data: response.data.data.map((item) => ({
             ...item,
             value: item.value.toString(),
-            label: `${item.label} - ${item.sku} - ${formatExchage(item.price, 'id-ID')}`,
+            label: `${item.label} - ${formatExchage(item.price, 'id-ID')}`,
           })),
         },
       };
+    },
+    merge: (currentCache, newResponse) => {
+      // Gabungkan data lama dengan data baru
+      const mergedData = [...currentCache.data.data, ...newResponse.data.data];
+      // Gunakan Map untuk menghapus duplikasi berdasarkan id
+      const uniqueData = Array.from(new Map(mergedData.map((item) => [item.id, item])).values());
+
+      // Urutkan berdasarkan ID dari kecil ke besar
+      uniqueData.sort((a, b) => Number(a.id) - Number(b.id));
+
+      // Simpan hasil yang sudah di-filter dan diurutkan
+      currentCache.data.data = uniqueData;
+      currentCache.data.totalPages = newResponse.data.totalPages;
+      currentCache.data.currentPage = newResponse.data.currentPage;
+    },
+
+    serializeQueryArgs: ({ endpointName }) => {
+      return endpointName;
     },
   }),
   createProduct: builder.mutation<ApiResponse<CreateProductResponse>, CreateProductDto>({
@@ -90,9 +119,12 @@ export const productEndpoints = (builder: BuilderType) => ({
 
       // **🔹 Masukkan Gambar Variants**
       product.variants.forEach((variant, variantIndex: number) => {
-        variant.image.forEach((img, imgIndex: number) => {
+        variant.image.forEach((img, _imgIndex: number) => {
+          console.log('debug,', variant.image);
           if (img.file) {
-            formData.append(`variantImages[${variantIndex}][${imgIndex}]`, img.file);
+            // Don't delete this code, in the future maybe we will have multiple image for variant.
+            // formData.append(`variantImages[${variantIndex}][${imgIndex}]`, img.file);
+            formData.append(`variantImages[${variantIndex}]`, img.file);
           }
         });
       });
@@ -105,7 +137,7 @@ export const productEndpoints = (builder: BuilderType) => ({
     },
     invalidatesTags: [{ type: ApiTags.Product, id: 'LIST' }],
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    onQueryStarted: async (store, { dispatch, queryFulfilled }) => {
+    onQueryStarted: async (_store, { dispatch, queryFulfilled }) => {
       await handleQueryNotification('Creating product', queryFulfilled);
     },
   }),

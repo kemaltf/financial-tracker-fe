@@ -81,6 +81,7 @@ export const {
 
   // product
   useGetProductsOptionQuery,
+  useLazyGetProductsOptionQuery,
   useEditStoreMutation,
   useDeleteStoreMutation,
   useCreateProductMutation,

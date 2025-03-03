@@ -15,8 +15,19 @@ import {
 import { useIntersection } from '@mantine/hooks';
 import { Product } from '@/lib/features/api/types/product';
 
+export type SelectProductType = {
+  description: string;
+  id: number;
+  image: string;
+  label: string;
+  price: number;
+  sku: string;
+  stock: number;
+  value: string;
+  disabled: boolean;
+}[];
 interface InfiniteScrollSelectProps {
-  data: Product[];
+  data: SelectProductType;
   loading?: boolean;
   onBottomReached?: () => void;
   onChange?: (value: string) => void;
@@ -68,11 +79,13 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
 
   // Filter data berdasarkan query pencarian
   const filteredData = searchable
-    ? data.filter((item) => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
+    ? data.filter((item) =>
+        (item as Product).label.toLowerCase().includes(searchQuery.toLowerCase())
+      )
     : data;
 
   useEffect(() => {
-    const selectedItem = data.find((item) => item.value === value);
+    const selectedItem = data.find((item) => String(item.value) === value);
     setSelectedLabel(selectedItem ? selectedItem.label : '');
   }, [value, data]);
 
@@ -118,31 +131,35 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
               key={`${item.value}-${index}`}
               onClick={() => {
                 setSelectedLabel(item.label);
-                onChange?.(item.value);
-                combobox.closeDropdown(); // Menutup dropdown setelah memilih opsi
+                onChange?.(String(item.value));
+                combobox.closeDropdown();
               }}
               {...optionProps}
-              value={item.value}
-              disabled={selectedProductIds.includes(item.value) || item.disabled} // Disable if already selected
+              value={String(item.value)}
+              disabled={selectedProductIds.includes(String(item.value)) || item.disabled}
               ref={index === filteredData.length - 1 ? ref : null}
             >
               <Group gap="sm" wrap="nowrap">
                 <Image
-                  src={item.image || '/placeholder-image.jpg'}
+                  src={
+                    'image' in item
+                      ? item.image || '/placeholder-image.jpg'
+                      : '/placeholder-image.jpg'
+                  }
                   alt={item.label}
                   width={50}
                   height={50}
                 />
                 <Stack gap={0}>
                   <Text>{item.label}</Text>
-                  <Text size="sm" color="dimmed">
+                  <Text size="sm" c="dimmed">
                     SKU: {item.sku}
                   </Text>
-                  <Text size="sm" color="dimmed">
+                  <Text size="sm" c="dimmed">
                     Stok: {item.stock}
                   </Text>
-                  <Text size="sm" color="green">
-                    Harga: ${item.price}
+                  <Text size="sm" c="green">
+                    Price: Rp {item.price}
                   </Text>
                 </Stack>
               </Group>

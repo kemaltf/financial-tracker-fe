@@ -137,7 +137,7 @@ export const Variant = ({ form }: Props) => {
         </Table.Td>
         <Table.Td style={{ width: '100px' }}>
           <ImageUpload
-            {...form.getInputProps(`variants.${index}.imageIds`)}
+            {...form.getInputProps(`variants.${index}.image`)}
             maxImages={1}
             predefinedBoxes
             disabled={!form.values.storeId}

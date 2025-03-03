@@ -22,7 +22,7 @@ export const transactionEndpoints = (builder: BuilderType) => ({
       method: 'GET',
       params: transaction,
     }),
-    providesTags: (result) => [
+    providesTags: (_result) => [
       { type: ApiTags.Transaction, id: 'FINANCIAL_SUMMARY' }, // Menandai query summary dengan tag 'FINANCIAL_SUMMARY'
     ],
   }),
@@ -35,7 +35,7 @@ export const transactionEndpoints = (builder: BuilderType) => ({
       method: 'GET',
       params: transaction,
     }),
-    providesTags: (result) => [
+    providesTags: (_result) => [
       { type: ApiTags.Transaction, id: 'BALANCE_SHEET' }, // Menandai query summary dengan tag 'FINANCIAL_SUMMARY'
     ],
   }),

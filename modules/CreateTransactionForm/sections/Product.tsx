@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { IconTrash } from '@tabler/icons-react';
 import {
   ActionIcon,
@@ -12,8 +12,8 @@ import {
   Title,
 } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import SelectProduct from '@/components/SelectProduct';
-import { useGetProductsOptionQuery } from '@/lib/features/api';
+import SelectProduct, { SelectProductType } from '@/components/SelectProduct';
+import { useLazyGetProductsOptionQuery } from '@/lib/features/api';
 import { Product } from '@/lib/features/api/types/product';
 import { TransactionFormValues } from '../form';
 
@@ -22,46 +22,46 @@ type Props = {
 };
 
 export const ProductSection = ({ form }: Props) => {
-  const [page, setPage] = useState(1);
-  const [productData, setProductData] = useState<Product[]>([]);
-  // Ambil storeId dari form
   const storeId = Number(form.values.storeId);
 
-  const { data, isLoading } = useGetProductsOptionQuery(
-    {
-      page,
+  const [trigger, { data, isFetching }] = useLazyGetProductsOptionQuery();
+  const dataProducts = data?.data?.data || [];
+
+  const flattenProducts = (products: Product[]): SelectProductType =>
+    products.flatMap((product) => [
+      {
+        ...product,
+        value: product.id.toString(),
+        image: product.image || '',
+        disabled: product.variant ? product.variant.length > 0 : false, // Disabled jika ada variant
+      },
+      ...(product.variant || []).map((variant) => ({
+        ...variant,
+        value: `${product.id}-${variant.id}`, // Format baru untuk value variant
+        image: variant?.image || '',
+        disabled: false,
+      })),
+    ]);
+
+  const allOptions = flattenProducts(dataProducts);
+
+  const fetchNextPage = () => {
+    if (dataProducts.length === 0) {
+      return;
+    }
+
+    if (data?.data.totalPages && data.data.currentPage + 1 > data.data.totalPages && !isFetching) {
+      return;
+    }
+
+    trigger({
+      page: data!.data.currentPage + 1,
       limit: 5,
       sortBy: 'price',
       sortDirection: 'DESC',
       storeId, // Gunakan storeId dari form
       filters: {},
-    },
-    { skip: !storeId } // Hanya fetch jika storeId ada
-  );
-
-  useEffect(() => {
-    if (data) {
-      setProductData((prevData) => [...prevData, ...data.data.data]);
-    }
-  }, [data]);
-
-  // Reset product data saat storeId berubah
-  useEffect(() => {
-    setProductData([]);
-    setPage(1);
-  }, [storeId]);
-
-  useEffect(() => {
-    if (data) {
-      setProductData((prevData) => [...prevData, ...data.data.data]);
-    }
-  }, [data]);
-
-  const fetchNextPage = () => {
-    if (data?.data.totalPages === page) {
-      return;
-    }
-    setPage((prevPage) => prevPage + 1);
+    });
   };
 
   const removeProduct = (index: number) => {
@@ -71,9 +71,20 @@ export const ProductSection = ({ form }: Props) => {
     form.insertListItem('products', { productId: '', quantity: 1 });
   };
   const handleProductChange = (value: string): Product | undefined => {
-    const product = productData.find((item) => item.value === value) as Product;
+    const product = allOptions.find((item) => item.value === value) as Product;
     return product;
   };
+
+  useEffect(() => {
+    trigger({
+      page: 1,
+      limit: 5,
+      sortBy: 'price',
+      sortDirection: 'DESC',
+      storeId, // Gunakan storeId dari form
+      filters: {},
+    });
+  }, []);
 
   return (
     <Grid.Col span={12} p={0}>
@@ -92,15 +103,15 @@ export const ProductSection = ({ form }: Props) => {
             <Grid align="flex-start">
               <Grid.Col span={{ base: 8, md: 9 }}>
                 <SelectProduct
-                  data={productData}
-                  loading={isLoading}
+                  data={allOptions || []}
+                  loading={isFetching}
                   {...form.getInputProps(`products.${index}.productId`)}
                   onBottomReached={fetchNextPage}
                   mah={300} // Custom max height
                   textInputProps={{
                     label: `Product ${index + 1}`,
                     placeholder: 'Select product',
-                    disabled: isLoading,
+                    disabled: isFetching,
                   }}
                   containerProps={{
                     disabled: false,
