@@ -1,3 +1,4 @@
+import { usePathname } from 'next/navigation';
 import { IconNotification, IconPlus, IconSettings } from '@tabler/icons-react';
 import {
   ActionIcon,
@@ -15,6 +16,7 @@ import {
 import { useModals } from '@mantine/modals';
 import { useDeviceType } from '@/hooks/use-device-size';
 import AddTransactionForm from '@/modules/CreateTransactionForm';
+import { navlinks } from '../Navbar/constant';
 import classes from './styles/Header.module.css';
 
 interface Props {
@@ -35,12 +37,19 @@ export default function Header({ opened, toggle, handleLogout }: Props) {
       children: <AddTransactionForm onClose={() => modals.closeAll()} />,
     });
   };
+
+  const pathname = usePathname();
+
+  // Cari judul yang sesuai berdasarkan pathname
+  const currentNav = navlinks.find(
+    (nav) => pathname === nav.link || nav.files.some((file) => pathname === file.link)
+  );
   return (
     <Flex h="100%" gap={10} w="100%" direction={{ base: 'row', md: 'column' }} align="center">
       <Burger opened={opened} onClick={toggle} hiddenFrom="sm" size="sm" />
       <Flex className={classes.wrapper}>
         <Text visibleFrom="md" className={classes.title} fz={24} fw={800}>
-          Welcome back
+          {currentNav?.title || 'Welcome back'}
         </Text>
         <Flex align="center" gap={24}>
           {/* <TextInput

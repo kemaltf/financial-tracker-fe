@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Button,
   Flex,
@@ -29,6 +30,7 @@ export default function CreateProductForm() {
   const [createProduct, { isLoading: isCreateProductLoading }] = useCreateProductMutation();
   const form = useProductForm();
   const { isMobile } = useDeviceType();
+  const router = useRouter();
 
   useEffect(() => {
     if (form.values.storeId) {
@@ -56,7 +58,7 @@ export default function CreateProductForm() {
   };
 
   const storeIdNotExist = !form.values.storeId;
-  const handleUpload = async (values: ProductSchemaFormValues) => {
+  const onSubmit = async (values: ProductSchemaFormValues) => {
     // Mengonversi kategori dari string ke integer
     const updatedValues = {
       ...values,
@@ -64,13 +66,11 @@ export default function CreateProductForm() {
       categories: values.categories.map((category) => parseInt(category, 10)), // Mengubah kategori menjadi integer
     };
 
-    console.log('create', updatedValues);
-
-    createProduct(updatedValues); // Memanggil fungsi untuk create produk dengan kategori yang sudah terkonversi
+    await createProduct(updatedValues); // Memanggil fungsi untuk create produk dengan kategori yang sudah terkonversi
+    router.push('/dashboard/products/categories');
   };
-  console.log(form.values, form.errors);
   return (
-    <form onSubmit={form.onSubmit(handleUpload)}>
+    <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack>
         <Select
           label="Store"

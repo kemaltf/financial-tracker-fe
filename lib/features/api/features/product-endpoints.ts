@@ -1,5 +1,6 @@
 import { ApiTags, BuilderType } from '..';
 import { formatExchage } from '@/utils/helpers';
+import { API_URL } from '../constants';
 import { handleQueryNotification } from '../helpers';
 import { type ApiResponse } from '../types/common';
 import type {
@@ -12,7 +13,7 @@ import type {
 export const productEndpoints = (builder: BuilderType) => ({
   getProductsOption: builder.query<ApiResponse<ProductResponse>, ProductQueryParams>({
     query: ({ page, limit, sortBy, sortDirection, storeId, filters }) => ({
-      url: 'products/opt',
+      url: `${API_URL.PRODUCT}/opt`,
       method: 'GET',
       params: {
         page,
@@ -120,7 +121,6 @@ export const productEndpoints = (builder: BuilderType) => ({
       // **🔹 Masukkan Gambar Variants**
       product.variants.forEach((variant, variantIndex: number) => {
         variant.image.forEach((img, _imgIndex: number) => {
-          console.log('debug,', variant.image);
           if (img.file) {
             // Don't delete this code, in the future maybe we will have multiple image for variant.
             // formData.append(`variantImages[${variantIndex}][${imgIndex}]`, img.file);
@@ -130,7 +130,7 @@ export const productEndpoints = (builder: BuilderType) => ({
       });
 
       return {
-        url: '/products', // Ganti dengan endpoint API yang sesuai
+        url: API_URL.PRODUCT, // Ganti dengan endpoint API yang sesuai
         method: 'POST',
         body: formData,
       };
@@ -140,5 +140,16 @@ export const productEndpoints = (builder: BuilderType) => ({
     onQueryStarted: async (_store, { dispatch, queryFulfilled }) => {
       await handleQueryNotification('Creating product', queryFulfilled);
     },
+  }),
+  deleteProduct: builder.mutation<{ status: string; message: string }, { id: string }>({
+    query: ({ id }) => ({
+      url: `${API_URL.PRODUCT}/${id}`,
+      method: 'DELETE',
+    }),
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    invalidatesTags: (result, error, { id }) => [
+      { type: ApiTags.Product, id }, // Hapus produk spesifik
+      { type: ApiTags.Product, id: 'LIST' }, // Hapus daftar produk secara keseluruhan
+    ],
   }),
 });

@@ -85,6 +85,7 @@ export const {
   useEditStoreMutation,
   useDeleteStoreMutation,
   useCreateProductMutation,
+  useDeleteProductMutation,
 
   // financial party
   useGetFinancialPartiesQuery,

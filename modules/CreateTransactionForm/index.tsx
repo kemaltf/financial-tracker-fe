@@ -28,7 +28,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   const [createTransaction] = useCreateTransactionMutation();
 
   const form = useTransactionForm();
-
+  console.log(form.values);
   const handleSubmit = async (values: TransactionFormValues) => {
     const convertedValues: TransactionDTO = {
       transactionTypeId: Number(values.transactionTypeId),
@@ -54,7 +54,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
             }
           : undefined,
       orders: values.products?.map((product) => ({
-        productId: Number(product.productId),
+        productId: Number(product.productId.toString().split('-').pop()), // Ambil angka terakhir jika ada "-"
         quantity: product.quantity,
       })),
     };

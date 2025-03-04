@@ -17,10 +17,8 @@ import { CategoryFormValues, useCategoryForm } from './form';
 const CategoryForm = () => {
   const params = useParams();
   const path = usePathname().split('/')[4];
-  console.log(path);
   const id = params?.id as string | undefined;
 
-  console.log(id);
   const form = useCategoryForm();
   const router = useRouter();
 
