@@ -83,6 +83,10 @@ export const categoryEndpoints = (builder: BuilderType) => ({
       method: 'DELETE',
     }),
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    onQueryStarted: async (store, { dispatch, queryFulfilled }) => {
+      await handleQueryNotification('Deleting category', queryFulfilled);
+    },
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     invalidatesTags: (result, error, { id }) => [{ type: ApiTags.Category, id: 'LIST' }],
   }),
 });

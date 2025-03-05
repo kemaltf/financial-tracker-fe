@@ -67,7 +67,7 @@ export default function CreateProductForm() {
     };
 
     await createProduct(updatedValues); // Memanggil fungsi untuk create produk dengan kategori yang sudah terkonversi
-    router.push('/dashboard/products/categories');
+    router.push('/dashboard/products');
   };
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>

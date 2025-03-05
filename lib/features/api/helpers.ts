@@ -12,7 +12,7 @@ export const handleQueryNotification = async (
     notifications.clean();
     notify('success', `${actionName} successfully!`);
   } catch (error) {
-    notify('error', `Failed to ${actionName}.`);
+    notify('error', `Failed to ${actionName}. ${JSON.stringify(error)}`);
   } finally {
     notifications.hide('loading');
   }

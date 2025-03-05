@@ -4,23 +4,41 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconChevronDown, IconChevronUp, IconPencil, IconTrash } from '@tabler/icons-react';
-import { ActionIcon, Container, Group, Image, rem, Stack, Table, Text, Title } from '@mantine/core';
+import {
+  ActionIcon,
+  Button,
+  Container,
+  Group,
+  Image,
+  rem,
+  Stack,
+  Table,
+  Text,
+  Title,
+} from '@mantine/core';
+import { usePagination } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
 import { useDeleteProductMutation, useGetProductsOptionQuery } from '@/lib/features/api';
 import { formatExchage } from '@/utils/helpers';
 
 function Products() {
   const router = useRouter();
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  //   const [trigger, { data, isFetching }] = useLazyGetProductsOptionQuery();
-  const { data } = useGetProductsOptionQuery({
-    page: 1,
-    limit: 5,
+
+  // State untuk pagination
+  const pagination = usePagination({ total: 10, initialPage: 1 });
+
+  const limit = 1;
+  // Ambil data produk dengan pagination
+  const { data, refetch } = useGetProductsOptionQuery({
+    page: pagination.active,
+    limit,
     sortBy: 'price',
     sortDirection: 'DESC',
-    storeId: 1, // Gunakan storeId dari form
+    storeId: 1, // TODO: Ambil dari storeId yang dinamis
     filters: {},
+    paginationMode: 'pagination',
   });
+
   const [deleteProduct] = useDeleteProductMutation();
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
@@ -57,7 +75,7 @@ function Products() {
             </ActionIcon>
           )}
         </Table.Td>
-        <Table.Td>{index + 1}</Table.Td>
+        <Table.Td>{(pagination.active - 1) * limit + index + 1}</Table.Td>
         <Table.Td style={{ width: rem(50) }}>
           <Stack p={0} m={0} gap="sm" h="100%" w="100%" style={{ aspectRatio: '1 / 1' }}>
             <Image
@@ -65,7 +83,7 @@ function Products() {
               alt={item.label}
               width={50}
               height={50}
-              style={{ objectFit: 'cover', borderRadius: '4px' }} // Tambahan border-radius jika ingin rounded
+              style={{ objectFit: 'cover', borderRadius: '4px' }}
             />
           </Stack>
         </Table.Td>
@@ -90,14 +108,13 @@ function Products() {
             <Table.Td></Table.Td>
             <Table.Td></Table.Td>
             <Table.Td>
-              {' '}
               <Stack p={0} m={0} gap="sm" h="100%" w="100%" style={{ aspectRatio: '1 / 1' }}>
                 <Image
                   src={variant.image || '/placeholder-image.jpg'}
                   alt={variant.label}
                   width={50}
                   height={50}
-                  style={{ objectFit: 'cover', borderRadius: '4px' }} // Tambahan border-radius jika ingin rounded
+                  style={{ objectFit: 'cover', borderRadius: '4px' }}
                 />
               </Stack>
             </Table.Td>
@@ -110,6 +127,14 @@ function Products() {
         )),
     ];
   });
+
+  // Total halaman dari API
+  const totalPages = data?.data.totalPages || 1;
+  console.log('totalPages', totalPages);
+
+  useEffect(() => {
+    refetch();
+  }, [pagination.active, refetch]);
 
   return (
     <Container>
@@ -131,6 +156,23 @@ function Products() {
           <Table.Tbody>{rows}</Table.Tbody>
           <Table.Caption>Scroll page to see sticky thead</Table.Caption>
         </Table>
+
+        {/* Pagination Controls */}
+        <Group p="right">
+          <Button variant="default" disabled={pagination.active <= 1} onClick={pagination.previous}>
+            Previous
+          </Button>
+          <Text>
+            Page {pagination.active} of {totalPages}
+          </Text>
+          <Button
+            variant="default"
+            disabled={pagination.active >= totalPages}
+            onClick={pagination.next}
+          >
+            Next
+          </Button>
+        </Group>
       </Stack>
     </Container>
   );

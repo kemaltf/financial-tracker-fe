@@ -11,7 +11,10 @@ import type {
 } from '../types/product';
 
 export const productEndpoints = (builder: BuilderType) => ({
-  getProductsOption: builder.query<ApiResponse<ProductResponse>, ProductQueryParams>({
+  getProductsOption: builder.query<
+    ApiResponse<ProductResponse>,
+    ProductQueryParams & { paginationMode?: 'pagination' | 'infiniteScroll' }
+  >({
     query: ({ page, limit, sortBy, sortDirection, storeId, filters }) => ({
       url: `${API_URL.PRODUCT}/opt`,
       method: 'GET',
@@ -48,21 +51,23 @@ export const productEndpoints = (builder: BuilderType) => ({
         },
       };
     },
-    merge: (currentCache, newResponse) => {
-      // Gabungkan data lama dengan data baru
-      const mergedData = [...currentCache.data.data, ...newResponse.data.data];
-      // Gunakan Map untuk menghapus duplikasi berdasarkan id
-      const uniqueData = Array.from(new Map(mergedData.map((item) => [item.id, item])).values());
+    // Gunakan merge hanya untuk infiniteScroll
+    merge: (currentCache, newResponse, { arg }) => {
+      if (arg.paginationMode === 'infiniteScroll') {
+        // Gabungkan data lama dengan data baru
+        const mergedData = [...currentCache.data.data, ...newResponse.data.data];
+        const uniqueData = Array.from(new Map(mergedData.map((item) => [item.id, item])).values());
 
-      // Urutkan berdasarkan ID dari kecil ke besar
-      uniqueData.sort((a, b) => Number(a.id) - Number(b.id));
+        uniqueData.sort((a, b) => Number(a.id) - Number(b.id));
 
-      // Simpan hasil yang sudah di-filter dan diurutkan
-      currentCache.data.data = uniqueData;
-      currentCache.data.totalPages = newResponse.data.totalPages;
-      currentCache.data.currentPage = newResponse.data.currentPage;
+        currentCache.data.data = uniqueData;
+        currentCache.data.totalPages = newResponse.data.totalPages;
+        currentCache.data.currentPage = newResponse.data.currentPage;
+      } else {
+        // Jika pagination biasa, langsung timpa data lama dengan data baru
+        Object.assign(currentCache, newResponse);
+      }
     },
-
     serializeQueryArgs: ({ endpointName }) => {
       return endpointName;
     },

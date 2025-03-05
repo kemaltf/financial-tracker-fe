@@ -62,6 +62,7 @@ export const ProductSection = ({ form }: Props) => {
       sortDirection: 'DESC',
       storeId, // Gunakan storeId dari form
       filters: {},
+      paginationMode: 'infiniteScroll',
     });
   };
 
@@ -84,6 +85,7 @@ export const ProductSection = ({ form }: Props) => {
       sortDirection: 'DESC',
       storeId, // Gunakan storeId dari form
       filters: {},
+      paginationMode: 'infiniteScroll',
     });
   }, []);
 
