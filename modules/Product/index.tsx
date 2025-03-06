@@ -43,7 +43,7 @@ function Products() {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
   const handleEditClick = (id: number) => {
-    router.push(`/dashboard/accounts/edit/${id}`);
+    router.push(`/dashboard/products/edit/${id}`);
   };
 
   const openDeleteModal = (id: number) =>

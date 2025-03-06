@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import {
   Button,
   Flex,
@@ -18,19 +18,32 @@ import TextAreaWithCounter from '@/components/TextAreaCount';
 import { useDeviceType } from '@/hooks/use-device-size';
 import {
   useCreateProductMutation,
+  useEditProductMutation,
   useGetStoresQuery,
   useLazyGetCategoryOptionQuery,
+  useLazyGetProductQuery,
 } from '@/lib/features/api';
 import { ProductSchemaFormValues, useProductForm } from './form';
 import { Variant } from './section/Variant';
 
-export default function CreateProductForm() {
+export default function ProductForm() {
   const { data: storeData, isLoading } = useGetStoresQuery();
   const [fetchCategory, { data, isFetching: isFetchingCategory }] = useLazyGetCategoryOptionQuery();
   const [createProduct, { isLoading: isCreateProductLoading }] = useCreateProductMutation();
+  const [fetchProduct, { isFetching: isFetchingProduct, isLoading: isLoadingProduct }] =
+    useLazyGetProductQuery();
+  const [editProduct] = useEditProductMutation();
+
   const form = useProductForm();
   const { isMobile } = useDeviceType();
   const router = useRouter();
+  const params = useParams();
+  const path = usePathname().split('/')[3];
+  console.log(path);
+
+  console.log(form.values);
+
+  const id = params?.id as string | undefined;
 
   useEffect(() => {
     if (form.values.storeId) {
@@ -59,16 +72,102 @@ export default function CreateProductForm() {
 
   const storeIdNotExist = !form.values.storeId;
   const onSubmit = async (values: ProductSchemaFormValues) => {
-    // Mengonversi kategori dari string ke integer
-    const updatedValues = {
-      ...values,
-      storeId: Number(values.storeId),
-      categories: values.categories.map((category) => parseInt(category, 10)), // Mengubah kategori menjadi integer
-    };
+    if (path === 'edit' && id) {
+      const result = await editProduct({
+        ...values,
+        storeId: Number(values.storeId),
+        categories: values.categories.map((category) => parseInt(category, 10)),
+        id,
+      }).unwrap();
+      if (result.status === 'success') {
+        router.push('/dashboard/products/categories');
+        form.reset();
+      }
+    } else {
+      // Mengonversi kategori dari string ke integer
+      const updatedValues = {
+        ...values,
+        storeId: Number(values.storeId),
+        categories: values.categories.map((category) => parseInt(category, 10)), // Mengubah kategori menjadi integer
+      };
 
-    await createProduct(updatedValues); // Memanggil fungsi untuk create produk dengan kategori yang sudah terkonversi
-    router.push('/dashboard/products');
+      await createProduct(updatedValues); // Memanggil fungsi untuk create produk dengan kategori yang sudah terkonversi
+      router.push('/dashboard/products');
+      form.reset();
+    }
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchProduct({ id: Number(id) }).then((result) => {
+        if (result.data?.data) {
+          const variantTypes = Array.from(
+            new Set(
+              result.data.data.variants.flatMap((variant) =>
+                variant.variantOptions.map((option) => option.type)
+              )
+            )
+          ); // Ambil semua variant type dalam urutan unik
+
+          const variantValues = Object.fromEntries(
+            variantTypes.map((type, index) => [
+              String(index), // Gunakan index sebagai key
+              Array.from(
+                new Set(
+                  result?.data?.data?.variants?.flatMap((variant) =>
+                    variant.variantOptions
+                      .filter((option) => option.type === type)
+                      .map((option) => option.name)
+                  )
+                )
+              ),
+            ])
+          );
+
+          form.setValues({
+            name: result.data.data.name,
+            description: result.data.data.description,
+            storeId: String(result.data.data.store.id),
+            sku: result.data.data.sku ?? '',
+            stock: result.data.data.stock,
+            price: result.data.data.price,
+            categories: result.data.data.categories.map((category) => String(category.id)), // Schema butuh string
+
+            images: result.data.data.images.map((image) => ({
+              file: null, // Karena ini dari server, tidak ada file yang di-upload langsung
+              source: 'select', // Karena berasal dari database, bukan upload baru
+              id: image.id, // Bisa gunakan `name` atau `url` sebagai ID unik
+              url: image.url,
+            })),
+
+            variants: result.data.data.variants.map((variant) => ({
+              variantOptions: Object.fromEntries(
+                variant.variantOptions.map((option) => [option.type, option.name])
+              ), // Mengubah array menjadi object key-value
+              price: variant.price,
+              stock: variant.stock,
+              sku: variant.sku,
+              image: variant.image.map((image) => ({
+                file: null, // Dari server, tidak ada file
+                source: 'select',
+                id: image.id, // Bisa pakai `name` atau `url` sebagai ID unik
+                url: image.url,
+              })),
+            })),
+
+            variantTypeSelections: result.data.data.variantTypeSelections.map((value) =>
+              String(value)
+            ),
+
+            variantValues, // Mengelompokkan variantOptions ke dalam record type -> [names]
+
+            isVariantMode: result.data.data.variants.length > 0,
+          });
+        }
+      });
+    }
+  }, [id, fetchProduct]);
+
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack>
@@ -77,7 +176,7 @@ export default function CreateProductForm() {
           placeholder="Select store"
           data={storeData?.data}
           {...form.getInputProps('storeId')}
-          disabled={isLoading}
+          disabled={isLoading || isFetchingProduct || isLoadingProduct}
           searchable
           allowDeselect
           w="100%"
@@ -88,13 +187,13 @@ export default function CreateProductForm() {
           {...form.getInputProps('name')}
           withAsterisk
           placeholder="Product name"
-          disabled={storeIdNotExist}
+          disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
         />
         <TextInput
           label="SKU"
           {...form.getInputProps('sku')}
           placeholder="SKU"
-          disabled={storeIdNotExist}
+          disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
         />
         <ImageUpload
           {...form.getInputProps('images')}
@@ -104,7 +203,7 @@ export default function CreateProductForm() {
           maxImages={6}
           // predefinedBoxes
           label="Product Images"
-          disabled={storeIdNotExist}
+          disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
         />
         <TextAreaWithCounter
           label="Description"
@@ -112,7 +211,7 @@ export default function CreateProductForm() {
           withAsterisk
           maxLength={1000}
           placeholder="Description"
-          disabled={storeIdNotExist}
+          disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
           inputHeight={rem(200)}
         />
 
@@ -120,7 +219,7 @@ export default function CreateProductForm() {
           label="Stock"
           {...form.getInputProps('stock')}
           placeholder="Stock"
-          disabled={storeIdNotExist}
+          disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
           allowNegative={false}
         />
         <NumberInput
@@ -132,14 +231,14 @@ export default function CreateProductForm() {
           thousandSeparator
           hideControls
           allowNegative={false}
-          disabled={storeIdNotExist}
+          disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
         />
         <MultiSelect
           label="Categories"
           data={data?.data} // Replace with real categories
           {...form.getInputProps('categories')}
           placeholder="Categories"
-          disabled={storeIdNotExist || isFetchingCategory}
+          disabled={storeIdNotExist || isFetchingCategory || isFetchingProduct || isLoadingProduct}
         />
 
         <Variant form={form} />

@@ -47,16 +47,26 @@ export const Variant = ({ form }: Props) => {
       return acc.flatMap((prev) => values.map((v) => [...prev, v]));
     }, []);
 
-    return combinations.map((values, index) => ({
-      id: index + 1,
-      variantOptions: Object.fromEntries(
+    return combinations.map((values, index) => {
+      const variantOptions = Object.fromEntries(
         values.map((value, i) => [data?.data?.[i]?.name ?? `Option ${i + 1}`, value])
-      ),
-      price: 0,
-      stock: 0,
-      sku: '',
-      image: [],
-    }));
+      );
+
+      // Ambil existing variant dari form
+      const existingVariants = form.values.variants ?? [];
+      const existingVariant = existingVariants.find(
+        (variant) => JSON.stringify(variant.variantOptions) === JSON.stringify(variantOptions)
+      );
+
+      return {
+        id: index + 1,
+        variantOptions,
+        price: existingVariant?.price ?? 0, // Gunakan harga lama jika ada
+        stock: existingVariant?.stock ?? 0,
+        sku: existingVariant?.sku ?? '',
+        image: existingVariant?.image ?? [],
+      };
+    });
   }, [memoizedVariantValues, isVariantMode, memoizedVariantTypeSelections]);
 
   const variantTypesComponent = useMemo(() => {

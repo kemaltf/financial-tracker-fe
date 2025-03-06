@@ -1,7 +1,7 @@
 import ProductForm from '@/modules/ProductForm';
 
-const CreateAccountFormPage = () => {
+const ProductFormPage = () => {
   return <ProductForm />;
 };
 
-export default CreateAccountFormPage;
+export default ProductFormPage;

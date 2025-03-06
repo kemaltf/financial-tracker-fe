@@ -48,6 +48,10 @@ export type CreateProductDto = Omit<ProductSchemaFormValues, 'storeId' | 'catego
   categories: number[];
 };
 
+export interface EditProductDto extends CreateProductDto {
+  id: string;
+}
+
 export type ProductStore = {
   id: number;
   name: string;
@@ -102,4 +106,48 @@ export type CreateProductResponse = {
   updatedAt: string;
   images: ProductImage[];
   variants: ProductVariant[];
+};
+
+export type ProductDetailResponse = {
+  id: number;
+  name: string;
+  sku: string;
+  description: string;
+  stock: number;
+  price: number;
+  store: {
+    id: number;
+    name: string;
+  };
+  categories: {
+    id: number;
+    name: string;
+  }[];
+  images: {
+    url: string;
+    name: string;
+    type: string;
+    size: string;
+    id: number;
+  }[];
+  variants: {
+    id: number;
+    sku: string;
+    price: number;
+    stock: number;
+    name: string;
+    image: {
+      url: string;
+      name: string;
+      type: string;
+      size: string;
+      id: number;
+    }[];
+    variantOptions: {
+      id: number;
+      name: string;
+      type: string;
+    }[];
+  }[];
+  variantTypeSelections: number[];
 };
