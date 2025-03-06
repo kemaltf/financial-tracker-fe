@@ -22,9 +22,24 @@ type Props = {
 
 export const Variant = ({ form }: Props) => {
   const [getVariantType, { data }] = useLazyGetVariantTypesQuery();
-  const { variantValues, isVariantMode, variantTypeSelections, storeId, variants } = form.values;
+  const {
+    variantValues,
+    isVariantMode,
+    variantTypeSelections,
+    storeId,
+    variants,
+    // variationOptions,
+  } = form.values;
+  // const product = useSelector(
+  //   (state: RootState) =>
+  //     (
+  //       state.api.queries[`getProduct({"id":${id}})`]?.data as
+  //         | ApiResponse<CreateProductResponse>
+  //         | undefined
+  //     )?.data
+  // );
 
-  const memoizedVariantTypeSelections = useMemo(
+  const memoizedVariantTypeIdSelections = useMemo(
     () => variantTypeSelections,
     [JSON.stringify(variantTypeSelections)]
   );
@@ -33,13 +48,29 @@ export const Variant = ({ form }: Props) => {
 
   // COMBINE VARIANTS
   const generatedVariants = useMemo(() => {
-    if (!isVariantMode || variantTypeSelections.length === 0) {
+    // jika bukan variant mode maka return []
+    if (!isVariantMode || memoizedVariantTypeIdSelections.length === 0) {
       return [];
     }
 
-    // Ambil variantValues berdasarkan index, bukan berdasarkan nama variant
-    const variantLists = variantTypeSelections.map((_, index) => variantValues[index] ?? []);
+    // memoizedVariantTypeIdSelections =>  variant type yang di pilih ['1','2'] ID-nya
+    // Pastikan tidak ada nilai null dalam memoizedVariantTypeIdSelections = [1, null]
+    const isValidSelections = memoizedVariantTypeIdSelections.every(
+      (id) => id !== null && id !== undefined
+    );
 
+    if (!isValidSelections) {
+      return []; // Jika ada nilai null, return empty array
+    }
+
+    // Ambil variantValues berdasarkan index, bukan berdasarkan nama variant
+    // memoizedVariantValues => variant values object {'0': ['yellow','blue'], '1':['M']}
+    const variantLists = memoizedVariantTypeIdSelections.map(
+      (_, index) => memoizedVariantValues[index] ?? []
+    ); // [['yellow','blue'],['M','L']]
+
+    // create combination
+    // [[yellow, M], [blue, M]]
     const combinations = variantLists.reduce<string[][]>((acc, values) => {
       if (acc.length === 0) {
         return values.map((v) => [v]);
@@ -48,8 +79,16 @@ export const Variant = ({ form }: Props) => {
     }, []);
 
     return combinations.map((values, index) => {
+      // Mapping ID ke Name dari data
       const variantOptions = Object.fromEntries(
-        values.map((value, i) => [data?.data?.[i]?.name ?? `Option ${i + 1}`, value])
+        values.map((value, i) => {
+          // Cari variant type berdasarkan ID yang dipilih
+          const variantType = data?.data?.find(
+            (v) => String(v.id) === memoizedVariantTypeIdSelections[i]
+          );
+
+          return [variantType?.name ?? `Option ${i + 1}`, value];
+        })
       );
 
       // Ambil existing variant dari form
@@ -67,7 +106,7 @@ export const Variant = ({ form }: Props) => {
         image: existingVariant?.image ?? [],
       };
     });
-  }, [memoizedVariantValues, isVariantMode, memoizedVariantTypeSelections]);
+  }, [memoizedVariantValues, isVariantMode, memoizedVariantTypeIdSelections]);
 
   const variantTypesComponent = useMemo(() => {
     return variantTypeSelections.map((_, index) => (
@@ -115,7 +154,18 @@ export const Variant = ({ form }: Props) => {
         </Group>
       </Card>
     ));
-  }, [memoizedVariantTypeSelections, memoizedVariantValues, MAX_VARIANT_TYPES]);
+  }, [memoizedVariantTypeIdSelections, memoizedVariantValues, MAX_VARIANT_TYPES]);
+
+  // Reset variants jika bukan variant mode
+  useEffect(() => {
+    if (!isVariantMode) {
+      form.setValues({
+        variants: [],
+        variantTypeSelections: [],
+        variantValues: {},
+      });
+    }
+  }, [isVariantMode]);
 
   const tableBodyMemo = useMemo(() => {
     return generatedVariants?.map((variant, index) => (

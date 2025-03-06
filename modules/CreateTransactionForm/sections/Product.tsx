@@ -44,7 +44,6 @@ export const ProductSection = ({ form }: Props) => {
     ]);
 
   const allOptions = flattenProducts(dataProducts);
-  console.log(allOptions);
 
   const fetchNextPage = () => {
     if (dataProducts.length === 0) {

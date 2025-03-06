@@ -39,9 +39,6 @@ export default function ProductForm() {
   const router = useRouter();
   const params = useParams();
   const path = usePathname().split('/')[3];
-  console.log(path);
-
-  console.log(form.values);
 
   const id = params?.id as string | undefined;
 
@@ -80,7 +77,7 @@ export default function ProductForm() {
         id,
       }).unwrap();
       if (result.status === 'success') {
-        router.push('/dashboard/products/categories');
+        router.push('/dashboard/products');
         form.reset();
       }
     } else {
@@ -96,6 +93,8 @@ export default function ProductForm() {
       form.reset();
     }
   };
+
+  console.log(form.values);
 
   useEffect(() => {
     if (id) {
@@ -156,7 +155,7 @@ export default function ProductForm() {
             })),
 
             variantTypeSelections: result.data.data.variantTypeSelections.map((value) =>
-              String(value)
+              String(value.id)
             ),
 
             variantValues, // Mengelompokkan variantOptions ke dalam record type -> [names]
@@ -168,6 +167,7 @@ export default function ProductForm() {
     }
   }, [id, fetchProduct]);
 
+  console.log(form.values);
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack>

@@ -16,7 +16,7 @@ import {
 } from '@mantine/core';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
 import { useGetStoresQuery, useUploadImagesMutation } from '@/lib/features/api';
-import { useImageUploadForm } from './form';
+import { ImageUploadFormValues, useImageUploadForm } from './form';
 
 const ImageUploadForm = () => {
   const form = useImageUploadForm();
@@ -74,10 +74,10 @@ const ImageUploadForm = () => {
     );
   };
 
-  const handleUpload = async () => {
+  const handleUpload = async (value: ImageUploadFormValues) => {
     const formData = new FormData();
     form.values.files.forEach((file) => formData.append('files', file));
-
+    formData.append('storeId', value.storeId || '');
     const result = await uploadMultipleImages(formData);
     if (result.data?.status === 'success') {
       router.push('/dashboard/images');

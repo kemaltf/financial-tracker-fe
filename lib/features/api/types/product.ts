@@ -149,5 +149,8 @@ export type ProductDetailResponse = {
       type: string;
     }[];
   }[];
-  variantTypeSelections: number[];
+  variantTypeSelections: {
+    id: number;
+    variantName: string[];
+  }[];
 };
