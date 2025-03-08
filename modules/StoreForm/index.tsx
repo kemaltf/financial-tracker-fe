@@ -8,7 +8,7 @@ import {
   useCreateStoreMutation,
   useEditStoreMutation,
   useLazyGetStoreQuery,
-} from '@/lib/features/api';
+} from '@/lib/features/api/features/store-endpoints';
 import { StoreFormValues, useStoreForm } from '@/modules/StoreForm/form';
 
 const StoreForm = () => {

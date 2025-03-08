@@ -7,7 +7,7 @@ import {
   useCreateFinancialPartyMutation,
   useEditFinancialPartyMutation,
   useLazyGetFinancialPartyQuery,
-} from '@/lib/features/api';
+} from '@/lib/features/api/features/financial-party-endpoints';
 import { CreateFinancialPartyType, useFinancialPartyForm } from './form';
 
 const ROLE_OPTIONS = [

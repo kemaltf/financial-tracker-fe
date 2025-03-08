@@ -12,7 +12,7 @@ import {
 } from '@tabler/icons-react';
 import { Group, SimpleGrid, Spoiler, Text, Title } from '@mantine/core';
 import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
-import { useLazyGetFinancialSummaryQuery } from '@/lib/features/api';
+import { useLazyGetFinancialSummaryQuery } from '@/lib/features/api/features/transaction-endpoints';
 import { formatExchage } from '@/utils/helpers';
 import { CardWithIcon } from './CardWithIcon';
 

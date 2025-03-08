@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Group, Table, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { useDeleteStoreMutation, useGetStoresQuery } from '@/lib/features/api';
+import {
+  useDeleteStoreMutation,
+  useGetStoresQuery,
+} from '@/lib/features/api/features/store-endpoints';
 
 function Stores() {
   const { data } = useGetStoresQuery();

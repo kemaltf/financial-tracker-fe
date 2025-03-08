@@ -16,13 +16,13 @@ import { ImageUpload } from '@/components/ImageUpload';
 import { opeImageSelectorModal } from '@/components/Modals/ImageSelector';
 import TextAreaWithCounter from '@/components/TextAreaCount';
 import { useDeviceType } from '@/hooks/use-device-size';
+import { useLazyGetCategoryOptionQuery } from '@/lib/features/api/features/category-endpoints';
 import {
   useCreateProductMutation,
   useEditProductMutation,
-  useGetStoresQuery,
-  useLazyGetCategoryOptionQuery,
   useLazyGetProductQuery,
-} from '@/lib/features/api';
+} from '@/lib/features/api/features/product-endpoints';
+import { useGetStoresQuery } from '@/lib/features/api/features/store-endpoints';
 import { ProductSchemaFormValues, useProductForm } from './form';
 import { Variant } from './section/Variant';
 

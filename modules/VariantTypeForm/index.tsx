@@ -3,12 +3,12 @@
 import { useEffect } from 'react';
 import { useParams, usePathname, useRouter } from 'next/navigation';
 import { Box, Button, rem, Select, Stack, TextInput, Title } from '@mantine/core';
+import { useGetStoresQuery } from '@/lib/features/api/features/store-endpoints';
 import {
   useCreateVariantTypeMutation,
   useEditVariantTypeMutation,
-  useGetStoresQuery,
   useLazyGetVariantTypeQuery,
-} from '@/lib/features/api';
+} from '@/lib/features/api/features/variant-type-endpoints';
 import { useVariantTypeForm, VariantTypeFormValues } from './form';
 
 const VariantTypeForm = () => {

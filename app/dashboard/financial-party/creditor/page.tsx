@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Container, Group, Stack, Table, Text, Title } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { useDeleteFinancialPartyMutation, useGetFinancialPartiesQuery } from '@/lib/features/api';
+import {
+  useDeleteFinancialPartyMutation,
+  useGetFinancialPartiesQuery,
+} from '@/lib/features/api/features/financial-party-endpoints';
 
 function Creditor() {
   const { data } = useGetFinancialPartiesQuery({ role: 'CREDITOR' });

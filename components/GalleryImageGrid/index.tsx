@@ -2,11 +2,12 @@
 
 import { useState } from 'react';
 import { Container, Grid, Image, Skeleton, Stack, Title } from '@mantine/core';
-import { useGetImagesQuery } from '@/lib/features/api';
 import { ImageType } from '@/lib/features/api/types/images';
 import { openImageDetailModal } from '../Modals/ImageDetailModal';
 
 import './galleryStyles.css'; // Menggunakan CSS Module
+
+import { useGetImagesQuery } from '@/lib/features/api/features/image-endpoints';
 
 export function GalleryImageGrid() {
   const { data, isLoading } = useGetImagesQuery();

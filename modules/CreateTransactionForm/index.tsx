@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { Container, Divider, Grid } from '@mantine/core';
 import { useDeviceType } from '@/hooks/use-device-size';
-import { useCreateTransactionMutation } from '@/lib/features/api';
+import { useCreateTransactionMutation } from '@/lib/features/api/features/transaction-endpoints';
 import { TransactionDTO } from '@/lib/features/api/types/transaction';
 import { stringToDate } from '@/utils/helpers';
 import { TransactionFormValues, useTransactionForm } from './form';

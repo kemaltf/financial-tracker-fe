@@ -7,12 +7,10 @@ import TextAreaWithCounter from '@/components/TextAreaCount';
 import {
   useCreateCategoryMutation,
   useEditCategoryMutation,
-  useGetStoresQuery,
   useLazyGetCategoryQuery,
-} from '@/lib/features/api';
+} from '@/lib/features/api/features/category-endpoints';
+import { useGetStoresQuery } from '@/lib/features/api/features/store-endpoints';
 import { CategoryFormValues, useCategoryForm } from './form';
-
-// import { CategoryFormValues, useCategoryForm } from '@/modules/CreateCategoryForm/form';
 
 const CategoryForm = () => {
   const params = useParams();

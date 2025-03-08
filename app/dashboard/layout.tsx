@@ -4,7 +4,7 @@ import { AppShell } from '@mantine/core';
 import { useDisclosure } from '@mantine/hooks';
 import Header from '@/components/Header';
 import Navbar from '@/components/Navbar';
-import { useLogoutMutation } from '@/lib/features/api';
+import { useLogoutMutation } from '@/lib/features/api/features/auth-endpoints';
 import classes from './styles/Layout.module.css';
 
 const DashboardLayout = ({ children }: { children: React.ReactNode }) => {

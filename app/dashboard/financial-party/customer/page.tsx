@@ -5,7 +5,10 @@ import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Container, Group, Stack, Table, Text, Title } from '@mantine/core';
 import { modals } from '@mantine/modals';
 import { notifications } from '@mantine/notifications';
-import { useDeleteFinancialPartyMutation, useGetFinancialPartiesQuery } from '@/lib/features/api';
+import {
+  useDeleteFinancialPartyMutation,
+  useGetFinancialPartiesQuery,
+} from '@/lib/features/api/features/financial-party-endpoints';
 
 function Customer() {
   const { data } = useGetFinancialPartiesQuery({ role: 'CUSTOMER' });

@@ -15,7 +15,8 @@ import {
   Text,
 } from '@mantine/core';
 import { Dropzone, FileWithPath, IMAGE_MIME_TYPE } from '@mantine/dropzone';
-import { useGetStoresQuery, useUploadImagesMutation } from '@/lib/features/api';
+import { useUploadImagesMutation } from '@/lib/features/api/features/image-endpoints';
+import { useGetStoresQuery } from '@/lib/features/api/features/store-endpoints';
 import { ImageUploadFormValues, useImageUploadForm } from './form';
 
 const ImageUploadForm = () => {

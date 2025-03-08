@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { IconArrowDownRight, IconChartLine, IconCoin } from '@tabler/icons-react';
 import { Group, SimpleGrid, Spoiler, Title } from '@mantine/core';
 import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
-import { useLazyGetBalanceSheetQuery } from '@/lib/features/api';
+import { useLazyGetBalanceSheetQuery } from '@/lib/features/api/features/transaction-endpoints';
 import { formatExchage, isNullOrUndefined } from '@/utils/helpers';
 import { CardWithIcon } from './CardWithIcon';
 

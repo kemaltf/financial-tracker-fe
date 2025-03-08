@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Card, ScrollArea, Tabs, Title } from '@mantine/core';
 import { useDeviceType } from '@/hooks/use-device-size';
 import { useTransactionHistory } from '@/hooks/use-transaction-history-query';
-import { useLazyGetTransactionsQuery } from '@/lib/features/api';
+import { useLazyGetTransactionsQuery } from '@/lib/features/api/features/transaction-endpoints';
 import TransactionPanel from './section/TransactionPanel';
 import { getLast12Months } from './utils';
 import TransactionHistoryCSS from './TransactionHistory.module.css';

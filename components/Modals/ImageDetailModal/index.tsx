@@ -3,7 +3,7 @@
 import { IconArticle, IconRuler, IconTrash, IconTypeface } from '@tabler/icons-react';
 import { Button, Flex, Image, ScrollArea, Stack, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { useDeleteImageMutation } from '@/lib/features/api';
+import { useDeleteImageMutation } from '@/lib/features/api/features/image-endpoints';
 import { ImageType } from '@/lib/features/api/types/images';
 import { formatBytes } from '@/utils/helpers';
 

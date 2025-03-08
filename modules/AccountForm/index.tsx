@@ -8,7 +8,7 @@ import {
   useCreateAccountMutation,
   useEditAccountMutation,
   useLazyGetAccountQuery,
-} from '@/lib/features/api';
+} from '@/lib/features/api/features/account-endpoints';
 import { accountTypes, useAccountForm } from './form';
 
 const AccountForm = () => {

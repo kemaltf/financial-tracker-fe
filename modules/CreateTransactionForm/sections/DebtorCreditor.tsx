@@ -2,7 +2,7 @@ import React from 'react';
 import { Button, Grid, Group, Select, Title, Tooltip } from '@mantine/core';
 import { DateTimePicker } from '@mantine/dates';
 import { UseFormReturnType } from '@mantine/form';
-import { useGetFinancialPartyOptQuery } from '@/lib/features/api';
+import { useGetFinancialPartyOptQuery } from '@/lib/features/api/features/financial-party-endpoints';
 import { TransactionFormValues } from '../form';
 
 type Props = {

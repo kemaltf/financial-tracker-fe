@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import SelectProduct, { SelectProductType } from '@/components/SelectProduct';
-import { useLazyGetProductsOptionQuery } from '@/lib/features/api';
+import { useLazyGetProductsOptionQuery } from '@/lib/features/api/features/product-endpoints';
 import { Product } from '@/lib/features/api/types/product';
 import { TransactionFormValues } from '../form';
 

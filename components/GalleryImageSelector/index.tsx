@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import { Button, Container, Grid, Image, Stack, Title } from '@mantine/core';
-import { useGetImagesQuery } from '@/lib/features/api';
 import { ImageType } from '@/lib/features/api/types/images';
 
 import './galleryStyles.css'; // CSS Module
 
+import { useGetImagesQuery } from '@/lib/features/api/features/image-endpoints';
 import { ImageFileSchemaType } from '@/modules/ProductForm/form';
 import { GalleryImageSkeleton } from './GalleryImageSelector';
 

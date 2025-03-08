@@ -17,7 +17,7 @@ import {
   Title,
 } from '@mantine/core';
 import { useForm, zodResolver } from '@mantine/form';
-import { useLoginMutation } from '../../lib/features/api';
+import { useLoginMutation } from '@/lib/features/api/features/auth-endpoints';
 
 const schema = z.object({
   username: z.string().min(3, { message: 'Username must be at least 3 characters long' }),

@@ -2,7 +2,8 @@ import React, { useEffect, useMemo } from 'react';
 import { Grid, Group, NumberInput, Select, Text, Title } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
 import TextAreaWithCounter from '@/components/TextAreaCount';
-import { useGetTransactionTypesQuery, useLazyGetAvailableAccountsQuery } from '@/lib/features/api';
+import { useLazyGetAvailableAccountsQuery } from '@/lib/features/api/features/account-endpoints';
+import { useGetTransactionTypesQuery } from '@/lib/features/api/features/transaction-endpoints';
 import { isNullOrUndefined, isZero } from '@/utils/helpers';
 import { TransactionFormValues } from '../form';
 

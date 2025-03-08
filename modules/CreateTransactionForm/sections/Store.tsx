@@ -1,7 +1,7 @@
 import React from 'react';
 import { Button, Divider, Grid, Group, Select, Title, Tooltip } from '@mantine/core';
 import { UseFormReturnType } from '@mantine/form';
-import { useGetStoresQuery } from '@/lib/features/api';
+import { useGetStoresQuery } from '@/lib/features/api/features/store-endpoints';
 import { TransactionFormValues } from '../form';
 
 type Props = {

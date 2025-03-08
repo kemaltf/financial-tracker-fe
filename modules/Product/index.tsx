@@ -18,7 +18,10 @@ import {
 } from '@mantine/core';
 import { usePagination } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
-import { useDeleteProductMutation, useGetProductsOptionQuery } from '@/lib/features/api';
+import {
+  useDeleteProductMutation,
+  useGetProductsOptionQuery,
+} from '@/lib/features/api/features/product-endpoints';
 import { formatExchage } from '@/utils/helpers';
 
 function Products() {

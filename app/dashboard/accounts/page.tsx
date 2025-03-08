@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Container, Group, Stack, Table, Text, Title } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { useDeleteAccountMutation, useGetAccountsQuery } from '@/lib/features/api';
+import {
+  useDeleteAccountMutation,
+  useGetAccountsQuery,
+} from '@/lib/features/api/features/account-endpoints';
 import { formatExchage } from '@/utils/helpers';
 
 function FinancialAccounts() {

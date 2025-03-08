@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Group, Table, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { useDeleteVariantTypeMutation, useGetVariantTypesQuery } from '@/lib/features/api';
+import {
+  useDeleteVariantTypeMutation,
+  useGetVariantTypesQuery,
+} from '@/lib/features/api/features/variant-type-endpoints';
 
 function VariantTypes() {
   const { data } = useGetVariantTypesQuery({ storeId: null });

@@ -4,7 +4,10 @@ import { useRouter } from 'next/navigation';
 import { IconPencil, IconTrash } from '@tabler/icons-react';
 import { ActionIcon, Group, Table, Text } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { useDeleteCategoryMutation, useGetCategoriesQuery } from '@/lib/features/api';
+import {
+  useDeleteCategoryMutation,
+  useGetCategoriesQuery,
+} from '@/lib/features/api/features/category-endpoints';
 
 function Categories() {
   const { data } = useGetCategoriesQuery();

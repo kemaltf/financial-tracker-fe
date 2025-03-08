@@ -13,7 +13,7 @@ import {
 } from '@mantine/core';
 import { ImageUpload } from '@/components/ImageUpload';
 import { MultiSelectCreatable } from '@/components/MultiSelectCreateable';
-import { useLazyGetVariantTypesQuery } from '@/lib/features/api';
+import { useLazyGetVariantTypesQuery } from '@/lib/features/api/features/variant-type-endpoints';
 import { MAX_VARIANT_TYPES, ProductFormType } from '../form';
 
 type Props = {
