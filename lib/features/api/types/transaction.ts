@@ -104,6 +104,7 @@ interface AddressDTO {
   addressLine1: string;
   addressLine2?: string;
   city: string;
+  country: string;
   state: string;
   postalCode: string;
   phoneNumber: string;

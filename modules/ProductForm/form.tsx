@@ -21,6 +21,11 @@ export const productSchema = z.object({
   categories: z.array(z.string()),
   storeId: z.string().min(1, 'Store is required'),
   images: z.array(imageFileSchema), // ✅ Tambahkan array `imageFiles`
+  // ✅ Tambahan field ukuran dan berat
+  length: z.number().min(0, 'Length must be at least 0').optional(),
+  width: z.number().min(0, 'Width must be at least 0').optional(),
+  height: z.number().min(0, 'Height must be at least 0').optional(),
+  weight: z.number().min(0.01, 'Weight is required'), // ✅ Wajib diisi
   variants: z.array(
     z.object({
       variantOptions: z.record(z.string(), z.string()), // Object key-value seperti { "COLOR": "Red", "SIZE": "M" }
@@ -28,6 +33,7 @@ export const productSchema = z.object({
       stock: z.number().min(0, 'Stock must be at least 0'),
       sku: z.string(),
       image: z.array(imageFileSchema),
+      weight: z.number().min(0.01, 'Weight is required'), // ✅ Wajib diisi
     })
   ),
   variantTypeSelections: z.array(z.string()),
@@ -43,6 +49,7 @@ const defaultProductValues: ProductSchemaFormValues = {
   description: '',
   stock: 0,
   price: 0,
+  weight: 0,
   categories: [],
   storeId: '',
   images: [],

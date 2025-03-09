@@ -109,12 +109,16 @@ export type CreateProductResponse = {
 };
 
 export type ProductDetailResponse = {
-  id: number;
-  name: string;
-  sku: string;
   description: string;
-  stock: number;
+  height: number;
+  id: number;
+  length: number;
+  name: string;
   price: number;
+  sku: string;
+  stock: number;
+  weight: number;
+  width: number;
   store: {
     id: number;
     name: string;
@@ -124,24 +128,25 @@ export type ProductDetailResponse = {
     name: string;
   }[];
   images: {
-    url: string;
-    name: string;
-    type: string;
-    size: string;
     id: number;
+    name: string;
+    size: string;
+    type: string;
+    url: string;
   }[];
   variants: {
     id: number;
-    sku: string;
-    price: number;
-    stock: number;
     name: string;
+    price: number;
+    sku: string;
+    stock: number;
+    weight: number;
     image: {
-      url: string;
-      name: string;
-      type: string;
-      size: string;
       id: number;
+      name: string;
+      size: string;
+      type: string;
+      url: string;
     }[];
     variantOptions: {
       id: number;

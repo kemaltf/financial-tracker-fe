@@ -9,6 +9,7 @@ import {
   NumberInput,
   rem,
   Select,
+  SimpleGrid,
   Stack,
   TextInput,
 } from '@mantine/core';
@@ -66,7 +67,7 @@ export default function ProductForm() {
       size: isMobile ? '100%' : '70%',
     });
   };
-
+  console.log(form.values);
   const storeIdNotExist = !form.values.storeId;
   const onSubmit = async (values: ProductSchemaFormValues) => {
     if (path === 'edit' && id) {
@@ -93,8 +94,6 @@ export default function ProductForm() {
       form.reset();
     }
   };
-
-  console.log(form.values);
 
   useEffect(() => {
     if (id) {
@@ -130,6 +129,10 @@ export default function ProductForm() {
             sku: result.data.data.sku ?? '',
             stock: result.data.data.stock,
             price: result.data.data.price,
+            height: result.data.data.height,
+            length: result.data.data.length,
+            weight: result.data.data.weight,
+            width: result.data.data.width,
             categories: result.data.data.categories.map((category) => String(category.id)), // Schema butuh string
 
             images: result.data.data.images.map((image) => ({
@@ -140,6 +143,7 @@ export default function ProductForm() {
             })),
 
             variants: result.data.data.variants.map((variant) => ({
+              weight: variant.weight,
               variantOptions: Object.fromEntries(
                 variant.variantOptions.map((option) => [option.type, option.name])
               ), // Mengubah array menjadi object key-value
@@ -167,7 +171,6 @@ export default function ProductForm() {
     }
   }, [id, fetchProduct]);
 
-  console.log(form.values);
   return (
     <form onSubmit={form.onSubmit(onSubmit)}>
       <Stack>
@@ -195,6 +198,42 @@ export default function ProductForm() {
           placeholder="SKU"
           disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
         />
+        {/* Ukuran Produk */}
+        <SimpleGrid cols={{ base: 1, sm: 2, md: 4 }} spacing="md" w="100%">
+          <NumberInput
+            label="Length (cm)"
+            {...form.getInputProps('length')}
+            placeholder="Length"
+            allowNegative={false}
+            hideControls
+            disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
+          />
+          <NumberInput
+            label="Width (cm)"
+            {...form.getInputProps('width')}
+            placeholder="Width"
+            allowNegative={false}
+            hideControls
+            disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
+          />
+          <NumberInput
+            label="Height (cm)"
+            {...form.getInputProps('height')}
+            placeholder="Height"
+            allowNegative={false}
+            hideControls
+            disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
+          />
+          <NumberInput
+            label="Weight (kg)"
+            {...form.getInputProps('weight')}
+            placeholder="Weight"
+            hideControls
+            required
+            allowNegative={false}
+            disabled={storeIdNotExist || isFetchingProduct || isLoadingProduct}
+          />
+        </SimpleGrid>
         <ImageUpload
           {...form.getInputProps('images')}
           onClick={() => {

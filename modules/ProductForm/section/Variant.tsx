@@ -102,6 +102,7 @@ export const Variant = ({ form }: Props) => {
         variantOptions,
         price: existingVariant?.price ?? 0, // Gunakan harga lama jika ada
         stock: existingVariant?.stock ?? 0,
+        weight: existingVariant?.weight ?? 0,
         sku: existingVariant?.sku ?? '',
         image: existingVariant?.image ?? [],
       };
@@ -186,7 +187,21 @@ export const Variant = ({ form }: Props) => {
           />
         </Table.Td>
         <Table.Td>
-          <NumberInput {...form.getInputProps(`variants.${index}.stock`)} placeholder="Stock" />
+          <NumberInput
+            {...form.getInputProps(`variants.${index}.stock`)}
+            placeholder="Stock"
+            hideControls
+            allowNegative={false}
+          />
+        </Table.Td>
+        <Table.Td>
+          <NumberInput
+            leftSection="gr"
+            {...form.getInputProps(`variants.${index}.weight`)}
+            placeholder="Weight"
+            hideControls
+            allowNegative={false}
+          />
         </Table.Td>
         <Table.Td>
           <TextInput
@@ -256,6 +271,7 @@ export const Variant = ({ form }: Props) => {
                 ))}
                 <Table.Th>Price</Table.Th>
                 <Table.Th>Stock</Table.Th>
+                <Table.Th>Weight (gr)</Table.Th>
                 <Table.Th>SKU</Table.Th>
                 <Table.Th>Image</Table.Th>
               </Table.Tr>

@@ -28,7 +28,6 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
   const [createTransaction] = useCreateTransactionMutation();
 
   const form = useTransactionForm();
-  console.log(form.values);
   const handleSubmit = async (values: TransactionFormValues) => {
     const convertedValues: TransactionDTO = {
       transactionTypeId: Number(values.transactionTypeId),
@@ -47,6 +46,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
               recipientName: values.address.recipientName?.trim() || '',
               addressLine1: values.address.addressLine1?.trim() || '',
               addressLine2: values.address.addressLine2?.trim() || '',
+              country: values.address.country?.trim() || '',
               city: values.address.city?.trim() || '',
               state: values.address.state?.trim() || '',
               postalCode: values.address.postalCode?.trim() || '',

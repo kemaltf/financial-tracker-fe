@@ -55,8 +55,10 @@ const transactionSchema = z
         recipientName: z.string().trim().optional(),
         addressLine1: z.string().trim().optional(),
         addressLine2: z.string().trim().optional(),
-        city: z.string().trim().optional(),
+        country: z.string().trim().optional(),
         state: z.string().trim().optional(),
+        city: z.string().trim().optional(),
+        subdistrict: z.string().trim().optional(),
         postalCode: z.string().trim().optional(),
         phoneNumber: z.string().trim().optional(),
       })

@@ -97,29 +97,32 @@ export const productEndpoints = api.injectEndpoints({
         });
 
         // **🔹 Handle Variants dengan imageIds**
-        const variants = product.variants.map(({ price, sku, stock, variantOptions, image }) => {
-          const variantImageIds: (number | null)[] = [];
-          const variantImages: File[] = [];
+        const variants = product.variants.map(
+          ({ price, sku, stock, variantOptions, image, weight }) => {
+            const variantImageIds: (number | null)[] = [];
+            const variantImages: File[] = [];
 
-          image.forEach((img) => {
-            if (img.source === 'upload') {
-              if (img.file) {
-                variantImages.push(img.file); // Simpan file baru
+            image.forEach((img) => {
+              if (img.source === 'upload') {
+                if (img.file) {
+                  variantImages.push(img.file); // Simpan file baru
+                }
+                variantImageIds.push(null); // Tempat kosong untuk backend
+              } else {
+                variantImageIds.push(Number(img.id)); // Simpan ID gambar yang sudah ada
               }
-              variantImageIds.push(null); // Tempat kosong untuk backend
-            } else {
-              variantImageIds.push(Number(img.id)); // Simpan ID gambar yang sudah ada
-            }
-          });
+            });
 
-          return {
-            sku,
-            stock,
-            price,
-            variantOptions,
-            imageIds: variantImageIds, // Simpan ID gambar varian
-          };
-        });
+            return {
+              sku,
+              stock,
+              price,
+              weight,
+              variantOptions,
+              imageIds: variantImageIds, // Simpan ID gambar varian
+            };
+          }
+        );
 
         // **🔹 Buat Data Object**
         const data = {
@@ -132,6 +135,10 @@ export const productEndpoints = api.injectEndpoints({
           categories: product.categories.map(Number), // Pastikan jadi number[]
           imageIds,
           variants,
+          weight: product.weight,
+          length: product.length,
+          height: product.height,
+          width: product.width,
         };
 
         // **🔹 Masukkan ke FormData**
@@ -202,29 +209,32 @@ export const productEndpoints = api.injectEndpoints({
         });
 
         // **🔹 Handle Variants dengan imageIds**
-        const variants = product.variants.map(({ price, sku, stock, variantOptions, image }) => {
-          const variantImageIds: (number | null)[] = [];
-          const variantImages: File[] = [];
+        const variants = product.variants.map(
+          ({ price, sku, stock, variantOptions, image, weight }) => {
+            const variantImageIds: (number | null)[] = [];
+            const variantImages: File[] = [];
 
-          image.forEach((img) => {
-            if (img.source === 'upload') {
-              if (img.file) {
-                variantImages.push(img.file); // Simpan file baru
+            image.forEach((img) => {
+              if (img.source === 'upload') {
+                if (img.file) {
+                  variantImages.push(img.file); // Simpan file baru
+                }
+                variantImageIds.push(null); // Tempat kosong untuk backend
+              } else {
+                variantImageIds.push(Number(img.id)); // Simpan ID gambar yang sudah ada
               }
-              variantImageIds.push(null); // Tempat kosong untuk backend
-            } else {
-              variantImageIds.push(Number(img.id)); // Simpan ID gambar yang sudah ada
-            }
-          });
+            });
 
-          return {
-            sku,
-            stock,
-            price,
-            variantOptions,
-            imageIds: variantImageIds, // Simpan ID gambar varian
-          };
-        });
+            return {
+              sku,
+              stock,
+              price,
+              weight,
+              variantOptions,
+              imageIds: variantImageIds, // Simpan ID gambar varian
+            };
+          }
+        );
 
         // **🔹 Buat Data Object**
         const data = {
@@ -237,6 +247,10 @@ export const productEndpoints = api.injectEndpoints({
           categories: product.categories.map(Number), // Pastikan jadi number[]
           imageIds,
           variants,
+          weight: product.weight,
+          length: product.length,
+          height: product.height,
+          width: product.width,
         };
 
         // **🔹 Masukkan ke FormData**

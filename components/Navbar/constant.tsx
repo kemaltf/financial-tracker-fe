@@ -51,6 +51,11 @@ export const navlinks: NavLinkType[] = [
         link: '/dashboard/stores',
         // noti: 1,
       },
+      {
+        name: 'Courier Management',
+        link: '/dashboard/couriers',
+        // noti: 1,
+      },
     ],
   },
   {

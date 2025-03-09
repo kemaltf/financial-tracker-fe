@@ -10,6 +10,7 @@ export enum ApiTags {
   VariantType = 'VariantType',
   Image = 'Image',
   Product = 'Product',
+  Courier = 'Courier',
 }
 
 const baseQuery = createBaseQuery(process.env.NEXT_PUBLIC_API_BASE_URL);
