@@ -27,12 +27,13 @@ export const ProductSection = ({ form }: Props) => {
   const [trigger, { data, isFetching }] = useLazyGetProductsOptionQuery();
   const dataProducts = data?.data?.data || [];
 
-  const flattenProducts = (products: Product[]): SelectProductType =>
+  const flattenProducts = (products: Product[]): SelectProductType[] =>
     products.flatMap((product) => [
       {
         ...product,
         value: product.id.toString(),
         image: product.image || '',
+        weight: product.weight,
         disabled: product.variant ? product.variant.length > 0 : false, // Disabled jika ada variant
       },
       ...(product.variant || []).map((variant) => ({
@@ -40,6 +41,7 @@ export const ProductSection = ({ form }: Props) => {
         value: `${product.id}-${variant.id}`, // Format baru untuk value variant
         image: variant?.image || '',
         disabled: false,
+        weight: variant.weight,
       })),
     ]);
 
@@ -71,8 +73,8 @@ export const ProductSection = ({ form }: Props) => {
   const addProduct = () => {
     form.insertListItem('products', { productId: '', quantity: 1 });
   };
-  const handleProductChange = (value: string): Product | undefined => {
-    const product = allOptions.find((item) => item.value === value) as Product;
+  const handleProductChange = (value: string): SelectProductType | undefined => {
+    const product = allOptions.find((item) => item.value === value);
     return product;
   };
 
@@ -87,7 +89,6 @@ export const ProductSection = ({ form }: Props) => {
       paginationMode: 'infiniteScroll',
     });
   }, []);
-
   return (
     <Grid.Col span={12} p={0}>
       <Group p="apart" mb="xs" justify="space-between">
@@ -108,6 +109,13 @@ export const ProductSection = ({ form }: Props) => {
                   data={allOptions || []}
                   loading={isFetching}
                   {...form.getInputProps(`products.${index}.productId`)}
+                  onChange={(value) => {
+                    form.getInputProps(`products.${index}.productId`).onChange(value);
+                    form.setFieldValue(
+                      `products.${index}.weight`,
+                      allOptions.find((c) => c.value === value)?.weight
+                    );
+                  }}
                   onBottomReached={fetchNextPage}
                   mah={300} // Custom max height
                   textInputProps={{

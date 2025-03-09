@@ -9,6 +9,7 @@ export interface Variant {
   price: number;
   id: number;
   image?: string;
+  weight: number;
 }
 
 export interface Product {
@@ -20,6 +21,10 @@ export interface Product {
   price: number;
   image?: string;
   id: number;
+  height: number;
+  weight: number;
+  width: number;
+  length: number;
   variant?: Variant[];
 }
 

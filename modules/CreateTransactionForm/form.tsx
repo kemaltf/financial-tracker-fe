@@ -3,6 +3,7 @@ import { useForm, zodResolver } from '@mantine/form';
 
 const transactionSchema = z
   .object({
+    shippingMethod: z.string().min(1, 'Metode pengiriman wajib diisi'),
     transactionTypeId: z
       .string()
       .trim()
@@ -70,6 +71,7 @@ const transactionSchema = z
             message: 'Product is required',
           }),
           quantity: z.number().min(1, { message: 'Quantity must be at least 1' }),
+          weight: z.number(),
         })
       )
       .optional(),
@@ -91,6 +93,7 @@ export type TransactionFormValues = z.infer<typeof transactionSchema>;
 
 const initialValues: TransactionFormValues = {
   transactionTypeId: null as any,
+  shippingMethod: '',
   amount: null as any,
   note: '',
   debitAccountId: null as any,

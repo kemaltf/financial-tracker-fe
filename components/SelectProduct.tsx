@@ -13,7 +13,6 @@ import {
   useCombobox,
 } from '@mantine/core';
 import { useIntersection } from '@mantine/hooks';
-import { Product } from '@/lib/features/api/types/product';
 
 export type SelectProductType = {
   description: string;
@@ -25,9 +24,10 @@ export type SelectProductType = {
   stock: number;
   value: string;
   disabled: boolean;
-}[];
+  weight: number;
+};
 interface InfiniteScrollSelectProps {
-  data: SelectProductType;
+  data: SelectProductType[];
   loading?: boolean;
   onBottomReached?: () => void;
   onChange?: (value: string) => void;
@@ -79,9 +79,7 @@ const SelectProduct: React.FC<InfiniteScrollSelectProps> = ({
 
   // Filter data berdasarkan query pencarian
   const filteredData = searchable
-    ? data.filter((item) =>
-        (item as Product).label.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+    ? data.filter((item) => item.label.toLowerCase().includes(searchQuery.toLowerCase()))
     : data;
 
   useEffect(() => {
