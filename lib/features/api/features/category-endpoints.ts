@@ -1,5 +1,5 @@
-import { api, ApiTags } from '..';
-import { API_URL } from '../constants';
+import { api } from '..';
+import { API_URL, ApiTags } from '../constants';
 import { handleQueryNotification } from '../helpers';
 import {
   Category,

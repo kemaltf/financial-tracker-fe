@@ -1,6 +1,7 @@
-import { api, ApiTags } from '..';
+import { api } from '..';
 import { notifications } from '@mantine/notifications';
 import { notify } from '@/components/notify';
+import { ApiTags } from '../constants';
 import { SelectType, type ApiResponse } from '../types/common';
 import {
   CreateFinancialPartyDTO,

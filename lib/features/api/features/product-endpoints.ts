@@ -1,6 +1,6 @@
-import { api, ApiTags } from '..';
+import { api } from '..';
 import { formatExchage } from '@/utils/helpers';
-import { API_URL } from '../constants';
+import { API_URL, ApiTags } from '../constants';
 import { handleQueryNotification } from '../helpers';
 import { type ApiResponse } from '../types/common';
 import type {

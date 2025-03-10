@@ -59,6 +59,13 @@ export const createBaseQuery = (
         api,
         extraOptions
       );
+
+      if (typeof window !== 'undefined') {
+        if (window.location.pathname !== '/login') {
+          // window.location.href = '/unauthorized';
+          window.location.href = '/login';
+        }
+      }
     }
 
     return result;

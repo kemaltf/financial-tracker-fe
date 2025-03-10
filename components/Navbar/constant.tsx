@@ -2,6 +2,7 @@ import {
   IconBrandMinecraft,
   IconBuildingStore,
   IconCategory,
+  IconDiscount,
   IconHome2,
   IconImageInPicture,
   IconMessageQuestion,
@@ -54,6 +55,28 @@ export const navlinks: NavLinkType[] = [
       {
         name: 'Courier Management',
         link: '/dashboard/couriers',
+        // noti: 1,
+      },
+    ],
+  },
+  {
+    icon: IconDiscount,
+    title: 'Discount',
+    link: '/dashboard/stores/promo',
+    files: [
+      {
+        name: 'Create Promo',
+        link: '/dashboard/stores/promo',
+        // noti: 1,
+      },
+      {
+        name: 'Voucher',
+        link: '/dashboard/stores/promo/voucher',
+        // noti: 1,
+      },
+      {
+        name: 'Event',
+        link: '/dashboard/stores/promo/event',
         // noti: 1,
       },
     ],

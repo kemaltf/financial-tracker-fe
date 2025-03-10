@@ -1,17 +1,6 @@
 import { createApi } from '@reduxjs/toolkit/query/react';
 import createBaseQuery from './base-query';
-
-export enum ApiTags {
-  Store = 'Store',
-  Transaction = 'Transaction',
-  FinancialParty = 'FinancialParty',
-  Account = 'Account',
-  Category = 'Category',
-  VariantType = 'VariantType',
-  Image = 'Image',
-  Product = 'Product',
-  Courier = 'Courier',
-}
+import { ApiTags } from './constants';
 
 const baseQuery = createBaseQuery(process.env.NEXT_PUBLIC_API_BASE_URL);
 

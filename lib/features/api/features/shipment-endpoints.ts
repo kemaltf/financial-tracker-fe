@@ -9,6 +9,8 @@ import {
   GetProvinceQueryParams,
   GetSubdistrictQueryParams,
   Province,
+  ShippingCostRequest,
+  ShippingCostResponse,
   Subdistrict,
 } from '../types/shipment';
 
@@ -120,6 +122,13 @@ export const shipmentEndpoints = api.injectEndpoints({
         ],
       }),
     }),
+    getShippingCost: builder.mutation<ShippingCostResponse, ShippingCostRequest>({
+      query: ({ storeId, ...rest }) => ({
+        url: `${API_URL.SHIPPING}/costs/${storeId}`,
+        method: 'POST',
+        body: rest,
+      }),
+    }),
   }),
 });
 
@@ -129,4 +138,5 @@ export const {
   useLazyGetProvicesQuery,
   useLazyGetCitiesQuery,
   useLazyGetSubdistrictQuery,
+  useGetShippingCostMutation,
 } = shipmentEndpoints;
