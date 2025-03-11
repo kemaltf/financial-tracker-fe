@@ -67,7 +67,6 @@ export default function ProductForm() {
       size: isMobile ? '100%' : '70%',
     });
   };
-  console.log(form.values);
   const storeIdNotExist = !form.values.storeId;
   const onSubmit = async (values: ProductSchemaFormValues) => {
     if (path === 'edit' && id) {

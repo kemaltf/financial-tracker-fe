@@ -47,6 +47,7 @@ const defaultProductValues: VoucherSchemaFormValues = {
   startDate: null as any,
   endDate: null as any,
   storeId: '',
+  products: undefined,
 };
 
 export function useVoucherForm(initialValues?: VoucherSchemaFormValues | undefined) {

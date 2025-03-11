@@ -1,6 +1,7 @@
 'use client';
 
-import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
+import { useParams, usePathname, useRouter } from 'next/navigation';
 import {
   Button,
   Container,
@@ -17,31 +18,57 @@ import {
 import { DatePickerInput } from '@mantine/dates';
 import { openProductSelectorModal } from '@/components/Modals/ProductSelector';
 import { useGetStoresQuery } from '@/lib/features/api/features/store-endpoints';
-import { useCreateVoucherMutation } from '@/lib/features/api/features/voucher-endpoints';
+import {
+  useCreateVoucherMutation,
+  useEditVoucherMutation,
+  useLazyGetVoucherQuery,
+} from '@/lib/features/api/features/voucher-endpoints';
 import { stringToDate } from '@/utils/helpers';
 import { useVoucherForm, VoucherSchemaFormValues } from './form';
 
 export default function VoucherForm() {
+  const params = useParams();
+  const path = usePathname().split('/')[4];
+  const id = params?.id as string | undefined;
+
   const form = useVoucherForm();
   const router = useRouter();
 
   const [createVoucher] = useCreateVoucherMutation();
+  const { data: storesData, isLoading: isLoadingStore } = useGetStoresQuery();
+  const dataStore = storesData?.data || [];
 
-  const handleSubmit = async (values: VoucherSchemaFormValues) => {
-    const result = await createVoucher({
-      ...values,
-      storeId: Number(values.storeId),
-      endDate: stringToDate(values.endDate.toString()) as Date,
-      startDate: stringToDate(values.startDate.toString()) as Date,
-    }).unwrap();
-    if (result.status === 'success') {
-      router.push('/dashboard/stores/promo/voucher');
-      form.reset();
+  const [editVoucher] = useEditVoucherMutation();
+  const [fetchVoucher, { isFetching, isLoading }] = useLazyGetVoucherQuery();
+
+  const handleSubmit = async ({ products, ...values }: VoucherSchemaFormValues) => {
+    if (path === 'edit' && id) {
+      const result = await editVoucher({
+        ...values,
+        storeId: Number(values.storeId),
+        endDate: stringToDate(values.endDate.toString()) as Date,
+        startDate: stringToDate(values.startDate.toString()) as Date,
+        productIds: products?.map((product) => Number(product.id)) || [],
+        id,
+      }).unwrap();
+      if (result.status === 'success') {
+        router.push('/dashboard/promo/vouchers');
+        form.reset();
+      }
+    } else {
+      const result = await createVoucher({
+        ...values,
+        storeId: Number(values.storeId),
+        endDate: stringToDate(values.endDate.toString()) as Date,
+        startDate: stringToDate(values.startDate.toString()) as Date,
+        productIds: products?.map((product) => Number(product.id)) || [],
+      }).unwrap();
+      if (result.status === 'success') {
+        router.push('/dashboard/promo/vouchers');
+        form.reset();
+      }
     }
   };
-  const { data: storesData, isLoading } = useGetStoresQuery();
-
-  const dataStore = storesData?.data || [];
 
   const openProductModal = () => {
     openProductSelectorModal({
@@ -53,6 +80,35 @@ export default function VoucherForm() {
       size: 'lg',
     });
   };
+
+  useEffect(() => {
+    if (id) {
+      fetchVoucher({ id: Number(id) }).then((result) => {
+        if (result.data?.data) {
+          const { data } = result.data;
+          form.setValues({
+            applyTo: data.applyTo,
+            code: data.code,
+            discountType: data.discountType,
+            discountValue: Number(data.discountValue),
+            endDate: stringToDate(data.endDate),
+            eventName: data.eventName,
+            maxDiscount: Number(data.maxDiscount),
+            products: data.products.map((product) => ({
+              id: product.id,
+              image: product.productImage,
+              label: product.name,
+              price: product.price,
+              sku: product.sku,
+              stock: product.stock,
+            })),
+            startDate: stringToDate(data.startDate),
+            storeId: String(data.store.id),
+          });
+        }
+      });
+    }
+  }, [id, fetchVoucher]);
   return (
     <Container size="md">
       <form onSubmit={form.onSubmit(handleSubmit)}>
@@ -63,7 +119,7 @@ export default function VoucherForm() {
               placeholder="Select store"
               data={dataStore}
               {...form.getInputProps('storeId')}
-              disabled={isLoading}
+              disabled={isLoadingStore}
               searchable
               allowDeselect
               w="100%"
@@ -76,6 +132,7 @@ export default function VoucherForm() {
               placeholder="Masukkan nama event"
               required
               {...form.getInputProps('eventName')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
@@ -84,6 +141,7 @@ export default function VoucherForm() {
               placeholder="Masukkan kode promo"
               required
               {...form.getInputProps('code')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
 
@@ -94,6 +152,7 @@ export default function VoucherForm() {
               required
               data={['PERCENTAGE', 'FIXED']}
               {...form.getInputProps('discountType')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
@@ -103,6 +162,7 @@ export default function VoucherForm() {
               required
               data={['TOTAL', 'PRODUCT']}
               {...form.getInputProps('applyTo')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
 
@@ -112,6 +172,7 @@ export default function VoucherForm() {
               required
               placeholder="Masukkan nilai diskon"
               {...form.getInputProps('discountValue')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
@@ -120,6 +181,7 @@ export default function VoucherForm() {
               required
               placeholder="Masukkan maksimal diskon"
               {...form.getInputProps('maxDiscount')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
 
@@ -129,6 +191,7 @@ export default function VoucherForm() {
               required
               placeholder="Pilih tanggal mulai"
               {...form.getInputProps('startDate')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
@@ -137,6 +200,7 @@ export default function VoucherForm() {
               required
               placeholder="Pilih tanggal berakhir"
               {...form.getInputProps('endDate')}
+              disabled={isFetching || isLoading}
             />
           </Grid.Col>
           <Grid.Col span={{ base: 12, md: 6 }}>
