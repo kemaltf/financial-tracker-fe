@@ -16,6 +16,7 @@ import {
   StoreData,
   TransactionSection,
 } from './sections';
+import ShippingOptions from './sections/ShippingOption';
 
 interface AddTransactionFormProps {
   onClose: () => void;
@@ -96,6 +97,40 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
             <>
               <Divider my="md" w="100%" />
               <Address form={form} />
+              <Divider my="md" w="100%" />
+              <ShippingOptions
+                results={[
+                  {
+                    code: 'jne',
+                    costs: [
+                      {
+                        cost: [{ etd: '4 days', note: 'tes', value: 3600 }],
+                        description: 'Layanan Reguler',
+                        service: 'REG',
+                      },
+                    ],
+                    name: 'Jalur Nugraha Ekakurir (JNE)',
+                  },
+                  {
+                    code: 'pos',
+                    costs: [
+                      {
+                        service: 'Pos Reguler',
+                        description: 'Pos Reguler',
+                        cost: [
+                          {
+                            value: 27000,
+                            etd: '3 HARI',
+                            note: '',
+                          },
+                        ],
+                      },
+                    ],
+                    name: 'POS Indonesia (POS)',
+                  },
+                ]}
+                form={form}
+              />
             </>
           )}
         </Grid>

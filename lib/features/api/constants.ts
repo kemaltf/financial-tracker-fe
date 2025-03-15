@@ -9,6 +9,7 @@ export enum ApiTags {
   Product = 'Product',
   Courier = 'Courier',
   Voucher = 'Voucher',
+  ProductDiscount = 'ProductDiscount',
 }
 
 export const API_URL = {
@@ -19,4 +20,5 @@ export const API_URL = {
   SHIPPING: 'shipping',
   COURIER: 'couriers',
   VOUCHER: 'vouchers',
+  PRODUCT_DISCOUNT: 'product-discounts',
 };

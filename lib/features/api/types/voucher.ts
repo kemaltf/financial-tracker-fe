@@ -9,6 +9,22 @@ export interface Voucher {
   endDate: string;
   id: number;
   isActive: boolean;
+  store: {
+    id: number;
+    name: string;
+    user: {
+      id: string;
+    };
+  };
+  products: {
+    id: number;
+    name: string;
+    sku: string;
+    description: string;
+    stock: number;
+    price: number;
+    productImage: string;
+  }[];
 }
 
 export interface CreateVoucherDto {
@@ -21,8 +37,9 @@ export interface CreateVoucherDto {
   startDate: Date;
   endDate: Date;
   storeId: number;
+  productIds: number[];
 }
 
-// export type Voucher = {
-//   id: number;
-// };
+export interface EditVoucherDto extends CreateVoucherDto {
+  id: string;
+}
