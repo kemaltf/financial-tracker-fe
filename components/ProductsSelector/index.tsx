@@ -4,11 +4,11 @@ import { useLazyGetProductsOptionQuery } from '@/lib/features/api/features/produ
 
 export type ProductSelector = {
   id: number;
-  image: string;
-  label: string;
-  price: number;
-  sku: string;
-  stock: number;
+  image?: string | undefined;
+  label?: string | undefined;
+  price?: number | undefined;
+  sku?: string | undefined;
+  stock?: number | undefined;
 };
 
 type Props = {

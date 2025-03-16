@@ -21,7 +21,7 @@ function ProductDiscounts() {
   const [expandedRows, setExpandedRows] = useState<number[]>([]);
 
   const handleEditClick = (id: number) => {
-    router.push(`/dashboard/promo/product-discount/edit/${id}`);
+    router.push(`/dashboard/promo/product-discounts/edit/${id}`);
   };
 
   const toggleExpand = (id: number) => {
@@ -83,7 +83,7 @@ function ProductDiscounts() {
                     <Table.Td w="50px">
                       <Stack p={0} m={0} gap="sm" w="50px" style={{ aspectRatio: '1 / 1' }}>
                         <Image
-                          src={product?.image || '/placeholder-image.jpg'}
+                          src={product?.productImage || '/placeholder-image.jpg'}
                           alt={product.name}
                           width={50}
                           height={50}

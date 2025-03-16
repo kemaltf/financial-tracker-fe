@@ -18,19 +18,13 @@ export type Store = {
 };
 
 export type Product = {
-  image: string;
   id: number;
   name: string;
   sku: string;
   description: string;
   stock: number;
   price: number;
-  length: number | null;
-  width: number | null;
-  height: number | null;
-  weight: number;
-  createdAt: string; // ISO string date
-  updatedAt: string; // ISO string date
+  productImage: string; // ISO string date
 };
 
 export type CreateProductDiscountRequest = {
@@ -38,8 +32,8 @@ export type CreateProductDiscountRequest = {
   discountType: 'PERCENTAGE' | 'FIXED';
   discountValue?: number;
   maxDiscount?: number;
-  startDate: string; // ISO string date
-  endDate: string; // ISO string date
+  startDate: Date | string; // ISO string date
+  endDate: Date | string; // ISO string date
   productIds: number[];
   isActive?: boolean;
   storeId: number;
