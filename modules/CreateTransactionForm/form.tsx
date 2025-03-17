@@ -111,6 +111,8 @@ const initialValues: TransactionFormValues = {
     state: '',
     postalCode: '',
     phoneNumber: '',
+    subdistrict: '',
+    country: '',
   },
   products: [],
 };

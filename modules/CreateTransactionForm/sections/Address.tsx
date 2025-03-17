@@ -130,7 +130,7 @@ export const Address = ({ form }: Props) => {
           {address?.country === '0' ? (
             <Select
               searchable
-              data={subdistrictData}
+              data={cityData}
               label="City"
               placeholder="City"
               disabled={isFetchingCities || !address?.state || address.state === ''}
@@ -153,7 +153,7 @@ export const Address = ({ form }: Props) => {
           {address?.country === '0' ? (
             <Select
               searchable
-              data={cityData}
+              data={subdistrictData}
               label="Subdistrict"
               placeholder="Subdistrict"
               disabled={

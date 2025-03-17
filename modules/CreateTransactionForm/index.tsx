@@ -52,6 +52,7 @@ const AddTransactionForm: React.FC<AddTransactionFormProps> = ({ onClose }) => {
               state: values.address.state?.trim() || '',
               postalCode: values.address.postalCode?.trim() || '',
               phoneNumber: values.address.phoneNumber?.trim() || '',
+              subdistrict: values.address.subdistrict?.trim() || '',
             }
           : undefined,
       orders: values.products?.map((product) => ({
